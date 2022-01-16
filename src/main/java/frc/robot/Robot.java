@@ -114,7 +114,7 @@ public class Robot extends TimedRobot {
         if (indexer.get()) {
           Timer delay = new Timer();
           while(delay.get() < .5) {
-
+            SmallIndexerWhell.set(.01);
             delay.stop();
             
 
