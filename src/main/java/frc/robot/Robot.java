@@ -20,14 +20,16 @@ import frc.robot.Shooter;
 import edu.wpi.first.wpilibj.Timer;
 // talons
 //NOTE: not neccesary unless called in robot.java file
-import com.revrobotics.CANAnalog.AnalogMode;
-import com.revrobotics.CANEncoder;
-import com.revrobotics.CANPIDController;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.ControlType;
+
+import static com.revrobotics.CANSparkMax.ControlType;
+import static com.revrobotics.SparkMaxAnalogSensor.Mode;
 // end
+
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
