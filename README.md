@@ -9,6 +9,10 @@
      - Start working with senors 
      - Create Shooter.java file 
           - Create class to be called in Robot.java 
+     - Specifications:
+          - Large Main Wheel
+          - Limit Switch
+          - Small Indexer Wheel    
 - Climb
      - Nothing to much now
 - Eyes
