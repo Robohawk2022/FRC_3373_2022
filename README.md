@@ -18,6 +18,8 @@
 - Eyes
      - Fix boxing around vision tape
      - Framerate
+- Navx
+     - Course Correct  
 
 # Resources
 
