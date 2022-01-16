@@ -1,3 +1,5 @@
+
+  
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
@@ -8,8 +10,16 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Joystick;
+import frc.robot.SwerveControl.DriveMode;
+import edu.wpi.first.wpilibj.DigitalInput;
+import frc.robot.SuperJoystick;
+import java.lang.Thread;
+import java.util.Scanner;
+// package for shoooter
+import frc.robot.Shooter;
 import edu.wpi.first.wpilibj.Timer;
 // talons
+//NOTE: not neccesary unless called in robot.java file
 import com.revrobotics.CANAnalog.AnalogMode;
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANPIDController;
@@ -42,6 +52,11 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
+    LargeMainWheel = new CANSparkMax(1, MotorType.kBrushless);
+    SmallIndexerWhell = new CANSparkMax(2, MotorType.kBrushless);
+    driver = new SuperJoystick(0);
+    shooter = new SuperJoystick(1);
+    indexer = new DigitalInput(7);
   }
 
   /**
