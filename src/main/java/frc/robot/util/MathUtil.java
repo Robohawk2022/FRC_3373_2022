@@ -125,7 +125,8 @@ public class MathUtil {
      */
     public static boolean isClockwiseRotationNearer(double angleStart, double angleDestination) {
         angleStart = floorMod(angleStart, 360);
-        angleDestination = floorMod(angleStart, 360);
+        angleDestination = floorMod(angleDestination, 360);
+        System.err.println(String.format("s = %.2f, d = %.2f", angleStart, angleDestination));
         if (angleStart > angleDestination + 180) {
             angleStart -= 360;
         } else if (angleStart < angleDestination - 180) {
