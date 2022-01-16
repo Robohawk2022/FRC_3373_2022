@@ -1,31 +1,31 @@
 package frc.robot;
 
-import com.revrobotics.CANAnalog.AnalogMode;
-import com.revrobotics.CANEncoder;
-import com.revrobotics.CANPIDController;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.ControlType;
+import com.revrobotics.SparkMaxPIDController;
 
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.util.PIDConstant;
 
+import static com.revrobotics.CANSparkMax.ControlType;
+import static com.revrobotics.SparkMaxAnalogSensor.Mode;
+
 //import frc.team3373.Constants;
 
 //import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
 public class SwerveWheel {
 	private static final double TWOPI = 2.0*Math.PI;
 
 	private CANSparkMax rotateMotor; // The motor which spins the assembly
 	private CANSparkMax driveMotor; // The motor powering the wheel
 
-	private CANPIDController m_pidController;
+	private SparkMaxPIDController m_pidController;
 
-	private CANEncoder rotateEncoder;
-	private CANEncoder driveEncoder;
+	private RelativeEncoder rotateEncoder;
+	private RelativeEncoder driveEncoder;
 
 	private String name; // used for helpful debug
 	private double EMin;
@@ -85,7 +85,7 @@ public class SwerveWheel {
 		//position = new double[2];
 
 		rotateMotor.setInverted(false);
-		rotateMotor.getAnalog(AnalogMode.kAbsolute).setInverted(true);
+		rotateMotor.getAnalog(Mode.kAbsolute).setInverted(true);
 		rotateMotor.setIdleMode(IdleMode.kBrake);// Activates brake mode
 
 		/*System.out.println(DebugName+"'s calculated ABS position: " + Math.toDegrees(getCurrentAbsAngle())+
@@ -164,7 +164,7 @@ public class SwerveWheel {
 	public double getCurrentAbsAngle(){
 		double avg = 0;
 		for(int i = 0; i<10; i++){
-			avg+=rotateMotor.getAnalog(AnalogMode.kAbsolute).getVoltage();
+			avg+=rotateMotor.getAnalog(Mode.kAbsolute).getVoltage();
 		}
 		avg /= 10;
 
@@ -366,7 +366,7 @@ public class SwerveWheel {
 		double ff = SmartDashboard.getNumber("Feed Forward", 0);
 		double max = SmartDashboard.getNumber("Max Output", 0);
 		double min = SmartDashboard.getNumber("Min Output", 0);
-		double rotations = SmartDashboard.getNumber("Set Rotations", 0);
+		// double rotations = SmartDashboard.getNumber("Set Rotations", 0);
 
 		// if PID coefficients on SmartDashboard have changed, write new values to controller
 		if((p != kP)) { m_pidController.setP(p); kP = p; }
@@ -390,7 +390,7 @@ public class SwerveWheel {
 	}
 
 	public double rawGetAnalogRotation() {
-		return rotateMotor.getAnalog(AnalogMode.kAbsolute).getVoltage();
+		return rotateMotor.getAnalog(Mode.kAbsolute).getVoltage();
 	}
 
 	public void rawRotate(double speed) {
