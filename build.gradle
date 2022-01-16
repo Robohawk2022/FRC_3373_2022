@@ -2,7 +2,7 @@ import edu.wpi.first.gradlerio.deploy.roborio.RoboRIO
 
 plugins {
     id "java"
-    id "edu.wpi.first.GradleRIO" version "2022.1.1"
+    id "edu.wpi.first.GradleRIO" version "2022.2.1"
 }
 
 sourceCompatibility = JavaVersion.VERSION_11
@@ -68,6 +68,11 @@ dependencies {
     simulationRelease wpi.sim.enableRelease()
 
     testImplementation 'junit:junit:4.12'
+}
+
+// Use JUnit for testing
+test {
+    useJUnit()
 }
 
 // Simulation configuration (e.g. environment variables).
