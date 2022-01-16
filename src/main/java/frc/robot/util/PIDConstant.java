@@ -1,11 +1,11 @@
 package frc.robot.util;
 
-import com.revrobotics.CANPIDController;
+import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax;
 
 public class PIDConstant {
 
-    private double kP, kI, kD, kIz, kFF, kMinOutput, kMaxOutput;
+    private final double kP, kI, kD, kIz, kFF, kMinOutput, kMaxOutput;
 
     public PIDConstant(double P, double I, double D, double FF, double IZone, double MINOutput,
             double MaxOutput) {
@@ -20,17 +20,16 @@ public class PIDConstant {
     }
 
     public void configPID(CANSparkMax motor) {
-        CANPIDController pidcontrol = motor.getPIDController();
+        SparkMaxPIDController pidcontrol = motor.getPIDController();
         pidcontrol.setP(kP);
         pidcontrol.setI(kI);
         pidcontrol.setD(kD);
         pidcontrol.setFF(kFF);
-
         pidcontrol.setIZone(kIz);
         pidcontrol.setOutputRange(kMinOutput, kMaxOutput);
     }
 
-    public void configPID(CANPIDController pidcontrol) {
+    public void configPID(SparkMaxPIDController pidcontrol) {
         pidcontrol.setP(kP);
         pidcontrol.setI(kI);
         pidcontrol.setD(kD);
