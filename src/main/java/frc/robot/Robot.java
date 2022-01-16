@@ -44,12 +44,12 @@ public class Robot extends TimedRobot {
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
   // declare driver and shooter joysticks
   private SuperJoystick driver;
-  private SuperJoystick shooter;
+  private SuperJoystick specialops;
   // declare navx for use during autonomous mode
   private SuperAHRS navx;
   // delcare shooting motor
   private CANSparkMax LargeMainWheel;
-  private CANSparkMax SmallIndexerWhell;
+  private CANSparkMax SmallIndexerWheel;
   private DigitalInput indexer;
   //end
   /**
@@ -62,10 +62,10 @@ public class Robot extends TimedRobot {
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
     LargeMainWheel = new CANSparkMax(1, MotorType.kBrushless);
-    SmallIndexerWhell = new CANSparkMax(2, MotorType.kBrushless);
+    SmallIndexerWheel = new CANSparkMax(2, MotorType.kBrushless);
     driver = new SuperJoystick(0);
-    shooter = new SuperJoystick(1);
-    indexer = new DigitalInput(7);
+    specialops = new SuperJoystick(1);
+    indexer = new DigitalInput(0);
   }
 
   /**
@@ -116,23 +116,33 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    if (shooter.isAHeld()) {
-      int ballcount = 1;
-      Boolean shooting = true;
-      while(shooting = true) {
-        if (indexer.get()) {
-          Timer delay = new Timer();
-          while(delay.get() < .5) {
-            SmallIndexerWhell.set(.01);
-            delay.stop();
-            
-
-          }
-          
+    Double max_speed = .1;
+    if (specialops.isDPadUpRightHeld()) {
+      LargeMainWheel.set(max_speed);
+    }
+    else if (specialops.isStartPushed()) {
+      max_speed += .1;
+    }
+    else if (specialops.isBackPushed()) {
+      max_speed -= .1;
+    }
+    else if (specialops.getRawAxis(5) > 0.05) {
+      while (indexer.get()) {
+        Timer delay = new Timer();
+        delay.start();
+        if (delay.get() < .5) {
+          delay.stop();
+          delay.reset();
+          SmallIndexerWheel.set(.001);
         }
       }
-
     }
+    else {
+      LargeMainWheel.set(0);
+      SmallIndexerWheel.set(0);
+    }
+
+
   }
 
   /** This function is called once when the robot is disabled. */
