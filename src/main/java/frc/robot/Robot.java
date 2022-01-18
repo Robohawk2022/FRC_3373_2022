@@ -10,11 +10,17 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.SerialPort;
 import frc.robot.SwerveControl.DriveMode;
+import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.SuperJoystick;
+
+import java.io.ObjectInputFilter.Status;
 import java.lang.Thread;
 import java.util.Scanner;
+import java.util.concurrent.DelayQueue;
+import com.kauailabs.navx.frc.AHRS;
 // package for shoooter
 import frc.robot.Shooter;
 import edu.wpi.first.wpilibj.Timer;
@@ -46,11 +52,13 @@ public class Robot extends TimedRobot {
   private SuperJoystick driver;
   private SuperJoystick specialops;
   // declare navx for use during autonomous mode
-  private SuperAHRS navx;
+  private SuperAHRS navx_old;
   // delcare shooting motor
   private CANSparkMax LargeMainWheel;
   private CANSparkMax SmallIndexerWheel;
+  private CANSparkMax Intake;
   private DigitalInput indexer;
+  private AHRS navx;
   //end
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -63,9 +71,12 @@ public class Robot extends TimedRobot {
     SmartDashboard.putData("Auto choices", m_chooser);
     LargeMainWheel = new CANSparkMax(1, MotorType.kBrushless);
     SmallIndexerWheel = new CANSparkMax(2, MotorType.kBrushless);
+    Intake = new CANSparkMax(3, MotorType.kBrushless);
     driver = new SuperJoystick(0);
+    // the two joysticks for both driers will be called speci
     specialops = new SuperJoystick(1);
     indexer = new DigitalInput(0);
+    navx = new AHRS(SerialPort.Port.kUSB1);
   }
 
   /**
@@ -111,35 +122,72 @@ public class Robot extends TimedRobot {
 
   /** This function is called once when teleop is enabled. */
   @Override
-  public void teleopInit() {}
+  public void teleopInit() {
+
+  }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
+    SmartDashboard.putNumber("Total Balls", frc.robot.Shooter.TotalBalls);
+    SmartDashboard.putNumber("Maximum Shooting Speed", 1);
+    SmartDashboard.updateValues();
     Double max_speed = .1;
-    if (specialops.isDPadUpRightHeld()) {
+    //start shooting wheel
+    if (specialops.getTrigger()) {
       LargeMainWheel.set(max_speed);
     }
     else if (specialops.isStartPushed()) {
       max_speed += .1;
     }
+    //lower shooting wheel speed
     else if (specialops.isBackPushed()) {
       max_speed -= .1;
     }
-    else if (specialops.getRawAxis(5) > 0.05) {
-      while (indexer.get()) {
-        Timer delay = new Timer();
-        delay.start();
-        if (delay.get() < .5) {
-          delay.stop();
-          delay.reset();
-          SmallIndexerWheel.set(.001);
-        }
+    //increase shooting wheel speed
+    else if (indexer.get()) {
+      frc.robot.Shooter.TotalBalls += 1;
+    }
+    //shoot
+    else if (specialops.isAPushed()) {
+      Timer delay = new Timer();
+      delay.reset();
+      delay.start();
+      while (delay.get() < 1.1) {
+        SmallIndexerWheel.set(0.05);
+        frc.robot.Shooter.TotalBalls -= 1;
       }
+      delay.stop();
+    }
+    // intake
+    else if (specialops.getRawAxis(5) > 0.05) {      
+      Timer accelerationDelay = new Timer();
+      accelerationDelay.reset();
+      accelerationDelay.start();
+      while (accelerationDelay.get() < 1) {
+        Intake.set(.1);
+      }
+      Intake.set(.2);
+      accelerationDelay.stop();
+    }
+    /*
+    A problem with the 2020 indexer code was the sensors could be accidentally tripped or think that
+    the robot has more/less balls then it actually does. This allows for the ball number displayed in
+    code to be reset along with the value send to smart dashboard. 
+    */
+    else if (driver.isBPushed()) {
+      frc.robot.Shooter.TotalBalls = 0;
+    }
+    else if (max_speed > SmartDashboard.getNumber("Maximum Shooting Speed", 1)) {
+      LargeMainWheel.set(0);
     }
     else {
       LargeMainWheel.set(0);
       SmallIndexerWheel.set(0);
+      Intake.set(0);
+      SmartDashboard.putNumber("Total Balls", frc.robot.Shooter.TotalBalls);
+      SmartDashboard.updateValues();
+
     }
 
 
@@ -159,5 +207,15 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during test mode. */
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+    /** 
+    String robotMode = "Debug"; 
+    SmartDashboard.putString("Robot Mode", robotMode);
+    SmartDashboard.updateValues();
+    if (driver.get()) {
+  }
+*/
+
+    }
+
 }
