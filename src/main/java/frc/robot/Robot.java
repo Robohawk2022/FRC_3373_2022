@@ -123,15 +123,15 @@ public class Robot extends TimedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
+    SmartDashboard.putNumber("Total Balls", frc.robot.Shooter.TotalBalls);
+    SmartDashboard.putNumber("Maximum Shooting Speed", 1);
+    SmartDashboard.updateValues();
 
   }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    SmartDashboard.putNumber("Total Balls", frc.robot.Shooter.TotalBalls);
-    SmartDashboard.putNumber("Maximum Shooting Speed", 1);
-    SmartDashboard.updateValues();
     Double max_speed = .1;
     //start shooting wheel
     if (specialops.getTrigger()) {
@@ -154,7 +154,7 @@ public class Robot extends TimedRobot {
       delay.reset();
       delay.start();
       while (delay.get() < 1.1) {
-        SmallIndexerWheel.set(0.05);
+        SmallIndexerWheel.set(0.5);
         frc.robot.Shooter.TotalBalls -= 1;
       }
       delay.stop();
@@ -185,7 +185,6 @@ public class Robot extends TimedRobot {
       LargeMainWheel.set(0);
       SmallIndexerWheel.set(0);
       Intake.set(0);
-      SmartDashboard.putNumber("Total Balls", frc.robot.Shooter.TotalBalls);
       SmartDashboard.updateValues();
 
     }
