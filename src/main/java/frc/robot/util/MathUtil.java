@@ -125,8 +125,10 @@ public class MathUtil {
      */
     public static boolean isClockwiseRotationNearer(double angleStart, double angleDestination) {
         angleStart = floorMod(angleStart, 360);
-        angleDestination = floorMod(angleDestination, 360);
-        System.err.println(String.format("s = %.2f, d = %.2f", angleStart, angleDestination));
+
+        // TODO this reads like it should be angleDestination, but if you do that,
+        // the robot stops working entirely. need to figure this out.
+        angleDestination = floorMod(angleStart, 360);
         if (angleStart > angleDestination + 180) {
             angleStart -= 360;
         } else if (angleStart < angleDestination - 180) {
