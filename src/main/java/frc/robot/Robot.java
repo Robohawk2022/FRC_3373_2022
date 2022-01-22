@@ -129,7 +129,6 @@ public class Robot extends TimedRobot {
 
 
   }
-
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
@@ -179,6 +178,15 @@ public class Robot extends TimedRobot {
     */
     else if (driver.isBPushed()) {
       TotalBalls = 0;
+
+    }
+
+    else if (driver.isAPushed()){
+      SmartDashboard.putNumber("NavX Alt+/-", navx.getAltitude());
+    }
+
+    else if (driver.isXPushed()){
+      SmartDashboard.putNumber("NavX BPresh+/-", navx.getBarometricPressure());
     }
 
     else {
