@@ -35,7 +35,7 @@ public class SuperJoystick extends Joystick{
    boolean flagDPadDownRight;
    boolean flagDPadDownLeft;
    boolean flagDPadNotPushed;
-    SuperJoystick(int port){
+    public SuperJoystick(int port){
         super(port); //also need to clear joystick class
         clearButtons();
     }
