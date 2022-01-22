@@ -21,8 +21,6 @@ import java.lang.Thread;
 import java.util.Scanner;
 import java.util.concurrent.DelayQueue;
 import com.kauailabs.navx.frc.AHRS;
-// package for shoooter
-import frc.robot.Shooter;
 import edu.wpi.first.wpilibj.Timer;
 // talons
 //NOTE: not neccesary unless called in robot.java file
@@ -35,6 +33,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import static com.revrobotics.CANSparkMax.ControlType;
 import static com.revrobotics.SparkMaxAnalogSensor.Mode;
 // end
+import frc.robot.SwerveControl.DriveMode;
 
 
 /**
@@ -46,6 +45,7 @@ import static com.revrobotics.SparkMaxAnalogSensor.Mode;
 public class Robot extends TimedRobot {
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
+  private static double TotalBalls = 0;
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
   // declare driver and shooter joysticks
@@ -123,16 +123,17 @@ public class Robot extends TimedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
-    SmartDashboard.putNumber("Total Balls", frc.robot.Shooter.TotalBalls);
-    SmartDashboard.putNumber("Maximum Shooting Speed", 1);
+    
+    SmartDashboard.putNumber("Total Balls", TotalBalls);
     SmartDashboard.updateValues();
+
 
   }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    Double max_speed = .1;
+    Double max_speed = .1; // ball speed set
     //start shooting wheel
     if (specialops.getTrigger()) {
       LargeMainWheel.set(max_speed);
@@ -146,16 +147,17 @@ public class Robot extends TimedRobot {
     }
     //increase shooting wheel speed
     else if (indexer.get()) {
-      frc.robot.Shooter.TotalBalls += 1;
+      TotalBalls += 1;
     }
     //shoot
+    // WORK ON: don't shoot until motor is at full speed
     else if (specialops.isAPushed()) {
       Timer delay = new Timer();
       delay.reset();
       delay.start();
       while (delay.get() < 1.1) {
         SmallIndexerWheel.set(0.5);
-        frc.robot.Shooter.TotalBalls -= 1;
+        TotalBalls -= 1;
       }
       delay.stop();
     }
@@ -176,11 +178,9 @@ public class Robot extends TimedRobot {
     code to be reset along with the value send to smart dashboard. 
     */
     else if (driver.isBPushed()) {
-      frc.robot.Shooter.TotalBalls = 0;
+      TotalBalls = 0;
     }
-    else if (max_speed > SmartDashboard.getNumber("Maximum Shooting Speed", 1)) {
-      LargeMainWheel.set(0);
-    }
+
     else {
       LargeMainWheel.set(0);
       SmallIndexerWheel.set(0);
