@@ -45,6 +45,7 @@ import frc.robot.SwerveControl.DriveMode;
 public class Robot extends TimedRobot {
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
+  private static double shooter_max_speed = .1;
   private static double TotalBalls = 0;
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
@@ -59,6 +60,7 @@ public class Robot extends TimedRobot {
   private CANSparkMax Intake;
   private DigitalInput indexer;
   private AHRS navx;
+  private SwerveControl swerve;
   //end
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -77,6 +79,10 @@ public class Robot extends TimedRobot {
     specialops = new SuperJoystick(1);
     indexer = new DigitalInput(0);
     navx = new AHRS(SerialPort.Port.kUSB1);
+    // swerve controls
+    swerve = SwerveControl.getInstance();
+    swerve.setDriveSpeed(0.25);
+    swerve.changeControllerLimiter(3);
   }
 
   /**
@@ -126,6 +132,8 @@ public class Robot extends TimedRobot {
     
     SmartDashboard.putNumber("Total Balls", TotalBalls);
     SmartDashboard.updateValues();
+    swerve.setControlMode(DriveMode.ROBOTCENTRIC);
+    swerve.recalculateWheelPosition();
 
 
   }
@@ -133,17 +141,16 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    Double max_speed = .1; // ball speed set
     //start shooting wheel
     if (specialops.getTrigger()) {
-      LargeMainWheel.set(max_speed);
+      LargeMainWheel.set(shooter_max_speed);
     }
     else if (specialops.isStartPushed()) {
-      max_speed += .1;
+      shooter_max_speed += .1;
     }
     //lower shooting wheel speed
     else if (specialops.isBackPushed()) {
-      max_speed -= .1;
+      shooter_max_speed -= .1;
     }
     //increase shooting wheel speed
     else if (indexer.get()) {
@@ -152,14 +159,14 @@ public class Robot extends TimedRobot {
     //shoot
     // WORK ON: don't shoot until motor is at full speed
     else if (specialops.isAPushed()) {
-      Timer delay = new Timer();
-      delay.reset();
-      delay.start();
-      while (delay.get() < 1.1) {
+      Timer indexDelay = new Timer();
+      indexDelay.reset();
+      indexDelay.start();
+      while (indexDelay.get() < 1.1) {
         SmallIndexerWheel.set(0.5);
         TotalBalls -= 1;
       }
-      delay.stop();
+      indexDelay.stop();
     }
     // intake
     else if (specialops.getRawAxis(5) > 0.05) {      
@@ -191,7 +198,59 @@ public class Robot extends TimedRobot {
 
 
   }
+  private void joystickControls() {
+    /*
+     * ######################## Driver Controls ########################
+     */
 
+    swerve.calculateSwerveControl(driver.getRawAxis(0), driver.getRawAxis(1), driver.getRawAxis(4) * 0.75);
+
+    if (driver.isBPushed()) {
+        swerve.changeControllerLimiter();
+    }
+
+    if (driver.isLBHeld()) {
+        swerve.setDriveSpeed(0.45);
+    } else if (driver.isRBHeld()) {
+        swerve.setDriveSpeed(.75);
+    } else {
+        swerve.setDriveSpeed(0.15);
+    }
+
+    /*
+     * if(driver.isStartPushed()){ swerve.calibrateHome(); }
+     */
+
+    if (driver.isYPushed()) {
+        swerve.recalculateWheelPosition();
+    }
+
+    if (driver.getRawAxis(2) > 0.8)
+        swerve.setControlMode(DriveMode.FIELDCENTRIC);
+    else if (driver.getRawAxis(3) > 0.8)
+        swerve.setControlMode(DriveMode.ROBOTCENTRIC);
+
+    switch (driver.getPOV()) {
+    case 0:
+        swerve.changeFront(SwerveControl.Side.NORTH);
+        break;
+    case 90:
+        swerve.changeFront(SwerveControl.Side.EAST);
+        break;
+    case 180:
+        swerve.changeFront(SwerveControl.Side.SOUTH);
+        break;
+    case 270:
+        swerve.changeFront(SwerveControl.Side.WEST);
+        break;
+    }
+
+    if (driver.isBackPushed()) {
+        swerve.resetOrentation();
+    }
+  }
+
+  
   /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {}
