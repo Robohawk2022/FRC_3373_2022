@@ -22,6 +22,13 @@ import java.util.Scanner;
 import java.util.concurrent.DelayQueue;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.cscore.VideoSink;
+import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
+
 // talons
 //NOTE: not neccesary unless called in robot.java file
 import com.revrobotics.RelativeEncoder;
@@ -62,6 +69,12 @@ public class Robot extends TimedRobot {
   private AHRS navx;
   private SwerveControl swerve;
   //end
+  private UsbCamera FrontRemoteEyes;
+  private UsbCamera BackRemoteEyes;
+  private NetworkTableEntry cameraSelection;
+  private VideoSink server;
+
+
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -83,6 +96,13 @@ public class Robot extends TimedRobot {
     swerve = SwerveControl.getInstance();
     swerve.setDriveSpeed(0.25);
     swerve.changeControllerLimiter(3);
+    //RobohawkVision 2.0
+    FrontRemoteEyes = CameraServer.startAutomaticCapture(0);
+    BackRemoteEyes = CameraServer.startAutomaticCapture(1);
+    server = CameraServer.getServer();
+
+    FrontRemoteEyes.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+    BackRemoteEyes.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
   }
 
   /**
@@ -141,39 +161,47 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
+    LargeMainWheel.set(0);
+    SmallIndexerWheel.set(0);
+    Intake.set(0);
+    SmartDashboard.updateValues();
+    server.setSource(FrontRemoteEyes);
+    joystickControls();
     //start shooting wheel
-    if (specialops.getTrigger()) {
+    while (specialops.getTrigger() == true) {
       LargeMainWheel.set(shooter_max_speed);
+      server.setSource(BackRemoteEyes);
     }
-    else if (specialops.isStartPushed()) {
+
+    while (specialops.isStartPushed()) {
       shooter_max_speed += .1;
     }
     //lower shooting wheel speed
-    else if (specialops.isBackPushed()) {
+    while (specialops.isBackPushed()) {
       shooter_max_speed -= .1;
     }
     //increase shooting wheel speed
-    else if (indexer.get()) {
+    while (indexer.get()) {
       TotalBalls += 1;
     }
     //shoot
     // WORK ON: don't shoot until motor is at full speed
-    else if (specialops.isAPushed()) {
+    while (specialops.isAPushed()) {
       Timer indexDelay = new Timer();
       indexDelay.reset();
       indexDelay.start();
-      while (indexDelay.get() < 1.1) {
+      if (indexDelay.get() < 1.1) {
         SmallIndexerWheel.set(0.5);
         TotalBalls -= 1;
       }
       indexDelay.stop();
     }
     // intake
-    else if (specialops.getRawAxis(5) > 0.05) {      
+    while (specialops.getRawAxis(5) > 0.05) {     
       Timer accelerationDelay = new Timer();
       accelerationDelay.reset();
       accelerationDelay.start();
-      while (accelerationDelay.get() < 1) {
+      if (accelerationDelay.get() < 1) {
         Intake.set(.1);
       }
       Intake.set(.2);
@@ -184,19 +212,9 @@ public class Robot extends TimedRobot {
     the robot has more/less balls then it actually does. This allows for the ball number displayed in
     code to be reset along with the value send to smart dashboard. 
     */
-    else if (driver.isBPushed()) {
+    while (driver.isBPushed()) {
       TotalBalls = 0;
     }
-
-    else {
-      LargeMainWheel.set(0);
-      SmallIndexerWheel.set(0);
-      Intake.set(0);
-      SmartDashboard.updateValues();
-
-    }
-
-
   }
   private void joystickControls() {
     /*
