@@ -1,4 +1,4 @@
-package frc.robot;
+package frc.robot.specialops;
 
 import org.junit.Before;
 
@@ -13,9 +13,9 @@ import edu.wpi.first.wpilibj.simulation.XboxControllerSim;
  *   - adds a "reset" method to zero out the controls
  *   - makes sure controls are zeroed after each test
  */
-public abstract class AbstractTestWithController extends XboxControllerSim {
+public abstract class AbstractSubsystemTest extends XboxControllerSim {
     
-    public AbstractTestWithController() {
+    public AbstractSubsystemTest() {
         super(0);
     }
 

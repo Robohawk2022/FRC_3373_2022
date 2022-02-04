@@ -56,14 +56,14 @@ public class ShooterSubsystem {
         SmartDashboard.setDefaultNumber("Shooter.currentLaunchSpeed", launchWheel.get());
     }
 
-    public void updateTeleop() {
+    public boolean updateTeleop() {
 
         if (controller.wasLaunchSpeedIncreaseRequested()) {
             // TODO what should happen here?
         }
         if (controller.wasLaunchSpeedDecreaseRequested()) {
             // TODO what should happen here?
-        }
+        }        
         if (controller.isLaunchWheelActive()) {
             // TODO what should happen here?
         }
@@ -72,6 +72,10 @@ public class ShooterSubsystem {
         }
 
         launchWheel.set(targetLaunchSpeed);
+
+        // FIXME let the caller know whether the launch wheel is active,
+        // because that will determine which camera we use
+        return true;
     }
 
     public void disable() {

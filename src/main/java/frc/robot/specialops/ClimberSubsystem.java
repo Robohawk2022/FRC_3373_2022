@@ -18,4 +18,8 @@ public class ClimberSubsystem {
     public void updateTeleop() {
         // what should happen here?
     }
+
+    public void disable() {
+        // what should happen here?
+    }
 }

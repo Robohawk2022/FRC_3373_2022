@@ -2,13 +2,11 @@ package frc.robot.specialops;
 
 import org.junit.Test;
 
-import frc.robot.AbstractTestWithController;
-
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Ignore;
 
-public class ShooterSubsystemTest extends AbstractTestWithController {
+public class ShooterSubsystemTest extends AbstractSubsystemTest {
 
     public static final double EPSILON = 0.0001;
 

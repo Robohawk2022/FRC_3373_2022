@@ -3,12 +3,10 @@ package frc.robot.specialops;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import frc.robot.AbstractTestWithController;
-
 import static org.junit.Assert.assertTrue;
 
 
-public class IntakeSubsystemTest extends AbstractTestWithController {
+public class IntakeSubsystemTest extends AbstractSubsystemTest {
 
     public static final double EPSILON = 0.0001;
 

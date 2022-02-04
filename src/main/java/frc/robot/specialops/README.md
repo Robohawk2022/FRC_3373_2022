@@ -18,6 +18,22 @@ This system handles everything that's not driving:
     - Climbing
         - TODO
 
+# Implementing a subsystem
+
+- Controls
+    - Add controls are in the SpecialOpsController
+    - Give control methods names based on what they mean (not just "isStartButtonPressed") 
+
+- Components
+    - All port numbers are in the RobotPortMap
+
+- Methods
+    - updateDashboard should output any relevant information
+    - updateTeleop is what gets called during teleop
+
+- Testing
+    - The base class declares an XBoxControllerSim so you can use it in tests
+
 # TODO
 
 - Intake system
