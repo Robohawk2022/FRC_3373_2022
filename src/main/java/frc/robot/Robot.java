@@ -9,39 +9,18 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SerialPort;
 import frc.robot.SwerveControl.DriveMode;
-import edu.wpi.first.util.sendable.Sendable;
+import frc.robot.eyes.EyesSubsystem;
 import edu.wpi.first.wpilibj.DigitalInput;
-import frc.robot.SuperJoystick;
 
-import java.io.ObjectInputFilter.Status;
-import java.lang.Thread;
-import java.util.Scanner;
-import java.util.concurrent.DelayQueue;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.cscore.UsbCamera;
-import edu.wpi.first.cscore.VideoSink;
-import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
 
 // talons
 //NOTE: not neccesary unless called in robot.java file
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
-import static com.revrobotics.CANSparkMax.ControlType;
-import static com.revrobotics.SparkMaxAnalogSensor.Mode;
-// end
-import frc.robot.SwerveControl.DriveMode;
-
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -69,11 +48,7 @@ public class Robot extends TimedRobot {
   private AHRS navx;
   private SwerveControl swerve;
   //end
-  private UsbCamera FrontRemoteEyes;
-  private UsbCamera BackRemoteEyes;
-  private NetworkTableEntry cameraSelection;
-  private VideoSink server;
-
+  private EyesSubsystem eyes;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -97,12 +72,7 @@ public class Robot extends TimedRobot {
     swerve.setDriveSpeed(0.25);
     swerve.changeControllerLimiter(3);
     //RobohawkVision 2.0
-    FrontRemoteEyes = CameraServer.startAutomaticCapture(0);
-    BackRemoteEyes = CameraServer.startAutomaticCapture(1);
-    server = CameraServer.getServer();
-
-    FrontRemoteEyes.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
-    BackRemoteEyes.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+    eyes = new EyesSubsystem();
   }
 
   /**
@@ -165,12 +135,12 @@ public class Robot extends TimedRobot {
     SmallIndexerWheel.set(0);
     Intake.set(0);
     SmartDashboard.updateValues();
-    server.setSource(FrontRemoteEyes);
+    eyes.setDriveView();
     joystickControls();
     //start shooting wheel
     while (specialops.getTrigger() == true) {
       LargeMainWheel.set(shooter_max_speed);
-      server.setSource(BackRemoteEyes);
+      eyes.setShootView();
     }
 
     while (specialops.isStartPushed()) {
