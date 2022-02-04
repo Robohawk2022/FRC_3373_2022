@@ -3,14 +3,13 @@ package frc.robot.specialops;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import edu.wpi.first.wpilibj.simulation.XboxControllerSim;
+import frc.robot.AbstractTestWithController;
 
-public class ClimberSubsystemTest {
+public class ClimberSubsystemTest extends AbstractTestWithController {
 
     public static final double EPSILON = 0.0001;
 
     private final SpecialOpsController controller = new SpecialOpsController(0);
-    private final XboxControllerSim controllerSim = new XboxControllerSim(0);
     private final ClimberSubsystem intake = new ClimberSubsystem(controller);
   
     @Test

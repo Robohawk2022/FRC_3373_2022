@@ -2,20 +2,25 @@ package frc.robot.specialops;
 
 import org.junit.Test;
 
-import edu.wpi.first.wpilibj.simulation.XboxControllerSim;
+import frc.robot.AbstractTestWithController;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Ignore;
 
-public class IntakeSubsystemTest {
+public class IntakeSubsystemTest extends AbstractTestWithController {
 
     public static final double EPSILON = 0.0001;
 
     private final SpecialOpsController controller = new SpecialOpsController(0);
-    private final XboxControllerSim controllerSim = new XboxControllerSim(0);
-    private final IntakeSubsystem intake = new IntakeSubsystem(controller, 0, 0);
+    private final IntakeSubsystem intake = new IntakeSubsystem(controller);
   
+    @Test
+    public void testIntakeControls() {
+        setAButton(true);
+        assertTrue(controller.wasIntakeRequested());
+    }
+
     @Test
     @Ignore("skip until we implement this")
     public void testIntakeWithBallReady() {

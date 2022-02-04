@@ -7,15 +7,10 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.RobotPortMap;
 
 /**
  * Subsystem for shooting
- * 
- *   - A "shot ready" switch to determine when a ball is waiting to be shot
- *   - A "launch wheel" to launch the ball
- *   - An "indexer wheel" to push the ball in front of the launch wheel
- * 
- * TODO is this layout correct? (not sure about switch)
  */
 public class ShooterSubsystem {
 
@@ -45,11 +40,13 @@ public class ShooterSubsystem {
     public double getTargetLaunchSpeed() {
         return targetLaunchSpeed;
     }
-    
-    public ShooterSubsystem(SpecialOpsController specialOpsController, int shotReadyPort, int indexerWheelPort, int launchWheelPort) {
+
+    /** Create with specific ports (used for testing) */
+    public ShooterSubsystem(SpecialOpsController specialOpsController) {
         controller = specialOpsController;
-        shotReadySwitch = new DigitalInput(shotReadyPort);
-        launchWheel = makeLaunchWheel(launchWheelPort);
+        shotReadySwitch = new DigitalInput(RobotPortMap.SHOOTER_SHOT_READY_PORT);
+        launchWheel = makeLaunchWheel(RobotPortMap.SHOOTER_LAUNCH_WHEEL_PORT);
+        // indexerWheel = ???
         maxLaunchSpeed = DEFAULT_LAUNCH_SPEED;
         targetLaunchSpeed = 0.0;
     }

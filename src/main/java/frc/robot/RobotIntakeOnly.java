@@ -24,9 +24,7 @@ public class RobotIntakeOnly extends TimedRobot {
   @Override
   public void robotInit() {
     specialOpsController = new SpecialOpsController(RobotPortMap.SPECIALOPS_CONTROLLER_PORT);
-    intake = new IntakeSubsystem(specialOpsController,
-        RobotPortMap.INTAKE_READY_PORT,
-        RobotPortMap.INTAKE_WHEEL_PORT);
+    intake = new IntakeSubsystem(specialOpsController);
   }
 
   /** This function is called periodically in all modes */

@@ -24,10 +24,7 @@ public class RobotShooterOnly extends TimedRobot {
   @Override
   public void robotInit() {
     specialOpsController = new SpecialOpsController(RobotPortMap.SPECIALOPS_CONTROLLER_PORT);
-    shooter = new ShooterSubsystem(specialOpsController,
-        RobotPortMap.SHOOTER_SHOT_READY_PORT,
-        RobotPortMap.SHOOTER_INDEXER_PORT,
-        RobotPortMap.SHOOTER_LAUNCH_WHEEL_PORT);
+    shooter = new ShooterSubsystem(specialOpsController);
   }
 
   /** This function is called periodically in all modes */

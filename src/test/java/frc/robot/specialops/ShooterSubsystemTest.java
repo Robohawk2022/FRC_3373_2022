@@ -2,20 +2,19 @@ package frc.robot.specialops;
 
 import org.junit.Test;
 
-import edu.wpi.first.wpilibj.simulation.XboxControllerSim;
+import frc.robot.AbstractTestWithController;
 
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Ignore;
 
-public class ShooterSubsystemTest {
+public class ShooterSubsystemTest extends AbstractTestWithController {
 
     public static final double EPSILON = 0.0001;
 
     private final SpecialOpsController controller = new SpecialOpsController(0);
-    private final XboxControllerSim controllerSim = new XboxControllerSim(0);
-    private final ShooterSubsystem shooter = new ShooterSubsystem(controller, 0, 0, 0);
-  
+    private final ShooterSubsystem shooter = new ShooterSubsystem(controller);
+
     @Test
     public void testSpeedChanges() {
 
@@ -26,23 +25,22 @@ public class ShooterSubsystemTest {
         // assertEquals(initialValue, subsystem.getMaxLaunchSpeed(), EPSILON);
 
         // update the max launch speed
-        controllerSim.setLeftBumper(true);
-        controllerSim.notifyNewData();
+        setLeftBumper(true);
+        notifyNewData();
         shooter.updateTeleop();
-        controllerSim.setLeftBumper(false);
+        resetController();
 
         // after one decrease, it should be lower
         // assertEquals(expectedAfterDecrease, subsystem.getMaxLaunchSpeed(), EPSILON);
 
         // update the max launch speed
-        controllerSim.setRightBumper(true);
-        controllerSim.notifyNewData();
+        setRightBumper(true);
+        notifyNewData();
         shooter.updateTeleop();
-        controllerSim.setRightBumper(false);
+        resetController();
 
         // and it should be back to the initial value
         // assertEquals(initialValue, subsystem.getMaxLaunchSpeed(), EPSILON);
-        controllerSim.setRightBumper(false);
     }
 
     @Test

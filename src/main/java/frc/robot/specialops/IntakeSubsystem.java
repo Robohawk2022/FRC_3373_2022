@@ -2,6 +2,7 @@ package frc.robot.specialops;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.RobotPortMap;
 
 /**
  * Subsystem for ball intake 
@@ -13,9 +14,9 @@ public class IntakeSubsystem {
     // private final SomethingSomething intakeWheel;
     private int totalBalls;
     
-    public IntakeSubsystem(SpecialOpsController controller, int intakeReadyPort, int intakeWheelPort) {
+    public IntakeSubsystem(SpecialOpsController controller) {
         this.controller = controller;
-        this.intakeReadySwitch = new DigitalInput(intakeReadyPort);
+        this.intakeReadySwitch = new DigitalInput(RobotPortMap.INTAKE_READY_PORT);
         // this.intakeWheel = ???
     }
 
