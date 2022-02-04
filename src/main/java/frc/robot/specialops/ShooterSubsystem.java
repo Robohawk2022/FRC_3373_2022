@@ -41,7 +41,6 @@ public class ShooterSubsystem {
         return targetLaunchSpeed;
     }
 
-    /** Create with specific ports (used for testing) */
     public ShooterSubsystem(SpecialOpsController specialOpsController) {
         controller = specialOpsController;
         shotReadySwitch = new DigitalInput(RobotPortMap.SHOOTER_SHOT_READY_PORT);

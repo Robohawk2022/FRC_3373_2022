@@ -1,12 +1,12 @@
 package frc.robot.specialops;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import frc.robot.AbstractTestWithController;
 
 import static org.junit.Assert.assertTrue;
 
-import org.junit.Ignore;
 
 public class IntakeSubsystemTest extends AbstractTestWithController {
 
@@ -21,7 +21,6 @@ public class IntakeSubsystemTest extends AbstractTestWithController {
         assertTrue(controller.wasIntakeRequested());
     }
 
-    @Test
     @Ignore("skip until we implement this")
     public void testIntakeWithBallReady() {
         // what should we do here?

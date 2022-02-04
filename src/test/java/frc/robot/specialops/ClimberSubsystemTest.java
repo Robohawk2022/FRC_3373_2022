@@ -10,7 +10,7 @@ public class ClimberSubsystemTest extends AbstractTestWithController {
     public static final double EPSILON = 0.0001;
 
     private final SpecialOpsController controller = new SpecialOpsController(0);
-    private final ClimberSubsystem intake = new ClimberSubsystem(controller);
+    private final ClimberSubsystem climber = new ClimberSubsystem(controller);
   
     @Test
     @Ignore("skip until we implement this")
