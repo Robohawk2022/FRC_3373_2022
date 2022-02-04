@@ -21,6 +21,9 @@ public final class Main {
    */
   public static void main(String... args) {
     RobotBase.startRobot(Robot::new);
-    // RobotBase.startRobot(RobotTraceAndKyle::new);
+    // RobotBase.startRobot(RobotEyesOnly::new);
+    // RobotBase.startRobot(RobotShooterOnly::new);
+    // RobotBase.startRobot(RobotIntakeOnly::new);
+    // RobotBase.startRobot(RobotClimberOnly::new);
   }
 }

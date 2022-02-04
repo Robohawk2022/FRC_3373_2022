@@ -25,7 +25,7 @@ public class SpecialOpsController extends XboxController {
         return getRawAxis(Axis.kLeftTrigger.value) > 0.5;
     }
 
-    public boolean wasLaunchSpeedDecreaseRequested() {
+    public boolean wasLaunchSpeedDecreaseRequested() {        
         return getLeftBumperPressed();
     }
 
