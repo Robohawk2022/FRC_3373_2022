@@ -1,4 +1,4 @@
-package frc.robot.shooter;
+package frc.robot.specialops;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
@@ -7,18 +7,15 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.RobotPortMap;
 
 /**
- * The shooter subsystem has five components:
+ * Subsystem for shooting
  * 
- *   - An "intake ready" switch to determine when a ball is waiting for intake
- *   - An "intake wheel" to suck the ball into the robot
  *   - A "shot ready" switch to determine when a ball is waiting to be shot
  *   - A "launch wheel" to launch the ball
  *   - An "indexer wheel" to push the ball in front of the launch wheel
  * 
- * TODO is this layout correct? (double check switches)
+ * TODO is this layout correct? (not sure about switch)
  */
 public class ShooterSubsystem {
 
@@ -34,11 +31,9 @@ public class ShooterSubsystem {
     /** What should the motor do when power is set to 0? */
     public static final IdleMode IDLE_MODE = IdleMode.kCoast;
 
-    private final ShooterController controller;
-    private final DigitalInput intakeReadySwitch;
+    private final SpecialOpsController controller;
     private final DigitalInput shotReadySwitch;
-    // private final XXX intakeWheel;  // TODO what type of component is the intake?
-    // private final XXX indexerWheel;  // TODO what type of component is the indexer?
+    // private final SomethingSomething indexerWheel;
     private final MotorController launchWheel;
     private double maxLaunchSpeed;
     private double targetLaunchSpeed;
@@ -51,13 +46,12 @@ public class ShooterSubsystem {
         return targetLaunchSpeed;
     }
     
-    public ShooterSubsystem() {
-        this.controller = new ShooterController(RobotPortMap.SHOOTER_CONTROLLER_PORT);
-        this.intakeReadySwitch = new DigitalInput(RobotPortMap.SHOOTER_INTAKE_READY_PORT);
-        this.shotReadySwitch = new DigitalInput(RobotPortMap.SHOOTER_SHOT_READY_PORT);
-        this.launchWheel = makeLaunchWheel(RobotPortMap.SHOOTER_LAUNCH_WHEEL_PORT);
-        this.maxLaunchSpeed = DEFAULT_LAUNCH_SPEED;
-        this.targetLaunchSpeed = 0.0;
+    public ShooterSubsystem(SpecialOpsController specialOpsController, int shotReadyPort, int indexerWheelPort, int launchWheelPort) {
+        controller = specialOpsController;
+        shotReadySwitch = new DigitalInput(shotReadyPort);
+        launchWheel = makeLaunchWheel(launchWheelPort);
+        maxLaunchSpeed = DEFAULT_LAUNCH_SPEED;
+        targetLaunchSpeed = 0.0;
     }
 
     public void updateDashboard() {
@@ -66,11 +60,8 @@ public class ShooterSubsystem {
         SmartDashboard.setDefaultNumber("Shooter.currentLaunchSpeed", launchWheel.get());
     }
 
-    public void updateControls() {
+    public void updateTeleop() {
 
-        if (controller.wasIntakeRequested()) {
-            // TODO what should happen here?
-        }
         if (controller.wasLaunchSpeedIncreaseRequested()) {
             // TODO what should happen here?
         }

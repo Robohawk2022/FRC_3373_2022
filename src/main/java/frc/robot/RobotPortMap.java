@@ -7,7 +7,7 @@ public class RobotPortMap {
     // ===================================================================
 
     /** Port for shooter controller */
-    public static final int SHOOTER_CONTROLLER_PORT = 0;
+    public static final int SPECIALOPS_CONTROLLER_PORT = 0;
 
     // ===================================================================
     // Ports on the RoboRIO
@@ -16,10 +16,16 @@ public class RobotPortMap {
     /** Shooter: main launch wheel */
     public static final int SHOOTER_LAUNCH_WHEEL_PORT = 0;
 
-    /** Shooter: switch that says a ball is ready for intake */
-    public static final int SHOOTER_INTAKE_READY_PORT = 1;
-
     /** Shooter: switch that says a ball is waiting to be shot */
-    public static final int SHOOTER_SHOT_READY_PORT = 2;
-    
+    public static final int SHOOTER_SHOT_READY_PORT = 1;
+
+    /** Shooter: indexer port */
+    public static final int SHOOTER_INDEXER_PORT = 2;
+
+    /** Intake: switch that says a ball is ready for intake */
+    public static final int INTAKE_READY_PORT = 3;
+
+    /** Intake: intake wheel */
+    public static final int INTAKE_WHEEL_PORT = 4;    
+
 }
