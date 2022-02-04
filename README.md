@@ -1,6 +1,36 @@
 ﻿# Robohawk2022/FRC_3373_2022
 
-# To-Do List
+## To-Do List
+
+- Ask the build team about the drive chassis. Some specific questions:
+     - What is the size of the wheels this year (circumference/diameter)?
+     - What is the size of the chassis (width/height)?
+
+- Ask the build team about the shooter. Some specific questions:
+     - How many wheels are there (we think 3 - intake, indexer and launch)?
+     - What type of wheels are the indexer and intake? Are they brushless? How should they rotate?
+     - How many sensors are there (we think 2 - one for intake and one for shoot)?
+
+- Ask the build team about the climber. What will we need?
+
+- Depending on the type of motor for the shooter wheels, hook one of them up to
+the test bench and mess around with API
+
+- Hook up a swerve wheel to the test bench and experiment with calibration of 
+the position encoder
+
+## Bonus Points
+
+- Shooter
+     - Implement a two-level launch control (low speed and high speed)
+
+- Driver
+     - Implement a "test mode" for the calibration
+
+- General
+     - Figure out how to read data from the dashboard
+
+## Previous TODO list
 
 - Drive/Swerve 
 - Intake
