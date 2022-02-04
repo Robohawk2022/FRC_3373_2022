@@ -5,16 +5,16 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
-import frc.robot.shooter.ShooterSubsystem;
+import frc.robot.specialops.ShooterSubsystem;
+import frc.robot.specialops.SpecialOpsController;
 
 /**
- * The VM is configured to automatically run this class, and to call the functions corresponding to
- * each mode, as described in the TimedRobot documentation. If you change the name of this class or
- * the package after creating this project, you must also update the build.gradle file in the
- * project.
+ * Implementation of a Robot that only has the shooting subsystem, so we can develop
+ * and test independently.
  */
-public class RobotTraceAndKyle extends TimedRobot {
+public class RobotShooterOnly extends TimedRobot {
   
+  private SpecialOpsController specialOpsController;
   private ShooterSubsystem shooter;
 
   /**
@@ -23,7 +23,11 @@ public class RobotTraceAndKyle extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    shooter = new ShooterSubsystem();
+    specialOpsController = new SpecialOpsController(RobotPortMap.SPECIALOPS_CONTROLLER_PORT);
+    shooter = new ShooterSubsystem(specialOpsController,
+        RobotPortMap.SHOOTER_SHOT_READY_PORT,
+        RobotPortMap.SHOOTER_INDEXER_PORT,
+        RobotPortMap.SHOOTER_LAUNCH_WHEEL_PORT);
   }
 
   /** This function is called periodically in all modes */
@@ -35,7 +39,7 @@ public class RobotTraceAndKyle extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    shooter.updateControls();
+    shooter.updateTeleop();
   }
   
   /** This function is called once when the robot is disabled. */
