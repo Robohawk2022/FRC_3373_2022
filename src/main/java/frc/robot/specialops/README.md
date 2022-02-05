@@ -5,18 +5,35 @@ This system handles everything that's not driving:
 - Shooting
 - Climbing
 
-# Robot Architecture
+# Robot Notes
 
-- Three sets of components
-    - Intake
-        - Switch to detect a ball waiting to be picked up
-        - Wheel to accomplish picking up a ball
-    - Shooting
-        - Switch to detect a ball waiting to be shot
-        - Main "launch wheel"
-        - Indexer to push a ball towards the launch wheel
-    - Climbing
-        - TODO
+- Intake
+    - Structure
+        - intakeMotor: drives two wheels
+    - Behavior
+        - No need for variable speed
+        - Needs to be able to reverse
+        - Can be running whenever we're in "intake mode"
+
+- Shooter
+    - ballAvailableSwitch: limit switch triggered when a ball is available
+    - indexerMotor: pulls balls towards the launch wheel
+        - closed loop based on wheel angle
+        - two motions: "lock in" ball and "eject" ball
+    - launchMotor: shoots balls out
+        - can be spinning whenever we're in "shoot mode"
+        - can coast if we switch back to intake
+        - must brake during climbing
+
+- Climbing
+    - pivotMotor: operates open/close pivot on fixed "hook arm"
+        - closed loop based on arm angle
+        - rotates back and forth through a fixed angles
+    - extenderSwitch: limit switch indicating when "grabber" arm is down as far as possible
+    - extenderMotor: operates chain drive on rotating "grabber arm"
+        - closed loop based on extension distance
+    - rotatorMotor: controls angle of "grabber arm"
+        - closed loop based on angle of grabber arm
 
 # Implementing a subsystem
 
@@ -35,18 +52,3 @@ This system handles everything that's not driving:
     - The base class declares an XBoxControllerSim so you can use it in tests
 
 # TODO
-
-- Intake system
-    - What kind of motor do we have?
-    - How do we know when we have too many balls in the hopper already?
-    - Implement and test operation in lab
-
-- Shooting
-    - Do we have a switch for "ball waiting"?
-    - Implement and test operation in lab
-
-- Climbing
-    - What is the architecture of the robot
-    - Implement "mode switch" between shooting and climbing
-
-
