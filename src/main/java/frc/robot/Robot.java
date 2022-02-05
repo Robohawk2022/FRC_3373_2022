@@ -65,15 +65,20 @@ public class Robot extends TimedRobot {
   private CANSparkMax LargeMainWheel;
   private CANSparkMax SmallIndexerWheel;
   private CANSparkMax Intake;
-  private DigitalInput indexer;
+  private DigitalInput intakeRun;
   private AHRS navx;
   private SwerveControl swerve;
   //end
+
+  /**
+   * Vision System
+   * Running from: RoboRio
+   */
   private UsbCamera FrontRemoteEyes;
   private UsbCamera BackRemoteEyes;
   private NetworkTableEntry cameraSelection;
   private VideoSink server;
-
+  //end
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -90,7 +95,7 @@ public class Robot extends TimedRobot {
     driver = new SuperJoystick(0);
     // the two joysticks for both driers will be called speci
     specialops = new SuperJoystick(1);
-    indexer = new DigitalInput(0);
+    intakeRun = new DigitalInput(0);
     navx = new AHRS(SerialPort.Port.kUSB1);
     // swerve controls
     swerve = SwerveControl.getInstance();
@@ -100,9 +105,9 @@ public class Robot extends TimedRobot {
     FrontRemoteEyes = CameraServer.startAutomaticCapture(0);
     BackRemoteEyes = CameraServer.startAutomaticCapture(1);
     server = CameraServer.getServer();
-
     FrontRemoteEyes.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
     BackRemoteEyes.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+    //RobohawkVision 2.0
   }
 
   /**
@@ -159,6 +164,9 @@ public class Robot extends TimedRobot {
   }
 
   /** This function is called periodically during operator control. */
+  public void totalBalls() {
+    
+  }
   @Override
   public void teleopPeriodic() {
     LargeMainWheel.set(0);
@@ -181,7 +189,7 @@ public class Robot extends TimedRobot {
       shooter_max_speed -= .1;
     }
     //increase shooting wheel speed
-    while (indexer.get()) {
+    while (intakeRun.get()) {
       TotalBalls += 1;
     }
     //shoot

@@ -122,15 +122,15 @@ public class SwerveWheel {
 	 */
 	public void resetPosition(){
 		rotateMotor.set(0);
-		Runnable delayedAction = new Runnable(){ //! this is a Test! Remove if wheels have home position issues
-			public void run() {
-				double newPos=getCurrentAbsAngle()*relRadfactor;
-				rotateEncoder.setPosition(newPos);
-				m_pidController.setReference(newPos, ControlType.kPosition);
-			}
+		 //Runnable delayedAction = new Runnable(){ //! this is a Test! Remove if wheels have home position issues
+			//public void run() {
+			//	double newPos=getCurrentAbsAngle()*relRadfactor;
+			//	rotateEncoder.setPosition(newPos);
+			//	m_pidController.setReference(newPos, ControlType.kPosition);
+			//}
 		};
-		Notifier delay = new Notifier(delayedAction);
-		delay.startSingle(0.1);
+		//Notifier delay = new Notifier(delayedAction);
+		//delay.startSingle(0.1);
 		//delay.close();	
 		
 		/*double newPos=getCurrentAbsAngle()*relRadfactor;
