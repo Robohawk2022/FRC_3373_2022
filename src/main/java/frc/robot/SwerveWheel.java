@@ -120,15 +120,15 @@ public class SwerveWheel {
 	/** 
 	 * Updates the Relative encoder's position the the Absolute position
 	 */
-	public void resetPosition(){
-		rotateMotor.set(0);
+	 public void resetPosition(){
+		 rotateMotor.set(0);
 		 //Runnable delayedAction = new Runnable(){ //! this is a Test! Remove if wheels have home position issues
 			//public void run() {
 			//	double newPos=getCurrentAbsAngle()*relRadfactor;
 			//	rotateEncoder.setPosition(newPos);
 			//	m_pidController.setReference(newPos, ControlType.kPosition);
-			//}
-		};
+			}
+		// };
 		//Notifier delay = new Notifier(delayedAction);
 		//delay.startSingle(0.1);
 		//delay.close();	
@@ -136,7 +136,7 @@ public class SwerveWheel {
 		/*double newPos=getCurrentAbsAngle()*relRadfactor;
 		rotateEncoder.setPosition(newPos);
 		m_pidController.setReference(newPos, ControlType.kPosition); */
-	}
+	// }
 
 	/**
 	 * returns the name
