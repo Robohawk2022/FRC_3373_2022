@@ -2,19 +2,20 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot;
+package frc.robot.testrobots;
 
 import edu.wpi.first.wpilibj.TimedRobot;
-import frc.robot.specialops.ShooterSubsystem;
+import frc.robot.SpecialOpsController;
+import frc.robot.eyes.EyesSubsystem;
 
 /**
- * Implementation of a Robot that only has the shooting subsystem, so we can develop
+ * Implementation of a Robot that only has the eyes subsystem, so we can develop
  * and test independently.
  */
-public class RobotShooterOnly extends TimedRobot {
+public class RobotEyesOnly extends TimedRobot {
   
   private SpecialOpsController specialOpsController;
-  private ShooterSubsystem shooter;
+  private EyesSubsystem eyes;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -23,24 +24,24 @@ public class RobotShooterOnly extends TimedRobot {
   @Override
   public void robotInit() {
     specialOpsController = new SpecialOpsController(RobotPortMap.SPECIALOPS_CONTROLLER_PORT);
-    shooter = new ShooterSubsystem(specialOpsController);
+    eyes = new EyesSubsystem(specialOpsController);
   }
 
   /** This function is called periodically in all modes */
   @Override
   public void robotPeriodic() {
-    shooter.updateDashboard();
+    eyes.updateDashboard();
   }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    shooter.updateTeleop();
+    eyes.updateTeleop();
   }
   
   /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {
-    shooter.disable();
+    eyes.disable();
   }
 }

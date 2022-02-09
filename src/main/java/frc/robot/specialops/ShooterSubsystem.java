@@ -7,8 +7,8 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.RobotPortMap;
 import frc.robot.SpecialOpsController;
+import frc.robot.testrobots.RobotPortMap;
 
 /**
  * Subsystem for shooting
