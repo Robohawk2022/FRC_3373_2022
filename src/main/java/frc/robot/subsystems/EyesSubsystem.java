@@ -21,7 +21,7 @@ public class EyesSubsystem {
         cameraServer = CameraServer.getServer();
     }
 
-    public void updateDashboard() {
+    public void robotPeriodic() {
         if (cameraServer.getSource() == frontEyes) {
             SmartDashboard.setDefaultString("Camera.View", "Drive");
         } else {
@@ -29,7 +29,7 @@ public class EyesSubsystem {
         }
     }
 
-    public void initTeleopMode(TeleopMode newMode) {
+    public void teleopInit(TeleopMode newMode) {
         if (newMode == TeleopMode.SHOOT) {
             cameraServer.setSource(backEyes);
         } else {
@@ -37,7 +37,7 @@ public class EyesSubsystem {
         }
     }
 
-    public void disable() {
+    public void disabledInit() {
         // what should happen?
     }
 

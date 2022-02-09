@@ -27,7 +27,7 @@ public class ShooterSubsystemTest extends AbstractSubsystemTest {
         // update the max launch speed
         setLeftBumper(true);
         notifyNewData();
-        shooter.updateTeleop();
+        shooter.teleopPeriodic();
         resetController();
 
         // after one decrease, it should be lower
@@ -36,7 +36,7 @@ public class ShooterSubsystemTest extends AbstractSubsystemTest {
         // update the max launch speed
         setRightBumper(true);
         notifyNewData();
-        shooter.updateTeleop();
+        shooter.teleopPeriodic();
         resetController();
 
         // and it should be back to the initial value

@@ -14,19 +14,19 @@ public class ClimberSubsystem {
         controller = specialOpsController;
     }
 
-    public void updateDashboard() {
+    public void robotPeriodic() {
         // what should happen here?
     }
 
-    public void initTeleopMode(TeleopMode newMode) {
+    public void teleopInit(TeleopMode newMode) {
         // what should happen here?
     }
 
-    public void updateTeleop() {
+    public void teleopPeriodic() {
         // what should happen here?
     }
 
-    public void disable() {
+    public void disabledInit() {
         // what should happen here?
     }
 }

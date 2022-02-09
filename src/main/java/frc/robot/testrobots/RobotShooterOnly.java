@@ -26,24 +26,24 @@ public class RobotShooterOnly extends TimedRobot {
   public void robotInit() {
     specialOpsController = new SpecialOpsController(RobotPortMap.SPECIALOPS_CONTROLLER_PORT);
     shooter = new ShooterSubsystem(specialOpsController);
-    shooter.initTeleopMode(TeleopMode.SHOOT);
+    shooter.teleopInit(TeleopMode.SHOOT);
   }
 
   /** This function is called periodically in all modes */
   @Override
   public void robotPeriodic() {
-    shooter.updateDashboard();
+    shooter.robotPeriodic();
   }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    shooter.updateTeleop();
+    shooter.teleopPeriodic();
   }
   
   /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {
-    shooter.disable();
+    shooter.disabledInit();
   }
 }

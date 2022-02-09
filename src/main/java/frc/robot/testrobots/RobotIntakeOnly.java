@@ -26,24 +26,24 @@ public class RobotIntakeOnly extends TimedRobot {
   public void robotInit() {
     specialOpsController = new SpecialOpsController(RobotPortMap.SPECIALOPS_CONTROLLER_PORT);
     intake = new IntakeSubsystem(specialOpsController);
-    intake.initTeleopMode(TeleopMode.INTAKE);
+    intake.teleopInit(TeleopMode.INTAKE);
   }
 
   /** This function is called periodically in all modes */
   @Override
   public void robotPeriodic() {
-    intake.updateDashboard();
+    intake.robotPeriodic();
   }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    intake.updateControls();
+    intake.telopPeriodic();
   }
   
   /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {
-    intake.disable();
+    intake.disabledInit();
   }
 }

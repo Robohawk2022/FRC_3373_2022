@@ -26,24 +26,24 @@ public class RobotClimberOnly extends TimedRobot {
   public void robotInit() {
     specialOpsController = new SpecialOpsController(RobotPortMap.SPECIALOPS_CONTROLLER_PORT);
     climber = new ClimberSubsystem(specialOpsController);
-    climber.initTeleopMode(TeleopMode.CLIMB);
+    climber.teleopInit(TeleopMode.CLIMB);
   }
 
   /** This function is called periodically in all modes */
   @Override
   public void robotPeriodic() {
-    climber.updateDashboard();
+    climber.robotPeriodic();
   }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    climber.updateTeleop();
+    climber.teleopPeriodic();
   }
   
   /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {
-    climber.disable();
+    climber.disabledInit();
   }
 }

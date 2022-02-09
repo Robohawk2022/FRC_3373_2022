@@ -22,24 +22,24 @@ public class IntakeSubsystem {
         // this.intakeWheel = ???
     }
 
-    public void updateDashboard() {
+    public void robotPeriodic() {
         SmartDashboard.setDefaultNumber("Intake.totalBalls", totalBalls);
     }
 
     /** We want to stop all motors during climb mode */
-    public void initTeleopMode(TeleopMode newMode) {
+    public void teleopInit(TeleopMode newMode) {
         if (newMode == TeleopMode.CLIMB) {
-            disable();
+            disabledInit();
         }
     }
 
-    public void updateControls() {
+    public void telopPeriodic() {
         if (controller.wasIntakeRequested()) {
             // TODO what should happen here?
         }
     }
 
-    public void disable() {
+    public void disabledInit() {
         // what should happen here?
     }
 }

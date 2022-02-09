@@ -17,6 +17,14 @@ public class SpecialOpsController extends XboxController {
         super(port);
     }
 
+    public boolean wasNextTeleopModeRequested() {
+        return getStartButtonPressed();
+    }
+
+    public boolean wasPreviousTeleopModeRequested() {
+        return getBackButtonPressed();
+    }
+
     // ======================================================================
     // SHOOTING CONTROLS
     // ======================================================================

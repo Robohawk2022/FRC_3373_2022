@@ -52,20 +52,20 @@ public class ShooterSubsystem {
         targetLaunchSpeed = 0.0;
     }
 
-    public void updateDashboard() {
+    public void robotPeriodic() {
         SmartDashboard.setDefaultNumber("Shooter.maxLaunchSpeed", maxLaunchSpeed);
         SmartDashboard.setDefaultNumber("Shooter.targetLaunchSpeed", targetLaunchSpeed);
         SmartDashboard.setDefaultNumber("Shooter.currentLaunchSpeed", launchWheel.get());
     }
 
     /** We want to stop all motors during climb mode */
-    public void initTeleopMode(TeleopMode newMode) {
+    public void teleopInit(TeleopMode newMode) {
         if (newMode == TeleopMode.CLIMB) {
-            disable();
+            disabledInit();
         }
     }
 
-    public boolean updateTeleop() {
+    public boolean teleopPeriodic() {
 
         if (controller.wasLaunchSpeedIncreaseRequested()) {
             // TODO what should happen here?
@@ -87,7 +87,7 @@ public class ShooterSubsystem {
         return true;
     }
 
-    public void disable() {
+    public void disabledInit() {
         // what should happen here?
     }
 
