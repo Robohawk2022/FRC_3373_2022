@@ -6,7 +6,7 @@ package frc.robot.testrobots;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.robot.SpecialOpsController;
-import frc.robot.specialops.ShooterSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 
 /**
  * Implementation of a Robot that only has the shooting subsystem, so we can develop

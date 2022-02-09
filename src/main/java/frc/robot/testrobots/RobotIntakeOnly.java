@@ -6,7 +6,7 @@ package frc.robot.testrobots;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.robot.SpecialOpsController;
-import frc.robot.specialops.IntakeSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 
 /**
  * Implementation of a Robot that only has the intake subsystem, so we can develop

@@ -6,7 +6,7 @@ package frc.robot.testrobots;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.robot.SpecialOpsController;
-import frc.robot.eyes.EyesSubsystem;
+import frc.robot.subsystems.EyesSubsystem;
 
 /**
  * Implementation of a Robot that only has the eyes subsystem, so we can develop

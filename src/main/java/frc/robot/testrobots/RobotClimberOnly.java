@@ -6,7 +6,7 @@ package frc.robot.testrobots;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.robot.SpecialOpsController;
-import frc.robot.specialops.ClimberSubsystem;
+import frc.robot.subsystems.ClimberSubsystem;
 
 /**
  * Implementation of a Robot that only has the climber subsystem, so we can develop
