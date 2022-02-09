@@ -3,6 +3,7 @@ package frc.robot.specialops;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.RobotPortMap;
+import frc.robot.SpecialOpsController;
 
 /**
  * Subsystem for ball intake 

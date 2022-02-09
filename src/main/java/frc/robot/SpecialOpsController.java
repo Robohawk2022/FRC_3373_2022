@@ -1,4 +1,4 @@
-package frc.robot.specialops;
+package frc.robot;
 
 import edu.wpi.first.wpilibj.XboxController;
 

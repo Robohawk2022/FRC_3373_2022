@@ -3,6 +3,8 @@ package frc.robot.specialops;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import frc.robot.SpecialOpsController;
+
 public class ClimberSubsystemTest extends AbstractSubsystemTest {
 
     public static final double EPSILON = 0.0001;

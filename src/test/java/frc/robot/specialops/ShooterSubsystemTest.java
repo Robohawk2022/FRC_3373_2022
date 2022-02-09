@@ -2,6 +2,8 @@ package frc.robot.specialops;
 
 import org.junit.Test;
 
+import frc.robot.SpecialOpsController;
+
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Ignore;

@@ -6,7 +6,7 @@ import edu.wpi.first.cscore.VideoSink;
 import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.RobotPortMap;
-import frc.robot.specialops.SpecialOpsController;
+import frc.robot.SpecialOpsController;
 
 public class EyesSubsystem {
     

@@ -1,5 +1,7 @@
 package frc.robot.specialops;
 
+import frc.robot.SpecialOpsController;
+
 /**
  * Subsystem for climbing
  */
