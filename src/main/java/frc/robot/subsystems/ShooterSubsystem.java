@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.SpecialOpsController;
+import frc.robot.TeleopMode;
 import frc.robot.testrobots.RobotPortMap;
 
 /**
@@ -55,6 +56,13 @@ public class ShooterSubsystem {
         SmartDashboard.setDefaultNumber("Shooter.maxLaunchSpeed", maxLaunchSpeed);
         SmartDashboard.setDefaultNumber("Shooter.targetLaunchSpeed", targetLaunchSpeed);
         SmartDashboard.setDefaultNumber("Shooter.currentLaunchSpeed", launchWheel.get());
+    }
+
+    /** We want to stop all motors during climb mode */
+    public void initTeleopMode(TeleopMode newMode) {
+        if (newMode == TeleopMode.CLIMB) {
+            disable();
+        }
     }
 
     public boolean updateTeleop() {

@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.SpecialOpsController;
+import frc.robot.TeleopMode;
 import frc.robot.testrobots.RobotPortMap;
 
 /**
@@ -23,6 +24,13 @@ public class IntakeSubsystem {
 
     public void updateDashboard() {
         SmartDashboard.setDefaultNumber("Intake.totalBalls", totalBalls);
+    }
+
+    /** We want to stop all motors during climb mode */
+    public void initTeleopMode(TeleopMode newMode) {
+        if (newMode == TeleopMode.CLIMB) {
+            disable();
+        }
     }
 
     public void updateControls() {

@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import frc.robot.SpecialOpsController;
+import frc.robot.TeleopMode;
 
 /**
  * Subsystem for climbing
@@ -14,6 +15,10 @@ public class ClimberSubsystem {
     }
 
     public void updateDashboard() {
+        // what should happen here?
+    }
+
+    public void initTeleopMode(TeleopMode newMode) {
         // what should happen here?
     }
 

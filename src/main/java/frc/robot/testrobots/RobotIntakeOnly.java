@@ -6,6 +6,7 @@ package frc.robot.testrobots;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.robot.SpecialOpsController;
+import frc.robot.TeleopMode;
 import frc.robot.subsystems.IntakeSubsystem;
 
 /**
@@ -25,6 +26,7 @@ public class RobotIntakeOnly extends TimedRobot {
   public void robotInit() {
     specialOpsController = new SpecialOpsController(RobotPortMap.SPECIALOPS_CONTROLLER_PORT);
     intake = new IntakeSubsystem(specialOpsController);
+    intake.initTeleopMode(TeleopMode.INTAKE);
   }
 
   /** This function is called periodically in all modes */
