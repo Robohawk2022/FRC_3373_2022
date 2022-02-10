@@ -1,4 +1,4 @@
-package frc.robot.specialops;
+package frc.robot;
 
 import edu.wpi.first.wpilibj.XboxController;
 
@@ -15,6 +15,14 @@ public class SpecialOpsController extends XboxController {
 
     public SpecialOpsController(int port) {
         super(port);
+    }
+
+    public boolean wasNextTeleopModeRequested() {
+        return getStartButtonPressed();
+    }
+
+    public boolean wasPreviousTeleopModeRequested() {
+        return getBackButtonPressed();
     }
 
     // ======================================================================

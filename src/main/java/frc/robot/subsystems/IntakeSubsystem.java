@@ -1,8 +1,10 @@
-package frc.robot.specialops;
+package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.RobotPortMap;
+import frc.robot.SpecialOpsController;
+import frc.robot.TeleopMode;
+import frc.robot.testrobots.RobotPortMap;
 
 /**
  * Subsystem for ball intake 
@@ -20,17 +22,24 @@ public class IntakeSubsystem {
         // this.intakeWheel = ???
     }
 
-    public void updateDashboard() {
+    public void robotPeriodic() {
         SmartDashboard.setDefaultNumber("Intake.totalBalls", totalBalls);
     }
 
-    public void updateControls() {
+    /** We want to stop all motors during climb mode */
+    public void teleopInit(TeleopMode newMode) {
+        if (newMode == TeleopMode.CLIMB) {
+            disabledInit();
+        }
+    }
+
+    public void telopPeriodic() {
         if (controller.wasIntakeRequested()) {
             // TODO what should happen here?
         }
     }
 
-    public void disable() {
+    public void disabledInit() {
         // what should happen here?
     }
 }

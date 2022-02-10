@@ -12,6 +12,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SerialPort;
 import frc.robot.SwerveControl.DriveMode;
+import frc.robot.subsystems.ClimberSubsystem;
+import frc.robot.subsystems.EyesSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.SuperJoystick;
@@ -52,33 +56,17 @@ import frc.robot.SwerveControl.DriveMode;
 public class Robot extends TimedRobot {
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
-  private static double shooter_max_speed = .1;
-  private static double TotalBalls = 0;
+
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
-  // declare driver and shooter joysticks
   private SuperJoystick driver;
-  private SuperJoystick specialops;
-  // declare navx for use during autonomous mode
-  private SuperAHRS navx_old;
-  // delcare shooting motor
-  private CANSparkMax LargeMainWheel;
-  private CANSparkMax SmallIndexerWheel;
-  private CANSparkMax Intake;
-  private DigitalInput intakeRun;
-  private AHRS navx;
+  private SpecialOpsController specialops;
   private SwerveControl swerve;
-  //end
-
-  /**
-   * Vision System
-   * Running from: RoboRio
-   */
-  private UsbCamera FrontRemoteEyes;
-  private UsbCamera BackRemoteEyes;
-  private NetworkTableEntry cameraSelection;
-  private VideoSink server;
-  //end
+  private EyesSubsystem eyes;
+  private IntakeSubsystem intake;
+  private ShooterSubsystem shooter;
+  private ClimberSubsystem climber;
+  private TeleopMode teleopMode;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -86,28 +74,22 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
-    LargeMainWheel = new CANSparkMax(1, MotorType.kBrushless);
-    SmallIndexerWheel = new CANSparkMax(2, MotorType.kBrushless);
-    Intake = new CANSparkMax(3, MotorType.kBrushless);
+
     driver = new SuperJoystick(0);
-    // the two joysticks for both driers will be called speci
-    specialops = new SuperJoystick(1);
-    intakeRun = new DigitalInput(0);
-    navx = new AHRS(SerialPort.Port.kUSB1);
+    specialops = new SpecialOpsController(1);
+    eyes = new EyesSubsystem();
+    intake = new IntakeSubsystem(specialops);
+    shooter = new ShooterSubsystem(specialops);
+    climber = new ClimberSubsystem(specialops);
+
     // swerve controls
     swerve = SwerveControl.getInstance();
     swerve.setDriveSpeed(0.25);
     swerve.changeControllerLimiter(3);
-    //RobohawkVision 2.0
-    FrontRemoteEyes = CameraServer.startAutomaticCapture(0);
-    BackRemoteEyes = CameraServer.startAutomaticCapture(1);
-    server = CameraServer.getServer();
-    FrontRemoteEyes.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
-    BackRemoteEyes.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
-    //RobohawkVision 2.0
   }
 
   /**
@@ -118,7 +100,12 @@ public class Robot extends TimedRobot {
    * SmartDashboard integrated updating.
    */
   @Override
-  public void robotPeriodic() {}
+  public void robotPeriodic() {
+    eyes.robotPeriodic();
+    intake.robotPeriodic();
+    shooter.robotPeriodic();
+    climber.robotPeriodic();
+  }
 
   /**
    * This autonomous (along with the chooser code above) shows how to select between different
@@ -151,85 +138,56 @@ public class Robot extends TimedRobot {
     }
   }
 
+  /** Called to change modes during teleop */
+  private void setTeleopMode(TeleopMode newMode) {
+    eyes.teleopInit(newMode);
+    intake.teleopInit(newMode);
+    shooter.teleopInit(newMode);
+    climber.teleopInit(newMode);
+    teleopMode = newMode;    
+  }
+
   /** This function is called once when teleop is enabled. */
   @Override
-  public void teleopInit() {
-    
-    SmartDashboard.putNumber("Total Balls", TotalBalls);
-    SmartDashboard.updateValues();
+  public void teleopInit() {    
     swerve.setControlMode(DriveMode.ROBOTCENTRIC);
     swerve.recalculateWheelPosition();
-
-
+    setTeleopMode(TeleopMode.INTAKE);
   }
 
-  /** This function is called periodically during operator control. */
-  public void totalBalls() {
-    
-  }
   @Override
   public void teleopPeriodic() {
-    LargeMainWheel.set(0);
-    SmallIndexerWheel.set(0);
-    Intake.set(0);
+
     SmartDashboard.updateValues();
-    server.setSource(FrontRemoteEyes);
-    joystickControls();
-    //start shooting wheel
-    while (specialops.getTrigger() == true) {
-      LargeMainWheel.set(shooter_max_speed);
-      server.setSource(BackRemoteEyes);
+
+    swerveControls();
+
+    if (specialops.wasNextTeleopModeRequested()) {
+      setTeleopMode(teleopMode.next());
+    } else if (specialops.wasPreviousTeleopModeRequested()) {
+      setTeleopMode(teleopMode.previous());
     }
 
-    while (specialops.isStartPushed()) {
-      shooter_max_speed += .1;
-    }
-    //lower shooting wheel speed
-    while (specialops.isBackPushed()) {
-      shooter_max_speed -= .1;
-    }
-    //increase shooting wheel speed
-    while (intakeRun.get()) {
-      TotalBalls += 1;
-    }
-    //shoot
-    // WORK ON: don't shoot until motor is at full speed
-    while (specialops.isAPushed()) {
-      Timer indexDelay = new Timer();
-      indexDelay.reset();
-      indexDelay.start();
-      if (indexDelay.get() < 1.1) {
-        SmallIndexerWheel.set(0.5);
-        TotalBalls -= 1;
-      }
-      indexDelay.stop();
-    }
-    // intake
-    while (specialops.getRawAxis(5) > 0.05) {     
-      Timer accelerationDelay = new Timer();
-      accelerationDelay.reset();
-      accelerationDelay.start();
-      if (accelerationDelay.get() < 1) {
-        Intake.set(.1);
-      }
-      Intake.set(.2);
-      accelerationDelay.stop();
-    }
-    /*
-    A problem with the 2020 indexer code was the sensors could be accidentally tripped or think that
-    the robot has more/less balls then it actually does. This allows for the ball number displayed in
-    code to be reset along with the value send to smart dashboard. 
-    */
-    while (driver.isBPushed()) {
-      TotalBalls = 0;
+    switch (teleopMode) {
+      case INTAKE:
+        intake.telopPeriodic();
+        break;
+      case SHOOT:
+        shooter.teleopPeriodic();
+        break;
+      case CLIMB:
+        climber.teleopPeriodic();
+        break;
     }
   }
-  private void joystickControls() {
+
+  private void swerveControls() {
     /*
      * ######################## Driver Controls ########################
      */
 
     swerve.calculateSwerveControl(driver.getRawAxis(0), driver.getRawAxis(1), driver.getRawAxis(4) * 0.75);
+
 
     if (driver.isBPushed()) {
         swerve.changeControllerLimiter();
@@ -279,7 +237,11 @@ public class Robot extends TimedRobot {
   
   /** This function is called once when the robot is disabled. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    intake.disabledInit();
+    shooter.disabledInit();
+    climber.disabledInit();
+  }
 
   /** This function is called periodically when disabled. */
   @Override

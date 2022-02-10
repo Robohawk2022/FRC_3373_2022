@@ -1,28 +1,27 @@
-package frc.robot.eyes;
+package frc.robot.subsystems;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.cscore.VideoSink;
 import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.RobotPortMap;
-import frc.robot.specialops.SpecialOpsController;
+import frc.robot.SpecialOpsController;
+import frc.robot.TeleopMode;
+import frc.robot.testrobots.RobotPortMap;
 
 public class EyesSubsystem {
     
-    private final SpecialOpsController controller;
     private final UsbCamera frontEyes;
     private final UsbCamera backEyes;
     private VideoSink cameraServer;
 
-    public EyesSubsystem(SpecialOpsController specialOpsController) {
-        controller = specialOpsController;
+    public EyesSubsystem() {
         frontEyes = startCapture(RobotPortMap.EYES_FRONT);
         backEyes = startCapture(RobotPortMap.EYES_BACK);
         cameraServer = CameraServer.getServer();
     }
 
-    public void updateDashboard() {
+    public void robotPeriodic() {
         if (cameraServer.getSource() == frontEyes) {
             SmartDashboard.setDefaultString("Camera.View", "Drive");
         } else {
@@ -30,15 +29,15 @@ public class EyesSubsystem {
         }
     }
 
-    public void updateTeleop() {
-        if (controller.isLaunchWheelActive()) {
+    public void teleopInit(TeleopMode newMode) {
+        if (newMode == TeleopMode.SHOOT) {
             cameraServer.setSource(backEyes);
         } else {
             cameraServer.setSource(frontEyes);
         }
     }
 
-    public void disable() {
+    public void disabledInit() {
         // what should happen?
     }
 
