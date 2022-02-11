@@ -43,23 +43,30 @@ public class Hawkbot extends TimedRobot {
      */
     public void robotInit() {
 
+        tester = new TesterSystem();
         controls = new HawkbotControls(DRIVER_JOY_PORT, SPECIAL_OPS_JOY_PORT);
+
+        // these are the different subsystems; comment them out for testing (the rest
+        // of the code has null checks to keep it from breaking)
         intake = new IntakeSystem(INTAKE_MOTOR_PORT);
         shooter = new ShooterSystem(LAUNCH_MOTOR_PORT, INDEXER_MOTOR_PORT, BALL_READY_CHANNEL);
         climber = new ClimberSystem(HOOK_MOTOR_PORT, EXTENSION_MOTOR_PORT, ROTATE_MOTOR_PORT);
-
-        // reset the climbing arms at the beginning of the competition
-        climber.resetMotors();
+  
+        if (intake != null) {
+            intake.collectMotors(tester);
+        }
+        if (shooter != null) {
+            shooter.collectMotors(tester);
+        }
+        if (climber != null) {
+            climber.resetMotors();
+            climber.collectMotors(tester);
+        }
 
         // if we're in sim mode, ignore the eyes
         if (!isSimulation()) {
             eyes = new EyesSystem(FRONT_EYES_PORT, BACK_EYES_PORT);
         }
-
-        tester = new TesterSystem();
-        intake.collectMotors(tester);
-        shooter.collectMotors(tester);
-        climber.collectMotors(tester);
     }
 
     /**
@@ -69,9 +76,15 @@ public class Hawkbot extends TimedRobot {
     @Override
     public void robotPeriodic() {
         SmartDashboard.putString("TeleopMode", Objects.toString(teleopMode));
-        intake.updateDashboard();
-        shooter.updateDashboard();
-        climber.updateDashboard();
+        if (intake != null) {
+            intake.updateDashboard();
+        }
+        if (shooter != null) {
+            shooter.updateDashboard();
+        }
+        if (climber != null) {
+            climber.updateDashboard();
+        }
         if (eyes != null) {
             eyes.updateDashboard();
         }
@@ -106,7 +119,6 @@ public class Hawkbot extends TimedRobot {
      * and set ourselves into intake mode.
      */
     public void teleopInit() {
-        climber.resetMotors();
         setTeleopMode(TeleopMode.INTAKE);
     }
 
@@ -121,10 +133,10 @@ public class Hawkbot extends TimedRobot {
             setTeleopMode(teleopMode.next());
         }
 
-        if (teleopMode == TeleopMode.INTAKE) {
+        if (teleopMode == TeleopMode.INTAKE && intake != null) {
             intake.update(controls);
         }
-        else if (teleopMode == TeleopMode.SHOOT) {
+        else if (teleopMode == TeleopMode.SHOOT && shooter != null) {
             shooter.update(controls);
         }
         else {
@@ -158,9 +170,15 @@ public class Hawkbot extends TimedRobot {
      */
     @Override
     public void disabledInit() {
-        intake.stopAll();
-        shooter.stopAll();
-        climber.stopAll();
+        if (intake != null) {
+            intake.stopAll();
+        }
+        if (shooter != null) {
+            shooter.stopAll();
+        }
+        if (climber != null) {
+            climber.stopAll();            
+        }
     }
 
     /**
@@ -170,11 +188,15 @@ public class Hawkbot extends TimedRobot {
 
         // when we go into climb mode, stop the other motors
         if (newMode == TeleopMode.CLIMB) {
-            intake.stopAll();
-            shooter.stopAll();
+            if (intake != null) {
+                intake.stopAll();
+            }
+            if (shooter != null) {
+                shooter.stopAll();
+            }
         }
 
-        // make sure to set the eyes right for the mode
+        // make sure to set the eyes correctly for the mode
         if (eyes != null) {
             eyes.setEyes(newMode);
         }
