@@ -41,8 +41,12 @@ public class SpecialOpsController extends XboxController {
     // INTAKE CONTROLS
     // ======================================================================
 
-    public boolean wasIntakeRequested() {
+    public boolean wasIntakeReverseRequested() {
         return getAButtonPressed();
+    }
+
+    public boolean wasHookRquested() {
+        return false;
     }
 
     // ======================================================================
