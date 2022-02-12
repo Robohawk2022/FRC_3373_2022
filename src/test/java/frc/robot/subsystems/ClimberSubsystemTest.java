@@ -1,7 +1,9 @@
-package frc.robot.specialops;
+package frc.robot.subsystems;
 
 import org.junit.Ignore;
 import org.junit.Test;
+
+import frc.robot.SpecialOpsController;
 
 public class ClimberSubsystemTest extends AbstractSubsystemTest {
 

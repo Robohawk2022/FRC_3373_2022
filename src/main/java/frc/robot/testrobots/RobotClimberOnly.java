@@ -2,12 +2,12 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot;
+package frc.robot.testrobots;
 
 import edu.wpi.first.wpilibj.TimedRobot;
-import frc.robot.specialops.ClimberSubsystem;
-import frc.robot.specialops.ShooterSubsystem;
-import frc.robot.specialops.SpecialOpsController;
+import frc.robot.SpecialOpsController;
+import frc.robot.TeleopMode;
+import frc.robot.subsystems.ClimberSubsystem;
 
 /**
  * Implementation of a Robot that only has the climber subsystem, so we can develop
@@ -26,23 +26,24 @@ public class RobotClimberOnly extends TimedRobot {
   public void robotInit() {
     specialOpsController = new SpecialOpsController(RobotPortMap.SPECIALOPS_CONTROLLER_PORT);
     climber = new ClimberSubsystem(specialOpsController);
+    climber.teleopInit(TeleopMode.CLIMB);
   }
 
   /** This function is called periodically in all modes */
   @Override
   public void robotPeriodic() {
-    climber.updateDashboard();
+    climber.robotPeriodic();
   }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    climber.updateTeleop();
+    climber.teleopPeriodic();
   }
   
   /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {
-    climber.disable();
+    climber.disabledInit();
   }
 }

@@ -1,11 +1,17 @@
-# Special Ops
+# Subsystems
 
-This system handles everything that's not driving:
+These handle all the functions other than driving:
+- Cameras
 - Ball intake
 - Shooting
 - Climbing
 
 # Robot Notes
+
+- Cameras
+    - Two (front/back)
+    - Back is used during shoot mode only
+    - Front is used at all other times
 
 - Intake
     - Structure

@@ -1,4 +1,7 @@
-package frc.robot.specialops;
+package frc.robot.subsystems;
+
+import frc.robot.SpecialOpsController;
+import frc.robot.TeleopMode;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
@@ -8,7 +11,6 @@ import edu.wpi.first.wpilibj.CAN;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.RobotPortMap;
 /**
  * Subsystem for climbing
  * @param <motorOne>
@@ -28,19 +30,21 @@ public class ClimberSubsystem<motorOne> {
         motorThree = new CANSparkMax(2, MotorType.kBrushless);
     }
 
-    public void updateDashboard() {
+    public void robotPeriodic() {
         // what should happen here?
     }
 
-    public void updateTeleop() {
+    public void teleopInit(TeleopMode newMode) {
+        // what should happen here?
+    }
+
+    public void teleopPeriodic() {
         if (controller.wasHookRquested()) {
             System.out.println("Logger: Hook Requested");
         }
     }
 
-    
-
-    public void disable() {
+    public void disabledInit() {
         // what should happen here?
     }
     private MotorController makeLaunchWheel(int port) {
