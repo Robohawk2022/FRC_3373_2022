@@ -11,6 +11,7 @@ import frc.robot.SpecialOpsController;
 import frc.robot.TeleopMode;
 import frc.robot.testrobots.RobotPortMap;
 
+
 /**
  * Subsystem for shooting
  */
@@ -68,24 +69,33 @@ public class ShooterSubsystem {
     public boolean teleopPeriodic() {
 
         if (controller.wasLaunchSpeedIncreaseRequested()) {
-            // TODO what should happen here?
+            launchWheel.set(+.1);
+            //this gets and returns whether the user wants to increase the shooter speed
         }
         if (controller.wasLaunchSpeedDecreaseRequested()) {
-            // TODO what should happen here?
-        }        
+            launchWheel.set(-.1);
+            //this gets and returns whether the user wants to decrease the shooter speed
+        }  
+              
         if (controller.isLaunchWheelActive()) {
-            // TODO what should happen here?
-        }
+            System.out.println("Launch Wheel Active");
+        }   //this prints out "Launch Wheel Active" when launch wheel is active
         if (controller.wasShotRequested()) {
-            // TODO what should happen here?
-        }
+            System.out.println("Request Recieved");
+            launchWheel.set(0.7);
+        }   //this sets the speed of the shooter motor to 70% (Default Shooter Speed) when a shot is requested
+            //also prints "request recieved" to screen
+        else {
+            launchWheel.set(0.0);
+        }   //if nothing is happening, set the motor to 0%
 
-        launchWheel.set(targetLaunchSpeed);
+        
 
-        // FIXME let the caller know whether the launch wheel is active,
+
         // because that will determine which camera we use
         return true;
     }
+
 
     public void disabledInit() {
         // what should happen here?
