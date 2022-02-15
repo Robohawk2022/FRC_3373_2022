@@ -89,7 +89,8 @@ public class ShooterSubsystem {
             launchWheel.set(0.0);
         }   //if nothing is happening, set the motor to 0%
 
-        
+        /*TO DO: Next time (And this can be used for u 2 zach), 
+        figure out how 2 incorporate the shot ready switch, figure out more +/- motion, and work on middle section of code*/   
 
 
         // because that will determine which camera we use
