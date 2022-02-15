@@ -11,6 +11,8 @@ import java.lang.System.Logger;
 import javax.swing.plaf.TreeUI;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
@@ -22,25 +24,66 @@ public class IntakeSubsystem {
 
 
     private final SpecialOpsController controller;
-    private final DigitalInput intakeReadySwitch;
-    private int totalBalls;
-    private CANSparkMax IntakeMotor;
-    private Timer BallVomit;
-    private boolean ballvomit = false;
-    private double targetSpeed;
+    
+    private CANSparkMax indexerMoter;
+    private SparkMaxPIDController m_pidController;
+    private RelativeEncoder m_encoder;
+    private double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput;
+
+
+
+  double IntakeSpeed = 0.0;
+  double IntakeCurrent = 0.0;
+  double IntakeAcceleration = 0.02;
+  double FeedSpeed = 0.0;
+  double FeedCurrent = 0.0;
+  double FeedAcceleration = 0.02;
+  double ShooterSpeed = 0.0;
+  double ShooterAcceleration = 0.01;
+  double ShooterCurrent = 0.0;
+  boolean PRESSED = false;
+  
     public IntakeSubsystem(SpecialOpsController controller) {
         this.controller = controller;
-        this.intakeReadySwitch = new DigitalInput(RobotPortMap.INTAKE_READY_PORT);
-        IntakeMotor = new CANSparkMax(1, MotorType.kBrushless); //TODO change motor ID in CAN
-        IntakeMotor.setOpenLoopRampRate(3.0);
-        IntakeMotor.setClosedLoopRampRate(3.0);
-        BallVomit = new Timer();
-        // this.intakeWheel = ???
-        targetSpeed = 0.4;
+
+        indexerMoter = new CANSparkMax(1, MotorType.kBrushless);
+        indexerMoter.restoreFactoryDefaults();
+        m_pidController = indexerMoter.getPIDController();
+        m_encoder = indexerMoter.getEncoder();
+    
+        // PID coefficients
+        kP = 0.1; 
+        kI = 1e-4;
+        kD = 1; 
+        kIz = 0; 
+        kFF = 0; 
+        kMaxOutput = 1; 
+        kMinOutput = -1;
+
+
+    // set PID coefficients
+    m_pidController.setP(kP);
+    m_pidController.setI(kI);
+    m_pidController.setD(kD);
+    m_pidController.setIZone(kIz);
+    m_pidController.setFF(kFF);
+    m_pidController.setOutputRange(kMinOutput, kMaxOutput);
+
+    // display PID coefficients on SmartDashboard
+    SmartDashboard.putNumber("P Gain", kP);
+    SmartDashboard.putNumber("I Gain", kI);
+    SmartDashboard.putNumber("D Gain", kD);
+    SmartDashboard.putNumber("I Zone", kIz);
+    SmartDashboard.putNumber("Feed Forward", kFF);
+    SmartDashboard.putNumber("Max Output", kMaxOutput);
+    SmartDashboard.putNumber("Min Output", kMinOutput);
+    SmartDashboard.putNumber("Set Rotations", 0);
+
     }
 
     public void robotPeriodic() {
-        SmartDashboard.setDefaultNumber("Intake.totalBalls", totalBalls);
+       // SmartDashboard.putNumber("Intake/totalBalls", totalBalls);
+       // SmartDashboard.putNumber("Intake/totalBalls2", totalBalls);
     }
 
     /** We want to stop all motors during climb mode */
@@ -51,13 +94,31 @@ public class IntakeSubsystem {
     }
 
     public void telopPeriodic() {
-        if (controller.wasIntakeReverseRequested()) {
-            // TODO what should happen here?
-            // beginning with nothing special just when it was requested
-            targetSpeed = -targetSpeed;
+        double p = SmartDashboard.getNumber("P Gain", 0);
+        double i = SmartDashboard.getNumber("I Gain", 0);
+        double d = SmartDashboard.getNumber("D Gain", 0);
+        double iz = SmartDashboard.getNumber("I Zone", 0);
+        double ff = SmartDashboard.getNumber("Feed Forward", 0);
+        double max = SmartDashboard.getNumber("Max Output", 0);
+        double min = SmartDashboard.getNumber("Min Output", 0);
+        double rotations = SmartDashboard.getNumber("Set Rotations", 0);
+    
+        // if PID coefficients on SmartDashboard have changed, write new values to controller
+        if((p != kP)) { m_pidController.setP(p); kP = p; }
+        if((i != kI)) { m_pidController.setI(i); kI = i; }
+        if((d != kD)) { m_pidController.setD(d); kD = d; }
+        if((iz != kIz)) { m_pidController.setIZone(iz); kIz = iz; }
+        if((ff != kFF)) { m_pidController.setFF(ff); kFF = ff; }
+        if((max != kMaxOutput) || (min != kMinOutput)) { 
+          m_pidController.setOutputRange(min, max); 
+          kMinOutput = min; kMaxOutput = max; 
         }
-        IntakeMotor.set(targetSpeed);
-
+        System.err.println("*** setting to "+rotations);
+        m_pidController.setReference(rotations, CANSparkMax.ControlType.kPosition);
+        
+        SmartDashboard.putNumber("SetPoint", rotations);
+        SmartDashboard.putNumber("ProcessVariable", m_encoder.getPosition());
+    
 
 
         // else if (controller.getBButtonPressed()) {
