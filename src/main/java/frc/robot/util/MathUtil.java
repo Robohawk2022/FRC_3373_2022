@@ -3,6 +3,21 @@ package frc.robot.util;
 public class MathUtil {
 
     /**
+     * Determines if two numbers are "close enough" to one
+     * another
+     * 
+     * @param l the first value to compare
+     * @param r the second value to compare
+     * @param pct the tolerance for error in percent
+     * @return true if the difference between l and r is within pct% of l in either direction
+     */
+    public static boolean equalsWithinDelta(double l, double r, double pct) {
+        double deltaVal = Math.abs(l - r);
+        double deltaPct = deltaVal / l;
+        return deltaPct < pct;
+    }
+
+    /**
      * Rounds a double to a number of decimal point.
      * 
      * @param val       Value to round.

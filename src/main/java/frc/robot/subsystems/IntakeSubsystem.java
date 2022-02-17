@@ -10,6 +10,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.SpecialOpsController;
 import frc.robot.TeleopMode;
+import frc.robot.util.MathUtil;
 import frc.robot.util.PIDSettingsUpdater;
 
 /**
@@ -63,14 +64,27 @@ public class IntakeSubsystem {
 
     public void telopPeriodic() {
 
-        // deciding the target velocity of the intake wheel is pretty straightforward
-        targetVelocity = INTAKE_VELOCITY;
-        if (shouldReverse()) {
-            targetVelocity = -targetVelocity;
-        }
+        // This sets the target velocity to 120 rpm (2 revolutions per second), and
+        // then tells the PID controller to make sure the motor stays at that speed.
 
-        // this is how you tell the PID controller to spin at a certain velocity
+        targetVelocity = 120.0;
+
         intakePidController.setReference(targetVelocity, ControlType.kVelocity);
+
+    }
+
+    /**
+     * You can use the "encoder" to read the motor's position and velocity. That way
+     * you can tell whether it's at the target value.
+     * 
+     * You don't want this comparison to be too precise - the motor will be kept "near"
+     * the target value, but it's not likely to be exactly right to all decimal places.
+     * 
+     * @return true if the motor is within +/- 5% of the target
+     */
+    public boolean isAtFullSpeed() {
+        double currentVelocity = intakeEncoder.getVelocity();
+        return MathUtil.equalsWithinDelta(currentVelocity,  targetVelocity, 0.05);
     }
 
     public void disabledInit() {
@@ -78,9 +92,5 @@ public class IntakeSubsystem {
         // stops the motor
         targetVelocity = 0;
         intakeMotor.stopMotor();      
-    }
-
-    private boolean shouldReverse() {
-        return controller.getAButton();
     }
 }
