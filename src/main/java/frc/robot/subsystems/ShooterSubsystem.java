@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.fasterxml.jackson.databind.ser.std.StdKeySerializers.Default;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -67,17 +68,22 @@ public class ShooterSubsystem {
 
     public boolean teleopPeriodic() {
 
-        if (controller.wasLaunchSpeedIncreaseRequested()) {
-            // TODO what should happen here?
+        
+               
+        while (controller.isLaunchWheelActive()) { 
+            if (controller.wasLaunchSpeedIncreaseRequested()) { //press right bumper
+                targetLaunchSpeed+=SPEED_CHANGE_AMOUNT;            
+            }
+            if (controller.wasLaunchSpeedDecreaseRequested()) { //press left bumper
+                targetLaunchSpeed-=SPEED_CHANGE_AMOUNT;
+            } 
+            if (controller.wasShotRequested()) { //press B
+                // TODO what should happen here?
+            }
         }
-        if (controller.wasLaunchSpeedDecreaseRequested()) {
-            // TODO what should happen here?
-        }        
-        if (controller.isLaunchWheelActive()) {
-            // TODO what should happen here?
-        }
-        if (controller.wasShotRequested()) {
-            // TODO what should happen here?
+        
+        if (controller.wasLaunchSpeedResetRequested()) {
+            targetLaunchSpeed = DEFAULT_LAUNCH_SPEED; //press A
         }
 
         launchWheel.set(targetLaunchSpeed);

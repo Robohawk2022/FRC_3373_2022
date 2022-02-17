@@ -22,7 +22,7 @@ public class RobotPortMap {
     // ===================================================================
 
     /** Shooter: main launch wheel */
-    public static final int SHOOTER_LAUNCH_WHEEL_PORT = 0;
+    public static final int SHOOTER_LAUNCH_WHEEL_PORT = 1;
 
     /** Shooter: switch that says a ball is waiting to be shot */
     public static final int SHOOTER_SHOT_READY_PORT = 1;

@@ -1,93 +1,96 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.SpecialOpsController;
-import frc.robot.TeleopMode;
-import frc.robot.testrobots.RobotPortMap;
-
-import java.lang.System.Logger;
-
-import javax.swing.plaf.TreeUI;
-
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.SpecialOpsController;
+import frc.robot.TeleopMode;
+import frc.robot.util.MathUtil;
+import frc.robot.util.PIDSettingsUpdater;
+
 /**
- * Subsystem for ball intake 
+ * Subsystem for ball intake.
  */
 public class IntakeSubsystem {
 
+    public static final double INTAKE_VELOCITY = 120;
 
     private final SpecialOpsController controller;
-    private final DigitalInput intakeReadySwitch;
-    private int totalBalls;
-    private CANSparkMax IntakeMotor;
-    private Timer BallVomit;
-    private boolean ballvomit = false;
-    private double targetSpeed;
+    private final CANSparkMax intakeMotor;
+    private final RelativeEncoder intakeEncoder;
+    private final SparkMaxPIDController intakePidController;
+    private final PIDSettingsUpdater intakeSettings;
+    private double targetVelocity;
+  
     public IntakeSubsystem(SpecialOpsController controller) {
+
         this.controller = controller;
-        this.intakeReadySwitch = new DigitalInput(RobotPortMap.INTAKE_READY_PORT);
-        IntakeMotor = new CANSparkMax(1, MotorType.kBrushless); //TODO change motor ID in CAN
-        IntakeMotor.setOpenLoopRampRate(3.0);
-        IntakeMotor.setClosedLoopRampRate(3.0);
-        BallVomit = new Timer();
-        // this.intakeWheel = ???
-        targetSpeed = 0.4;
+
+        // create the intake motor normally
+        intakeMotor = new CANSparkMax(1, MotorType.kBrushless);
+        intakeMotor.setIdleMode(IdleMode.kCoast);
+        intakeMotor.setClosedLoopRampRate(2.0);
+
+        // these get created when you first access them like this
+        intakeEncoder = intakeMotor.getEncoder();
+        intakePidController = intakeMotor.getPIDController();
+
+        // this is the thing that will set up the PID controller
+        intakeSettings = new PIDSettingsUpdater("Intake", intakePidController);
+
+        targetVelocity = 0.0;
     }
 
     public void robotPeriodic() {
-        SmartDashboard.setDefaultNumber("Intake.totalBalls", totalBalls);
+
+        // every 50ms, we'll sync our PID settings with the dashboard
+        intakeSettings.updateFromDashboard();
+
+        // we'll also report our wheel's target and current velocity
+        SmartDashboard.putNumber("Intake Target Velocity", targetVelocity);
+        SmartDashboard.putNumber("Intake Current Velocity", intakeEncoder.getVelocity());
     }
 
-    /** We want to stop all motors during climb mode */
-    public void teleopInit(TeleopMode newMode) {
+    public void teleopInit(TeleopMode newMode) {        
         if (newMode == TeleopMode.CLIMB) {
             disabledInit();
         }
     }
 
     public void telopPeriodic() {
-        if (controller.wasIntakeReverseRequested()) {
-            // TODO what should happen here?
-            // beginning with nothing special just when it was requested
-            targetSpeed = -targetSpeed;
-        }
-        IntakeMotor.set(targetSpeed);
 
+        // This sets the target velocity to 120 rpm (2 revolutions per second), and
+        // then tells the PID controller to make sure the motor stays at that speed.
 
+        targetVelocity = 120.0;
 
-        // else if (controller.getBButtonPressed()) {
-        //     BallVomit.reset();
-        //     BallVomit.start();
-        //     boolean ballvomit = true;
-        // }  //while the timer is under 3 spit all the balls
-        // else {
-        //     IntakeMotor.set(0);
-        //     // sets it to 0
-        // }
+        intakePidController.setReference(targetVelocity, ControlType.kVelocity);
 
-        // while (BallVomit.get() <= 3) {
-        //     IntakeMotor.set(-.1);
-        // }
-        // // For kicking balls out
-        // while (ballvomit == true) {
-        //     if (controller.getXButtonPressed()) {
-        //         IntakeMotor.set(+.1);
-        //     }
-        //     if (controller.getYButtonPressed()) {
-        //         IntakeMotor.set(-.1);
-        //     } // This is for adding speed
-        // }
-        
+    }
 
+    /**
+     * You can use the "encoder" to read the motor's position and velocity. That way
+     * you can tell whether it's at the target value.
+     * 
+     * You don't want this comparison to be too precise - the motor will be kept "near"
+     * the target value, but it's not likely to be exactly right to all decimal places.
+     * 
+     * @return true if the motor is within +/- 5% of the target
+     */
+    public boolean isAtFullSpeed() {
+        double currentVelocity = intakeEncoder.getVelocity();
+        return MathUtil.equalsWithinDelta(currentVelocity,  targetVelocity, 0.05);
     }
 
     public void disabledInit() {
-        // what should happen here?
+        
+        // stops the motor
+        targetVelocity = 0;
+        intakeMotor.stopMotor();      
     }
 }
-// Determine wether person ball vomit to be fast or slow

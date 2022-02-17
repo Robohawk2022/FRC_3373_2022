@@ -44,6 +44,10 @@ public class SpecialOpsController extends XboxController {
     public boolean wasShotRequested() {
         return getBButtonPressed();
     }
+    public boolean wasLaunchSpeedResetRequested() {
+        return getAButtonPressed();
+        
+    }
 
     // ======================================================================
     // INTAKE CONTROLS
