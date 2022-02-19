@@ -27,17 +27,11 @@ public class IntakeSubsystem {
         this.maxSpeed = STARTING_MAX;
         this.targetSpeed = 0.0;
         this.spinWheel = false;
-
-        SmartDashboard.putNumber("Intake Max Speed", maxSpeed);
     }
 
     public void robotPeriodic() {
         SmartDashboard.putNumber("Intake Target Speed", targetSpeed);
-        double newMax = SmartDashboard.getNumber("Intake Max Speed", maxSpeed);
-        if (newMax != maxSpeed) {
-            System.err.println("setting max speed to "+newMax);
-            maxSpeed = newMax;
-        }
+        SmartDashboard.putNumber("Intake Max Speed", maxSpeed);
     }
 
     /** We want to stop all motors during climb mode */
@@ -52,7 +46,14 @@ public class IntakeSubsystem {
         if (controller.getBackButtonPressed()) {
             spinWheel = !spinWheel;
         }
+
         if (spinWheel) {
+            if (controller.getLeftBumperPressed()) {
+                maxSpeed *= 0.9;
+            }
+            if (controller.getRightBumperPressed()) {
+                maxSpeed *= 1.1;
+            }
             targetSpeed = maxSpeed;
         }
         else {
