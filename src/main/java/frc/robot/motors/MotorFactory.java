@@ -17,7 +17,7 @@ import frc.robot.util.PIDConstant;
 
 public class MotorFactory {
 
-    public static final PIDConstant DEFAULT_PID = new PIDConstant(0.1, 1e-4, 1.0, 0.0, 0.0, 1.0, -1.0);
+    public static final PIDConstant DEFAULT_PID = new PIDConstant(0.1, 1e-4, 1.0, 0.0, 0.0, -1.0, 1.0);
 
     private static final List<CANSparkMax> ALL_MOTORS = new ArrayList<>();
     private static final List<MotorDashboardUpdater> ALL_UPDATERS = new ArrayList<>();
@@ -59,7 +59,8 @@ public class MotorFactory {
         return new Motor() {
 
             public void set(double setPoint) {
-                controller.setReference(setPoint, ControlType.kPosition);
+                System.err.println("setting velocity to "+setPoint);
+                controller.setReference(setPoint, ControlType.kVelocity);
             }
 
             public double get() {
@@ -93,13 +94,13 @@ public class MotorFactory {
                 break;
 
             case VELOCITY:
-                canSpark.setOpenLoopRampRate(settings.rampRate);
+                canSpark.setClosedLoopRampRate(settings.rampRate);
                 motor = wrapVelocityMotor(canSpark);
                 updater = new MotorDashboardUpdater(settings.name, canSpark, DEFAULT_PID);
                 break;
 
             case POSITION:
-                canSpark.setOpenLoopRampRate(settings.rampRate);
+                canSpark.setClosedLoopRampRate(settings.rampRate);
                 motor = wrapPositionMotor(canSpark);
                 updater = new MotorDashboardUpdater(settings.name, canSpark, DEFAULT_PID);
                 break;
@@ -110,13 +111,13 @@ public class MotorFactory {
         return motor;
     }
 
-    public void updateDashboard() {
+    public static void updateDashboard() {
         for (MotorDashboardUpdater updater : ALL_UPDATERS) {
             updater.updateDashboard();
         }
     }
 
-    public void simulationInit() {
+    public static void simulationInit() {
         for (CANSparkMax canSpark : ALL_MOTORS) {
             REVPhysicsSim.getInstance().addSparkMax(canSpark, DCMotor.getNEO(canSpark.getDeviceId()));
         }

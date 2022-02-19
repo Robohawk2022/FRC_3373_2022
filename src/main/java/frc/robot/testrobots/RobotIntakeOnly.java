@@ -7,6 +7,7 @@ package frc.robot.testrobots;
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.robot.SpecialOpsController;
 import frc.robot.TeleopMode;
+import frc.robot.motors.MotorFactory;
 import frc.robot.subsystems.IntakeSubsystem;
 
 /**
@@ -32,6 +33,7 @@ public class RobotIntakeOnly extends TimedRobot {
   /** This function is called periodically in all modes */
   @Override
   public void robotPeriodic() {
+    MotorFactory.updateDashboard();
     intake.robotPeriodic();
   }
 

@@ -14,7 +14,7 @@ import frc.robot.motors.MotorSettings.Type;
 public class IntakeSubsystem {
 
     /** This is the starting value for the speed for the intake wheel (in RPM) */
-    public static final double STARTING_SPEED = 1200;
+    public static final double STARTING_SPEED = 100;
     
     private final XboxController controller;
     private final Motor intakeMotor;
@@ -41,6 +41,7 @@ public class IntakeSubsystem {
 
         // back button turns the wheel on and off
         if (controller.getBackButtonPressed()) {
+            System.err.println("toggling intake wheel");
             spinWheel = !spinWheel;
         }
 
@@ -49,14 +50,17 @@ public class IntakeSubsystem {
 
             // hold both bumpers: reset target speed
             if (controller.getLeftBumper() && controller.getRightBumper()) {
+                System.err.println("reset intake wheel");
                 targetSpeed = STARTING_SPEED;
             }
             // press left bumper: go 10% slower
             else if (controller.getLeftBumperPressed()) {
+                System.err.println("slow down intake wheel");
                 targetSpeed *= 0.9;
             }
             // press right bumper: go 10% faster
             else if (controller.getRightBumperPressed()) {
+                System.err.println("speed up intake wheel");
                 targetSpeed *= 1.1;
             }
 

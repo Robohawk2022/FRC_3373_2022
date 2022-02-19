@@ -47,6 +47,7 @@ public class MotorDashboardUpdater {
         encoder = motor.getEncoder();
 
         if (pidValues != null) {
+
             pGainCurrent = pidValues.getP();
             iGainCurrent = pidValues.getI();
             dGainCurrent = pidValues.getD();
@@ -54,7 +55,23 @@ public class MotorDashboardUpdater {
             feedForwardCurrent = pidValues.getFeedForward();
             minOutputCurrent = pidValues.getMinOutput();
             maxOutputCurrent = pidValues.getMaxOutput();
+
             controller = motor.getPIDController();
+            controller.setP(pGainCurrent);
+            controller.setI(iGainCurrent);
+            controller.setD(dGainCurrent);
+            controller.setIZone(iZoneCurrent);
+            controller.setFF(feedForwardCurrent);
+            controller.setOutputRange(minOutputCurrent, maxOutputCurrent);
+
+            SmartDashboard.putNumber(pGainKey, pGainCurrent);
+            SmartDashboard.putNumber(iGainKey, iGainCurrent);
+            SmartDashboard.putNumber(dGainKey, dGainCurrent);
+            SmartDashboard.putNumber(iZoneKey, iZoneCurrent);
+            SmartDashboard.putNumber(feedForwardKey, feedForwardCurrent);
+            SmartDashboard.putNumber(minOutputKey, minOutputCurrent);
+            SmartDashboard.putNumber(maxOutputKey, maxOutputCurrent);
+        
         } else {
             controller = null;
         }
@@ -70,33 +87,43 @@ public class MotorDashboardUpdater {
 
             double pGainNew = SmartDashboard.getNumber(pGainKey, pGainCurrent);
             if (pGainNew != pGainCurrent) {
+                System.err.println("setting "+pGainKey+" to "+pGainNew);
                 controller.setP(pGainNew);
+                dGainCurrent = pGainNew;
             }
 
             double iGainNew = SmartDashboard.getNumber(iGainKey, iGainCurrent);
             if (iGainNew != iGainCurrent) {
+                System.err.println("setting "+iGainKey+" to "+iGainNew);
                 controller.setI(iGainNew);
+                iGainCurrent = iGainNew;
             }
 
             double dGainNew = SmartDashboard.getNumber(dGainKey, dGainCurrent);
             if (dGainNew != dGainCurrent) {
+                System.err.println("setting "+dGainKey+" to "+dGainNew);
                 controller.setD(dGainNew);
+                dGainCurrent = dGainNew;
             }
 
             double iZoneNew = SmartDashboard.getNumber(iZoneKey, iZoneCurrent);
             if (iZoneNew != iZoneCurrent) {
                 controller.setIZone(iZoneNew);
+                iZoneCurrent = iZoneNew;
             }
 
             double feedForwardNew = SmartDashboard.getNumber(feedForwardKey, feedForwardCurrent);
             if (feedForwardNew != feedForwardCurrent) {
                 controller.setFF(feedForwardNew);
+                feedForwardCurrent = feedForwardNew;
             }
             
             double minOutputNew = SmartDashboard.getNumber(minOutputKey, minOutputCurrent);
             double maxOutputNew = SmartDashboard.getNumber(maxOutputKey, maxOutputCurrent);
             if (minOutputNew != minOutputCurrent || maxOutputNew != maxOutputCurrent) {
                 controller.setOutputRange(minOutputNew, maxOutputNew);
+                maxOutputCurrent = maxOutputNew;
+                minOutputCurrent = minOutputNew;
             }
         }
     }
