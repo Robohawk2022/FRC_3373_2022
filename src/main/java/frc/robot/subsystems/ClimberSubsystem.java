@@ -16,8 +16,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * @param <motorOne>
  */ 
 public class ClimberSubsystem<motorOne> {
-    private CANSparkMax motorOne;
-    private CANSparkMax motorTwo;
+    private CANSparkMax chainDriveMotor;
+    private CANSparkMax rotatorMotor;
     private CANSparkMax motorThree; 
 
     private final SpecialOpsController controller;
@@ -25,8 +25,8 @@ public class ClimberSubsystem<motorOne> {
 
     public ClimberSubsystem(SpecialOpsController specialOpsController) {
         controller = specialOpsController;
-        motorOne = new CANSparkMax(0, MotorType.kBrushless);
-        motorTwo = new CANSparkMax(1, MotorType.kBrushless);
+        chainDriveMotor = new CANSparkMax(0, MotorType.kBrushless);
+        rotatorMotor = new CANSparkMax(1, MotorType.kBrushless);
         motorThree = new CANSparkMax(2, MotorType.kBrushless);
     }
 
@@ -41,7 +41,9 @@ public class ClimberSubsystem<motorOne> {
     public void teleopPeriodic() {
         if (controller.wasHookRquested()) {
             System.out.println("Logger: Hook Requested");
+            
         }
+        
     }
 
     public void disabledInit() {

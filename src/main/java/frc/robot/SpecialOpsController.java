@@ -54,9 +54,11 @@ public class SpecialOpsController extends XboxController {
     // ======================================================================
 
     public boolean wasIntakeReverseRequested() {
-        return getAButtonPressed();
+        return getYButtonPressed();
     }
-
+    public boolean wasIntakeRequested() {
+        return getXButtonPressed();
+    }
     public boolean wasHookRquested() {
         return false;
     }
@@ -65,6 +67,6 @@ public class SpecialOpsController extends XboxController {
     // CLIMBING CONTROLS
     // ======================================================================
 
-    // TBD
+
 
 }

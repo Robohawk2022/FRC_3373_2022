@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import com.fasterxml.jackson.databind.ser.std.StdKeySerializers.Default;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -11,6 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.SpecialOpsController;
 import frc.robot.TeleopMode;
 import frc.robot.testrobots.RobotPortMap;
+
 
 /**
  * Subsystem for shooting
@@ -68,30 +68,35 @@ public class ShooterSubsystem {
 
     public boolean teleopPeriodic() {
 
-        
-               
-        while (controller.isLaunchWheelActive()) { 
-            if (controller.wasLaunchSpeedIncreaseRequested()) { //press right bumper
-                targetLaunchSpeed+=SPEED_CHANGE_AMOUNT;            
-            }
-            if (controller.wasLaunchSpeedDecreaseRequested()) { //press left bumper
-                targetLaunchSpeed-=SPEED_CHANGE_AMOUNT;
-            } 
-            if (controller.wasShotRequested()) { //press B
-                // TODO what should happen here?
-            }
+        if (controller.wasLaunchSpeedIncreaseRequested()) {
+            launchWheel.set(+.1);
+            //this gets and returns whether the user wants to increase the shooter speed
         }
-        
-        if (controller.wasLaunchSpeedResetRequested()) {
-            targetLaunchSpeed = DEFAULT_LAUNCH_SPEED; //press A
-        }
+        if (controller.wasLaunchSpeedDecreaseRequested()) {
+            launchWheel.set(-.1);
+            //this gets and returns whether the user wants to decrease the shooter speed
+        }  
+              
+        if (controller.isLaunchWheelActive()) {
+            System.out.println("Launch Wheel Active");
+        }   //this prints out "Launch Wheel Active" when launch wheel is active
+        if (controller.wasShotRequested()) {
+            System.out.println("Request Recieved");
+            launchWheel.set(0.7);
+        }   //this sets the speed of the shooter motor to 70% (Default Shooter Speed) when a shot is requested
+            //also prints "request recieved" to screen
+        else {
+            launchWheel.set(0.0);
+        }   //if nothing is happening, set the motor to 0%
 
-        launchWheel.set(targetLaunchSpeed);
+        /*TO DO: Next time (And this can be used for u 2 zach), 
+        figure out how 2 incorporate the shot ready switch, figure out more +/- motion, and work on middle section of code*/   
 
-        // FIXME let the caller know whether the launch wheel is active,
+
         // because that will determine which camera we use
         return true;
     }
+
 
     public void disabledInit() {
         // what should happen here?
