@@ -1,7 +1,7 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.SpecialOpsController;
 import frc.robot.TeleopMode;
 import frc.robot.motors.Motor;
 import frc.robot.motors.MotorFactory;
@@ -13,25 +13,21 @@ import frc.robot.motors.MotorSettings.Type;
  */
 public class IntakeSubsystem {
 
-    public static final double STARTING_MAX = 1200;
+    /** This is the starting value for the speed for the intake wheel (in RPM) */
+    public static final double STARTING_SPEED = 1200;
     
-    private final SpecialOpsController controller;
+    private final XboxController controller;
     private final Motor intakeMotor;
-    private double targetSpeed;
-    private double maxSpeed;
-    private boolean spinWheel;
+    private boolean spinWheel = false;             // should the wheel be spinning right now?
+    private double targetSpeed = STARTING_SPEED;   // what speed (in rpm) should it spin at when it spins?
 
-    public IntakeSubsystem(SpecialOpsController controller) {
+    public IntakeSubsystem(XboxController controller) {
         this.controller = controller;
         this.intakeMotor = createMotor();
-        this.maxSpeed = STARTING_MAX;
-        this.targetSpeed = 0.0;
-        this.spinWheel = false;
     }
 
     public void robotPeriodic() {
         SmartDashboard.putNumber("Intake Target Speed", targetSpeed);
-        SmartDashboard.putNumber("Intake Max Speed", maxSpeed);
     }
 
     /** We want to stop all motors during climb mode */
@@ -43,33 +39,42 @@ public class IntakeSubsystem {
 
     public void telopPeriodic() {
 
+        // back button turns the wheel on and off
         if (controller.getBackButtonPressed()) {
             spinWheel = !spinWheel;
         }
 
+        // if the wheel is spinning, we'll allow speed changes
         if (spinWheel) {
-            if (controller.getLeftBumperPressed()) {
-                maxSpeed *= 0.9;
-            }
-            if (controller.getRightBumperPressed()) {
-                maxSpeed *= 1.1;
-            }
-            targetSpeed = maxSpeed;
-        }
-        else {
-            targetSpeed = 0.0;
-        }
 
-        if (controller.getLeftTriggerAxis() > 0.5) {
-            intakeMotor.set(-targetSpeed);
+            // hold both bumpers: reset target speed
+            if (controller.getLeftBumper() && controller.getRightBumper()) {
+                targetSpeed = STARTING_SPEED;
+            }
+            // press left bumper: go 10% slower
+            else if (controller.getLeftBumperPressed()) {
+                targetSpeed *= 0.9;
+            }
+            // press right bumper: go 10% faster
+            else if (controller.getRightBumperPressed()) {
+                targetSpeed *= 1.1;
+            }
+
+            // hold left trigger: reverse the wheel
+            if (controller.getLeftTriggerAxis() > 0.5) {
+                intakeMotor.set(-targetSpeed);
+            }
+            else {
+                intakeMotor.set(targetSpeed);
+            }       
         }
         else {
-            intakeMotor.set(targetSpeed);
-        }       
+            intakeMotor.set(0.0);
+        }
     }
 
     public void disabledInit() {
-        targetSpeed = 0.0;
+        spinWheel = false;
         intakeMotor.set(0.0);
     }
 

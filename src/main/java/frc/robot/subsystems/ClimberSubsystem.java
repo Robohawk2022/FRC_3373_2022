@@ -39,7 +39,7 @@ public class ClimberSubsystem<motorOne> {
     }
 
     public void teleopPeriodic() {
-        if (controller.wasHookRquested()) {
+        if (controller.getXButtonPressed()) {
             System.out.println("Logger: Hook Requested");
             
         }
