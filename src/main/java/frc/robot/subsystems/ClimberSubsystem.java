@@ -41,7 +41,7 @@ public class ClimberSubsystem<motorOne> {
     public void teleopPeriodic() {
         if (controller.wasHookRquested()) {
             System.out.println("Logger: Hook Requested");
-            chainDriveMotor.;
+            
         }
         
     }
