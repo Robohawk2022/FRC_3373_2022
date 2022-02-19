@@ -19,7 +19,7 @@ import edu.wpi.first.wpilibj.Timer;
  * Subsystem for ball intake 
  */
 public class IntakeSubsystem {
-
+    
 
     private final SpecialOpsController controller;
     private final DigitalInput intakeReadySwitch;
@@ -28,6 +28,8 @@ public class IntakeSubsystem {
     private Timer BallVomit;
     private boolean ballvomit = false;
     private double targetSpeed;
+    private double Inversetargetspeed;
+    private Double Motorspeed = IntakeMotor.get();
     public IntakeSubsystem(SpecialOpsController controller) {
         this.controller = controller;
         this.intakeReadySwitch = new DigitalInput(RobotPortMap.INTAKE_READY_PORT);
@@ -37,12 +39,12 @@ public class IntakeSubsystem {
         BallVomit = new Timer();
         // this.intakeWheel = ???
         targetSpeed = 0.4;
+        Inversetargetspeed = -0.4;
     }
 
     public void robotPeriodic() {
         SmartDashboard.setDefaultNumber("Intake.totalBalls", totalBalls);
     }
-
     /** We want to stop all motors during climb mode */
     public void teleopInit(TeleopMode newMode) {
         if (newMode == TeleopMode.CLIMB) {
@@ -51,39 +53,31 @@ public class IntakeSubsystem {
     }
 
     public void telopPeriodic() {
-        if (controller.wasIntakeReverseRequested()) {
+
+        if (controller.wasIntakeRequested()) {
+            IntakeMotor.set(targetSpeed);
+            SmartDashboard.putBoolean("Was Intake Requested", controller.wasIntakeRequested());
+            SmartDashboard.putNumber("Current Speed", Motorspeed);
             // TODO what should happen here?
             // beginning with nothing special just when it was requested
-            targetSpeed = -targetSpeed;
         }
-        IntakeMotor.set(targetSpeed);
-
-
-
-        // else if (controller.getBButtonPressed()) {
-        //     BallVomit.reset();
-        //     BallVomit.start();
-        //     boolean ballvomit = true;
-        // }  //while the timer is under 3 spit all the balls
-        // else {
-        //     IntakeMotor.set(0);
-        //     // sets it to 0
-        // }
-
-        // while (BallVomit.get() <= 3) {
-        //     IntakeMotor.set(-.1);
-        // }
-        // // For kicking balls out
-        // while (ballvomit == true) {
-        //     if (controller.getXButtonPressed()) {
-        //         IntakeMotor.set(+.1);
-        //     }
-        //     if (controller.getYButtonPressed()) {
-        //         IntakeMotor.set(-.1);
-        //     } // This is for adding speed
-        // }
+        if (controller.wasIntakeReverseRequested()) {
+            IntakeMotor.set(Inversetargetspeed);
+            SmartDashboard.putBoolean("Was Inverse Intake Requested", controller.wasIntakeReverseRequested());
+        }
         
-
+        if (controller.getAButtonPressed()) {
+            IntakeMotor.set(+.1);
+            SmartDashboard.putBoolean("Was A Pressed", controller.getAButtonPressed());
+            
+        }
+        if (controller.getBButtonPressed()) {
+            IntakeMotor.set(-.1);
+            SmartDashboard.putBoolean("Was B Pressed", controller.getBButtonPressed());
+        } 
+        else {
+            IntakeMotor.set(0.0);
+        }
     }
 
     public void disabledInit() {
