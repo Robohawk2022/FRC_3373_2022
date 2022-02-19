@@ -1,63 +1,45 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.SpecialOpsController;
 import frc.robot.TeleopMode;
-import frc.robot.testrobots.RobotPortMap;
+import frc.robot.motors.Motor;
+import frc.robot.motors.MotorFactory;
+import frc.robot.motors.MotorSettings;
+import frc.robot.motors.MotorSettings.Type;
 
-import java.lang.System.Logger;
-
-import javax.swing.plaf.TreeUI;
-
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.CANSparkMax.IdleMode;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
-import edu.wpi.first.wpilibj.Timer;
 /**
  * Subsystem for ball intake 
  */
 public class IntakeSubsystem {
-    
 
+    public static final double STARTING_MAX = 1200;
+    
     private final SpecialOpsController controller;
-    private CANSparkMax IntakeMotor;
-    private RelativeEncoder intakeEncoder;
+    private final Motor intakeMotor;
     private double targetSpeed;
-    private double Inversetargetspeed;
-    private double maxTargetSpeed;
+    private double maxSpeed;
     private boolean spinWheel;
-    //private Double Motorspeed = IntakeMotor.get();
+
     public IntakeSubsystem(SpecialOpsController controller) {
         this.controller = controller;
-        IntakeMotor = new CANSparkMax(1, MotorType.kBrushless); //TODO change motor ID in CAN
-        IntakeMotor.setOpenLoopRampRate(3.0);
-        IntakeMotor.setClosedLoopRampRate(3.0);
-        intakeEncoder = IntakeMotor.getEncoder();
-        targetSpeed = 0.0;
-        Inversetargetspeed = -0.0;
-        maxTargetSpeed = 0.4;
-        spinWheel = false;
-        SmartDashboard.putNumber("Intake.MaxSpeed", maxTargetSpeed);
+        this.intakeMotor = createMotor();
+        this.maxSpeed = STARTING_MAX;
+        this.targetSpeed = 0.0;
+        this.spinWheel = false;
+
+        SmartDashboard.putNumber("Intake Max Speed", maxSpeed);
     }
 
     public void robotPeriodic() {
-        SmartDashboard.putNumber("Intake.currentspeed", intakeEncoder.getVelocity());
-        SmartDashboard.putNumber("Intake.targetspeed", targetSpeed);
-        System.err.println("reading dashboard");
-        try {
-            double newMax = SmartDashboard.getNumber("Intake.MaxSpeed", maxTargetSpeed);
-            if (newMax != maxTargetSpeed) {
-                System.err.println("setting target speed to "+newMax);
-                maxTargetSpeed = newMax;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        SmartDashboard.putNumber("Intake Target Speed", targetSpeed);
+        double newMax = SmartDashboard.getNumber("Intake Max Speed", maxSpeed);
+        if (newMax != maxSpeed) {
+            System.err.println("setting max speed to "+newMax);
+            maxSpeed = newMax;
         }
-        //SmartDashboard.setDefaultNumber("Intake.totalBalls", totalBalls);
     }
+
     /** We want to stop all motors during climb mode */
     public void teleopInit(TeleopMode newMode) {
         if (newMode == TeleopMode.CLIMB) {
@@ -66,41 +48,36 @@ public class IntakeSubsystem {
     }
 
     public void telopPeriodic() {
-         
-        if (controller.getYButtonPressed()) {
-            maxTargetSpeed = maxTargetSpeed+.1;
-             //SmartDashboard.putBoolean("Was A Pressed", controller.getYButtonPressed());
-             
-        }
-        if (controller.getXButtonPressed()) {
-             maxTargetSpeed = maxTargetSpeed-.1;
-             //SmartDashboard.putBoolean("Was B Pressed", controller.getXButtonPressed());
-        } 
 
         if (controller.getBackButtonPressed()) {
             spinWheel = !spinWheel;
         }
         if (spinWheel) {
-            targetSpeed = maxTargetSpeed;
-            Inversetargetspeed = -maxTargetSpeed;
+            targetSpeed = maxSpeed;
         }
         else {
-            targetSpeed = 0;
-            Inversetargetspeed = -0.0;
+            targetSpeed = 0.0;
         }
 
-        if (controller.getAButton()) {
-            IntakeMotor.set(Inversetargetspeed);
-            //SmartDashboard.putBoolean("Was Inverse Intake Requested", controller.wasIntakeReverseRequested());
+        if (controller.getLeftTriggerAxis() > 0.5) {
+            intakeMotor.set(-targetSpeed);
         }
         else {
-            IntakeMotor.set(targetSpeed);
-        }
-       
+            intakeMotor.set(targetSpeed);
+        }       
     }
 
     public void disabledInit() {
-        // what should happen here?
+        targetSpeed = 0.0;
+        intakeMotor.set(0.0);
+    }
+
+    private Motor createMotor() {
+        MotorSettings settings = new MotorSettings();
+        settings.port = 1;
+        settings.name = "Intake";
+        settings.rampRate = 2.0;
+        settings.type = Type.VELOCITY;
+        return MotorFactory.createMotor(settings);
     }
 }
-// Determine wether person ball vomit to be fast or slow
