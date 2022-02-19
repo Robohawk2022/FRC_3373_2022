@@ -11,6 +11,7 @@ import java.lang.System.Logger;
 import javax.swing.plaf.TreeUI;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
@@ -22,28 +23,40 @@ public class IntakeSubsystem {
     
 
     private final SpecialOpsController controller;
-    private final DigitalInput intakeReadySwitch;
-    private int totalBalls;
     private CANSparkMax IntakeMotor;
-    private Timer BallVomit;
-    private boolean ballvomit = false;
+    private RelativeEncoder intakeEncoder;
     private double targetSpeed;
     private double Inversetargetspeed;
-    private Double Motorspeed = IntakeMotor.get();
+    private double maxTargetSpeed;
+    private boolean spinWheel;
+    //private Double Motorspeed = IntakeMotor.get();
     public IntakeSubsystem(SpecialOpsController controller) {
         this.controller = controller;
-        this.intakeReadySwitch = new DigitalInput(RobotPortMap.INTAKE_READY_PORT);
         IntakeMotor = new CANSparkMax(1, MotorType.kBrushless); //TODO change motor ID in CAN
         IntakeMotor.setOpenLoopRampRate(3.0);
         IntakeMotor.setClosedLoopRampRate(3.0);
-        BallVomit = new Timer();
-        // this.intakeWheel = ???
-        targetSpeed = 0.4;
-        Inversetargetspeed = -0.4;
+        intakeEncoder = IntakeMotor.getEncoder();
+        targetSpeed = 0.0;
+        Inversetargetspeed = -0.0;
+        maxTargetSpeed = 0.4;
+        spinWheel = false;
+        SmartDashboard.putNumber("Intake.MaxSpeed", maxTargetSpeed);
     }
 
     public void robotPeriodic() {
-        SmartDashboard.setDefaultNumber("Intake.totalBalls", totalBalls);
+        SmartDashboard.putNumber("Intake.currentspeed", intakeEncoder.getVelocity());
+        SmartDashboard.putNumber("Intake.targetspeed", targetSpeed);
+        System.err.println("reading dashboard");
+        try {
+            double newMax = SmartDashboard.getNumber("Intake.MaxSpeed", maxTargetSpeed);
+            if (newMax != maxTargetSpeed) {
+                System.err.println("setting target speed to "+newMax);
+                maxTargetSpeed = newMax;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        //SmartDashboard.setDefaultNumber("Intake.totalBalls", totalBalls);
     }
     /** We want to stop all motors during climb mode */
     public void teleopInit(TeleopMode newMode) {
@@ -53,31 +66,37 @@ public class IntakeSubsystem {
     }
 
     public void telopPeriodic() {
-
-        if (controller.wasIntakeRequested()) {
-            IntakeMotor.set(targetSpeed);
-            SmartDashboard.putBoolean("Was Intake Requested", controller.wasIntakeRequested());
-            SmartDashboard.putNumber("Current Speed", Motorspeed);
-            // TODO what should happen here?
-            // beginning with nothing special just when it was requested
+         
+        if (controller.getYButtonPressed()) {
+            maxTargetSpeed = maxTargetSpeed+.1;
+             //SmartDashboard.putBoolean("Was A Pressed", controller.getYButtonPressed());
+             
         }
-        if (controller.wasIntakeReverseRequested()) {
-            IntakeMotor.set(Inversetargetspeed);
-            SmartDashboard.putBoolean("Was Inverse Intake Requested", controller.wasIntakeReverseRequested());
-        }
-        
-        if (controller.getAButtonPressed()) {
-            IntakeMotor.set(+.1);
-            SmartDashboard.putBoolean("Was A Pressed", controller.getAButtonPressed());
-            
-        }
-        if (controller.getBButtonPressed()) {
-            IntakeMotor.set(-.1);
-            SmartDashboard.putBoolean("Was B Pressed", controller.getBButtonPressed());
+        if (controller.getXButtonPressed()) {
+             maxTargetSpeed = maxTargetSpeed-.1;
+             //SmartDashboard.putBoolean("Was B Pressed", controller.getXButtonPressed());
         } 
-        else {
-            IntakeMotor.set(0.0);
+
+        if (controller.getBackButtonPressed()) {
+            spinWheel = !spinWheel;
         }
+        if (spinWheel) {
+            targetSpeed = maxTargetSpeed;
+            Inversetargetspeed = -maxTargetSpeed;
+        }
+        else {
+            targetSpeed = 0;
+            Inversetargetspeed = -0.0;
+        }
+
+        if (controller.getAButton()) {
+            IntakeMotor.set(Inversetargetspeed);
+            //SmartDashboard.putBoolean("Was Inverse Intake Requested", controller.wasIntakeReverseRequested());
+        }
+        else {
+            IntakeMotor.set(targetSpeed);
+        }
+       
     }
 
     public void disabledInit() {
