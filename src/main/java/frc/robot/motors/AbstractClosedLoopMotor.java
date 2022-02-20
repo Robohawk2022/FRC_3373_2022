@@ -28,6 +28,7 @@ public abstract class AbstractClosedLoopMotor extends NamedMotor {
 
     public AbstractClosedLoopMotor(String name, int port, PIDConstant constants) {
         super(name, port);
+
         this.controller = getMotor().getPIDController();
         this.pGainKey = name + " P Gain";
         this.iGainKey = name + " I Gain";
@@ -36,6 +37,15 @@ public abstract class AbstractClosedLoopMotor extends NamedMotor {
         this.feedForwardKey = name + " Feed Forward";
         this.minOutputKey = name + " Min Output";
         this.maxOutputKey = name + " Max Output";
+
+        SmartDashboard.putNumber(pGainKey, constants.getP());
+        SmartDashboard.putNumber(iGainKey, constants.getI());
+        SmartDashboard.putNumber(dGainKey, constants.getD());
+        SmartDashboard.putNumber(iZoneKey, constants.getIZone());
+        SmartDashboard.putNumber(feedForwardKey, constants.getFeedForward());
+        SmartDashboard.putNumber(minOutputKey, constants.getMinOutput());
+        SmartDashboard.putNumber(maxOutputKey, constants.getMaxOutput());
+
         setConstants(constants);
     }
 
@@ -71,6 +81,8 @@ public abstract class AbstractClosedLoopMotor extends NamedMotor {
     }
 
     public void updateDashboard() {
+
+        super.updateDashboard();
 
         boolean hasChanged = false;
 

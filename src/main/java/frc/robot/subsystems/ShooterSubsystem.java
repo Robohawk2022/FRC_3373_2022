@@ -24,10 +24,10 @@ public class ShooterSubsystem {
     public static final double STARTING_LAUNCH_SPEED = 2000;
 
     /** How many rotations does the indexer need to lock in a ball? */
-    public static final double LOCKIN_ROTATIONS = 0.5;
+    public static final double LOCKIN_ROTATIONS = 100;
 
     /** How many rotations does the indexer need to push out a ball? */
-    public static final double SHOOT_ROTATIONS = 0.5;
+    public static final double SHOOT_ROTATIONS = 100;
 
     private final XboxController controller;
     private final DigitalInput ballAvailable;
@@ -41,9 +41,9 @@ public class ShooterSubsystem {
 
     public ShooterSubsystem(XboxController controller) {
         this.controller = controller;
-        this.ballAvailable = new DigitalInput(1);
+        this.ballAvailable = new DigitalInput(3);
         this.launchWheel = MotorFactory.makeVelocityClosedLoopMotor("Launch", 1);
-        this.indexerWheel = MotorFactory.makePositionClosedLoopMotor("Indexer", 3);
+        this.indexerWheel = MotorFactory.makePositionClosedLoopMotor("Indexer", 4);
         this.spinLaunchWheel = false;
         this.targetLaunchSpeed = STARTING_LAUNCH_SPEED;
         this.ballLocked = false;
@@ -55,6 +55,7 @@ public class ShooterSubsystem {
         SmartDashboard.putNumber("Launch Target Speed", targetLaunchSpeed);
         SmartDashboard.putBoolean("Ball Locked?", ballLocked);
         SmartDashboard.putNumber("Shot Count", shotCount);
+        SmartDashboard.putBoolean("Launch wheel at speed??", launchWheelAtSpeed);
     }
 
     /** We want to stop all motors during climb mode */
@@ -117,14 +118,15 @@ public class ShooterSubsystem {
      * Updates the indexer wheel - turning it to fire or intake a ball.
      */
     public void updateIndexerWheel() {
-
+        
         // if we have a ball locked, then the only option we need to worry
         // about is whether someone wants to shoot it. the launch wheel has
         // to be up to speed before they can.
         if (ballLocked) {
+            Logger.log("Checking for shot");
             if (launchWheelAtSpeed && controller.getBButtonPressed()) {
+                Logger.log("Engaging indexer wheel to SHOOT ball");
                 indexerWheel.rotateRelative(SHOOT_ROTATIONS);
-
                 // TODO - we will probably have to replace this with a timer, because we
                 // don't want to consider the ball "unlocked" until it's actually been
                 // ejected, which will take a little time.
@@ -136,6 +138,7 @@ public class ShooterSubsystem {
         // if we don't have a ball locked, and there's one available, we'll
         // go ahead and lock one in
         else if (ballAvailable.get() == BALL_AVAILABLE_PRESSED) {
+            Logger.log("Engaging indexer wheel to lock ball");
             indexerWheel.rotateRelative(LOCKIN_ROTATIONS);
 
             // TODO - we will probably have to replace this with a timer, because we

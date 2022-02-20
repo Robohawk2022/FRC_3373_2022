@@ -50,5 +50,7 @@ public class NamedMotor {
     public void updateDashboard() {
         SmartDashboard.putNumber(positionKey, encoder.getPosition());
         SmartDashboard.putNumber(velocityKey, encoder.getVelocity());
+        SmartDashboard.putNumber(name + " VCF", encoder.getVelocityConversionFactor());
+        SmartDashboard.putNumber(name + " PCF", encoder.getPositionConversionFactor());
     }
 }

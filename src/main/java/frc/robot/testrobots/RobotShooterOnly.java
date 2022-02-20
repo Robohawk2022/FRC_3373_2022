@@ -7,6 +7,7 @@ package frc.robot.testrobots;
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.robot.SpecialOpsController;
 import frc.robot.TeleopMode;
+import frc.robot.motors.MotorFactory;
 import frc.robot.subsystems.ShooterSubsystem;
 
 /**
@@ -33,6 +34,7 @@ public class RobotShooterOnly extends TimedRobot {
   @Override
   public void robotPeriodic() {
     shooter.robotPeriodic();
+    MotorFactory.updateDashboard();
   }
 
   /** This function is called periodically during operator control. */
