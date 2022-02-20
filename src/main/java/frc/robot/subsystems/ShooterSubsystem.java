@@ -15,7 +15,7 @@ import frc.robot.util.Logger;
 public class ShooterSubsystem {
 
     /** How close to target speed does the launch wheel need to be in order to shoot? */
-    public static final double LAUNCH_WINDOW = 0.01;
+    public static final double LAUNCH_WINDOW = 0.1;
 
     /** Because sometimes DigitalInput switches are reversed */
     public static final boolean BALL_AVAILABLE_PRESSED = true;
@@ -46,7 +46,7 @@ public class ShooterSubsystem {
         this.indexerWheel = MotorFactory.makePositionClosedLoopMotor("Indexer", 4);
         this.spinLaunchWheel = false;
         this.targetLaunchSpeed = STARTING_LAUNCH_SPEED;
-        this.ballLocked = false;
+        this.ballLocked = true;
         this.shotCount = 0;
     }
 
@@ -106,7 +106,7 @@ public class ShooterSubsystem {
             launchWheel.setRpm(targetLaunchSpeed);
 
             // check to see if it's up to speed
-            launchWheelAtSpeed = Math.abs(launchWheel.getRpm() - targetLaunchSpeed) < LAUNCH_WINDOW;
+            launchWheelAtSpeed = Math.abs(3.0 * launchWheel.getRpm() - targetLaunchSpeed) < (LAUNCH_WINDOW * targetLaunchSpeed);
         }
         else {
             Logger.log("coasting launch wheel");
@@ -124,7 +124,7 @@ public class ShooterSubsystem {
         // to be up to speed before they can.
         if (ballLocked) {
             Logger.log("Checking for shot");
-            if (launchWheelAtSpeed && controller.getBButtonPressed()) {
+            if (controller.getBButtonPressed() && launchWheelAtSpeed) {
                 Logger.log("Engaging indexer wheel to SHOOT ball");
                 indexerWheel.rotateRelative(SHOOT_ROTATIONS);
                 // TODO - we will probably have to replace this with a timer, because we
@@ -150,6 +150,8 @@ public class ShooterSubsystem {
 
     public void disabledInit() {
         spinLaunchWheel = false;
+        ballLocked = true;
+        shotCount = 0;
         launchWheel.halt();
         indexerWheel.halt();
     }
