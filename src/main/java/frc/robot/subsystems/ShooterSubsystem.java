@@ -32,10 +32,10 @@ public class ShooterSubsystem {
     private final SpecialOpsController controller;
     private final DigitalInput shotReadySwitch;
     // private final SomethingSomething indexerWheel;
-    private final MotorController launchWheel;
+    private final CANSparkMax launchWheel;
     private double maxLaunchSpeed;
     private double targetLaunchSpeed;
-
+    private boolean wheelSpin;
     public double getMaxLaunchSpeed() {
         return maxLaunchSpeed;
     }
@@ -67,30 +67,27 @@ public class ShooterSubsystem {
     }
 
     public boolean teleopPeriodic() {
-
-        if (controller.wasLaunchSpeedIncreaseRequested()) {
-            launchWheel.set(+.1);
-            //this gets and returns whether the user wants to increase the shooter speed
+        if (controller.getYButtonPressed()) {
+            maxLaunchSpeed = maxLaunchSpeed+.1;
+             //SmartDashboard.putBoolean("Was A Pressed", controller.getYButtonPressed());
+    
         }
-        if (controller.wasLaunchSpeedDecreaseRequested()) {
-            launchWheel.set(-.1);
-            //this gets and returns whether the user wants to decrease the shooter speed
-        }  
-              
-        if (controller.isLaunchWheelActive()) {
-            System.out.println("Launch Wheel Active");
-        }   //this prints out "Launch Wheel Active" when launch wheel is active
-        if (controller.wasShotRequested()) {
-            System.out.println("Request Recieved");
-            launchWheel.set(0.7);
-        }   //this sets the speed of the shooter motor to 70% (Default Shooter Speed) when a shot is requested
-            //also prints "request recieved" to screen
-        else {
-            launchWheel.set(0.0);
-        }   //if nothing is happening, set the motor to 0%
+        if (controller.getXButtonPressed()) {
+             maxLaunchSpeed = maxLaunchSpeed-.1;
+             //SmartDashboard.putBoolean("Was B Pressed", controller.getXButtonPressed());
+        } 
 
-        /*TO DO: Next time (And this can be used for u 2 zach), 
-        figure out how 2 incorporate the shot ready switch, figure out more +/- motion, and work on middle section of code*/   
+        if (controller.getBackButtonPressed()) {
+            wheelSpin = !wheelSpin;
+        }
+        if (wheelSpin) {
+            targetLaunchSpeed = maxLaunchSpeed;
+        }
+        else {
+            targetLaunchSpeed = 0;
+        }
+        launchWheel.set(.7);
+
 
 
         // because that will determine which camera we use
@@ -102,7 +99,7 @@ public class ShooterSubsystem {
         // what should happen here?
     }
 
-    private MotorController makeLaunchWheel(int port) {
+    private CANSparkMax makeLaunchWheel(int port) {
         CANSparkMax motor = new CANSparkMax(port, MotorType.kBrushless);
         motor.setClosedLoopRampRate(RAMP_RATE);
         motor.setOpenLoopRampRate(RAMP_RATE);
