@@ -17,7 +17,7 @@ import frc.robot.util.PIDConstant;
 
 public class MotorFactory {
 
-    public static final PIDConstant DEFAULT_PID = new PIDConstant(0.1, 1e-4, 1.0, 0.0, 0.0, -1.0, 1.0);
+    public static final PIDConstant DEFAULT_PID = new PIDConstant(0.3, 0, 1.0, 0.0, 0.0, -1.0, 1.0);
 
     private static final List<CANSparkMax> ALL_MOTORS = new ArrayList<>();
     private static final List<MotorDashboardUpdater> ALL_UPDATERS = new ArrayList<>();
@@ -59,7 +59,6 @@ public class MotorFactory {
         return new Motor() {
 
             public void set(double setPoint) {
-                System.err.println("setting velocity to "+setPoint);
                 controller.setReference(setPoint, ControlType.kVelocity);
             }
 
@@ -113,7 +112,7 @@ public class MotorFactory {
 
     public static void updateDashboard() {
         for (MotorDashboardUpdater updater : ALL_UPDATERS) {
-            updater.updateDashboard();
+           // updater.updateDashboard();
         }
     }
 

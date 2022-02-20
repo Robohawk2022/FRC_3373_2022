@@ -57,13 +57,8 @@ public class MotorDashboardUpdater {
             maxOutputCurrent = pidValues.getMaxOutput();
 
             controller = motor.getPIDController();
-            controller.setP(pGainCurrent);
-            controller.setI(iGainCurrent);
-            controller.setD(dGainCurrent);
-            controller.setIZone(iZoneCurrent);
-            controller.setFF(feedForwardCurrent);
-            controller.setOutputRange(minOutputCurrent, maxOutputCurrent);
-
+            pidValues.configPID(controller);
+           
             SmartDashboard.putNumber(pGainKey, pGainCurrent);
             SmartDashboard.putNumber(iGainKey, iGainCurrent);
             SmartDashboard.putNumber(dGainKey, dGainCurrent);
@@ -87,21 +82,21 @@ public class MotorDashboardUpdater {
 
             double pGainNew = SmartDashboard.getNumber(pGainKey, pGainCurrent);
             if (pGainNew != pGainCurrent) {
-                System.err.println("setting "+pGainKey+" to "+pGainNew);
+                System.err.println("setting "+pGainKey+" to "+pGainNew+" from "+pGainCurrent);
                 controller.setP(pGainNew);
                 dGainCurrent = pGainNew;
             }
 
             double iGainNew = SmartDashboard.getNumber(iGainKey, iGainCurrent);
             if (iGainNew != iGainCurrent) {
-                System.err.println("setting "+iGainKey+" to "+iGainNew);
+                System.err.println("setting "+iGainKey+" to "+iGainNew+" from "+iGainCurrent);
                 controller.setI(iGainNew);
                 iGainCurrent = iGainNew;
             }
 
             double dGainNew = SmartDashboard.getNumber(dGainKey, dGainCurrent);
             if (dGainNew != dGainCurrent) {
-                System.err.println("setting "+dGainKey+" to "+dGainNew);
+                System.err.println("setting "+dGainKey+" to "+dGainNew+" from "+dGainCurrent);
                 controller.setD(dGainNew);
                 dGainCurrent = dGainNew;
             }

@@ -7,6 +7,7 @@ import frc.robot.motors.Motor;
 import frc.robot.motors.MotorFactory;
 import frc.robot.motors.MotorSettings;
 import frc.robot.motors.MotorSettings.Type;
+import frc.robot.util.LogDedupe;
 
 /**
  * Subsystem for ball intake 
@@ -14,7 +15,7 @@ import frc.robot.motors.MotorSettings.Type;
 public class IntakeSubsystem {
 
     /** This is the starting value for the speed for the intake wheel (in RPM) */
-    public static final double STARTING_SPEED = 100;
+    public static final double STARTING_SPEED = 2000;
     
     private final XboxController controller;
     private final Motor intakeMotor;
@@ -65,28 +66,32 @@ public class IntakeSubsystem {
             }
 
             // hold left trigger: reverse the wheel
-            if (controller.getLeftTriggerAxis() > 0.5) {
-                intakeMotor.set(-targetSpeed);
-            }
-            else {
+            // if (controller.getLeftTriggerAxis() > 0.5) {
+            //     LogDedupe.log("reversing target to "+targetSpeed);
+            //     intakeMotor.set(-targetSpeed);
+            // }
+            // else {
+                LogDedupe.log("setting target to "+targetSpeed);
                 intakeMotor.set(targetSpeed);
-            }       
+            // }       
         }
         else {
+            LogDedupe.log("stopping");
             intakeMotor.set(0.0);
         }
     }
 
     public void disabledInit() {
         spinWheel = false;
-        intakeMotor.set(0.0);
+        intakeMotor.set(0);
     }
 
     private Motor createMotor() {
         MotorSettings settings = new MotorSettings();
         settings.port = 1;
         settings.name = "Intake";
-        settings.rampRate = 2.0;
+        settings.rampRate = 0.5;
+        settings.allowCoasting = true;
         settings.type = Type.VELOCITY;
         return MotorFactory.createMotor(settings);
     }
