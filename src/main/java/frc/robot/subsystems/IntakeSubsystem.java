@@ -66,14 +66,14 @@ public class IntakeSubsystem {
             }
 
             // hold left trigger: reverse the wheel
-            // if (controller.getLeftTriggerAxis() > 0.5) {
-            //     LogDedupe.log("reversing target to "+targetSpeed);
-            //     intakeMotor.set(-targetSpeed);
-            // }
-            // else {
+            if (controller.getLeftTriggerAxis() > 0.5) {
+                LogDedupe.log("reversing target to "+targetSpeed);
+                intakeMotor.set(-targetSpeed);
+            }
+            else {
                 LogDedupe.log("setting target to "+targetSpeed);
                 intakeMotor.set(targetSpeed);
-            // }       
+            }       
         }
         else {
             LogDedupe.log("stopping");
