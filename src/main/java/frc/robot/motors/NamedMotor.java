@@ -47,6 +47,10 @@ public class NamedMotor {
         return encoder;
     }
 
+    public double getPosition() {
+        return encoder.getPosition();
+    }
+
     public void updateDashboard() {
         SmartDashboard.putNumber(positionKey, encoder.getPosition());
         SmartDashboard.putNumber(velocityKey, encoder.getVelocity());
