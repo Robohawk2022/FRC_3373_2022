@@ -5,8 +5,8 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.RobotBase;
-import frc.robot.testrobots.RobotIntakeOnly;
-import frc.robot.testrobots.RobotShooterOnly;
+import frc.robot.testrobots.RobotClimberOnly;
+import frc.robot.testrobots.RobotSpecialOpsTestbench;
 
 /**
  * Do NOT add any static variables to this class, or any initialization at all. Unless you know what
@@ -23,9 +23,7 @@ public final class Main {
    */
   public static void main(String... args) {
     // RobotBase.startRobot(Robot::new);
-    // RobotBase.startRobot(RobotEyesOnly::new);
-    RobotBase.startRobot(RobotShooterOnly::new);
-    //RobotBase.startRobot(RobotIntakeOnly::new);
+    RobotBase.startRobot(RobotSpecialOpsTestbench::new);
     // RobotBase.startRobot(RobotClimberOnly::new);
   }
 }

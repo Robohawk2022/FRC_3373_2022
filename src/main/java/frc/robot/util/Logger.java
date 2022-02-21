@@ -24,28 +24,26 @@ public class Logger {
     public static void log(Object... args) {
 
         String message = makeMessage(args);
-        System.out.println(message);
 
-    //     if (lastMessage == null) {
-    //         lastMessage = message;
-    //         lastRepeats = 0;
-    //         System.err.println(lastMessage);
-    //     }
-    //     else if (lastMessage.equals(message)) {
-    //         lastRepeats += 1;
-    //         if (lastRepeats % SUPPRESS_REPEATS == (SUPPRESS_REPEATS - 1)) {
-    //             System.err.println(message+" ("+lastRepeats+" repeats)");
-    //             lastRepeats = 0;
-    //         }
-    //     }
-    //     else {
-    //         if (lastRepeats > 0) {
-    //             System.err.println(message+" ("+lastRepeats+" repeats)");
-    //         }
-    //         lastMessage = message;
-    //         lastRepeats = 0;
-    //         System.err.println(message);
-    //    }
-
+        if (lastMessage == null) {
+            lastMessage = message;
+            lastRepeats = 0;
+            System.err.println(lastMessage);
+        }
+        else if (lastMessage.equals(message)) {
+            lastRepeats += 1;
+            if (lastRepeats % SUPPRESS_REPEATS == (SUPPRESS_REPEATS - 1)) {
+                System.err.println(message+" ("+lastRepeats+" repeats)");
+                lastRepeats = 0;
+            }
+        }
+        else {
+            if (lastRepeats > 0) {
+                System.err.println(message+" ("+lastRepeats+" repeats)");
+            }
+            lastMessage = message;
+            lastRepeats = 0;
+            System.err.println(message);
+       }
     }
 }

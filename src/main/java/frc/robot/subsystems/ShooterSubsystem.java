@@ -38,11 +38,14 @@ public class ShooterSubsystem {
     private boolean ballLocked;
     private int shotCount;
 
-    public ShooterSubsystem(XboxController controller) {
+    public ShooterSubsystem(XboxController controller, 
+            int launchMotorPort, 
+            int indexerMotorPort, 
+            int ballAvailableSwitchPort) {
         this.controller = controller;
-        this.ballAvailable = new DigitalInput(3);
-        this.launchWheel = MotorFactory.makeVelocityClosedLoopMotor("Launch", 1);
-        this.indexerWheel = MotorFactory.makePositionClosedLoopMotor("Indexer", 4);
+        this.ballAvailable = new DigitalInput(ballAvailableSwitchPort);
+        this.launchWheel = MotorFactory.makeVelocityClosedLoopMotor("Launch", launchMotorPort);
+        this.indexerWheel = MotorFactory.makePositionClosedLoopMotor("Indexer", indexerMotorPort);
         disabledInit();
     }
 

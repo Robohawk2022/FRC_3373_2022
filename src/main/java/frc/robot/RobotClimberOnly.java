@@ -4,6 +4,7 @@
 
 package frc.robot.testrobots;
 
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.subsystems.ClimberSubsystem;
@@ -14,6 +15,14 @@ import frc.robot.subsystems.ClimberSubsystem;
  */
 public class RobotClimberOnly extends TimedRobot {
   
+  public static final int CONTROLLER_PORT = 0;
+  public static final int EXTENDER_PORT = 1;
+  public static final int ROTATOR_PORT = 1;
+
+  public static final boolean USE_CAMERAS = false;
+  public static final int FRONT_CAMERA_PORT = 0;
+  public static final int BACK_CAMERA_PORT = 1;
+
   private XboxController specialOpsController;
   private ClimberSubsystem climber;
 
@@ -23,8 +32,12 @@ public class RobotClimberOnly extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    specialOpsController = new XboxController(RobotPortMap.SPECIALOPS_CONTROLLER_PORT);
-    climber = new ClimberSubsystem(specialOpsController);
+    specialOpsController = new XboxController(CONTROLLER_PORT);
+    climber = new ClimberSubsystem(specialOpsController, EXTENDER_PORT, ROTATOR_PORT);
+    if (!isSimulation() && USE_CAMERAS) {
+      CameraServer.startAutomaticCapture("Front", FRONT_CAMERA_PORT);
+      CameraServer.startAutomaticCapture("Back", BACK_CAMERA_PORT);  
+    }
   }
 
   /** This function is called periodically in all modes */

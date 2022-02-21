@@ -22,6 +22,18 @@ import frc.robot.subsystems.ShooterSubsystem;
  */
 public class Robot extends TimedRobot {
 
+  public static final int DRIVER_PORT = 0;
+  public static final int SPECIAL_OPS_PORT = 1;
+  public static final int INTAKE_PORT = 1;
+  public static final int SHOOTER_LAUNCH_PORT = 4;
+  public static final int SHOOTER_INDEXER_PORT = 3;
+  public static final int SHOOTER_SWITCH_PORT = 3;
+  public static final int CLIMBER_EXTENDER_PORT = 1;
+  public static final int CLIMBER_ROTATOR_PORT = 1;
+
+  public static final int FRONT_CAMERA_PORT = 0;
+  public static final int BACK_CAMERA_PORT = 1;
+
   private XboxController driver;
   private XboxController specialops;
   private IntakeSubsystem intake;
@@ -35,16 +47,16 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
 
-    driver = new XboxController(0);
-    climber = new ClimberSubsystem(driver);
+    driver = new XboxController(DRIVER_PORT);
+    climber = new ClimberSubsystem(driver, CLIMBER_EXTENDER_PORT, CLIMBER_ROTATOR_PORT);
 
-    specialops = new XboxController(1);
-    intake = new IntakeSubsystem(specialops);
-    shooter = new ShooterSubsystem(specialops);
+    specialops = new XboxController(SPECIAL_OPS_PORT);
+    intake = new IntakeSubsystem(specialops, INTAKE_PORT);
+    shooter = new ShooterSubsystem(specialops, SHOOTER_LAUNCH_PORT, SHOOTER_INDEXER_PORT, SHOOTER_SWITCH_PORT);
 
     if (!isSimulation()) {
-      CameraServer.startAutomaticCapture("Front", 0);
-      CameraServer.startAutomaticCapture("Back", 1);  
+      CameraServer.startAutomaticCapture("Front", FRONT_CAMERA_PORT);
+      CameraServer.startAutomaticCapture("Back", BACK_CAMERA_PORT);  
     }
   }
 

@@ -19,9 +19,9 @@ public class IntakeSubsystem {
     private boolean spinWheel;
     private double targetSpeed;
 
-    public IntakeSubsystem(XboxController controller) {
+    public IntakeSubsystem(XboxController controller, int intakeMotorPort) {
         this.controller = controller;
-        this.intakeMotor = MotorFactory.makeVelocityClosedLoopMotor("Intake", 3);
+        this.intakeMotor = MotorFactory.makeVelocityClosedLoopMotor("Intake", intakeMotorPort);
         disabledInit();
     }
 

@@ -26,10 +26,10 @@ public class ClimberSubsystem {
     private double minExtension;
     private double maxExtension;
 
-    public ClimberSubsystem(XboxController specialOpsController) {
+    public ClimberSubsystem(XboxController specialOpsController, int extenderMotorPort, int rotatorMotorPort) {
         controller = specialOpsController;
-        extenderMotor = new VelocityClosedLoopMotor("Extender", 1);
-        rotatorMotor = new VelocityClosedLoopMotor("Rotator", 3);
+        extenderMotor = new VelocityClosedLoopMotor("Extender", extenderMotorPort);
+        rotatorMotor = new VelocityClosedLoopMotor("Rotator", rotatorMotorPort);
         setLimits();
     }
 
