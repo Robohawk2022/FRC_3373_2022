@@ -3,7 +3,6 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.TeleopMode;
 import frc.robot.motors.MotorFactory;
 import frc.robot.motors.PositionClosedLoopMotor;
 import frc.robot.motors.VelocityClosedLoopMotor;
@@ -20,8 +19,8 @@ public class ShooterSubsystem {
     /** Because sometimes DigitalInput switches are reversed */
     public static final boolean BALL_AVAILABLE_PRESSED = true;
 
-    /** Starting speed of the launch wheel (in rpm) */
-    public static final double STARTING_LAUNCH_SPEED = 2000;
+    /** Starting speed of the launch wheel */
+    public static final double STARTING_LAUNCH_RPM = 2000;
 
     /** How many rotations does the indexer need to lock in a ball? */
     public static final double LOCKIN_ROTATIONS = 100;
@@ -44,12 +43,10 @@ public class ShooterSubsystem {
         this.ballAvailable = new DigitalInput(3);
         this.launchWheel = MotorFactory.makeVelocityClosedLoopMotor("Launch", 1);
         this.indexerWheel = MotorFactory.makePositionClosedLoopMotor("Indexer", 4);
-        this.spinLaunchWheel = false;
-        this.targetLaunchSpeed = STARTING_LAUNCH_SPEED;
-        this.ballLocked = true;
-        this.shotCount = 0;
+        disabledInit();
     }
 
+    // called 50x per second, no matter what mode we're in
     public void robotPeriodic() {
         SmartDashboard.putBoolean("Launch Spinning?", spinLaunchWheel);
         SmartDashboard.putNumber("Launch Target Speed", targetLaunchSpeed);
@@ -58,17 +55,20 @@ public class ShooterSubsystem {
         SmartDashboard.putBoolean("Launch wheel at speed??", launchWheelAtSpeed);
     }
 
-    /** We want to stop all motors during climb mode */
-    public void teleopInit(TeleopMode newMode) {
-        if (newMode == TeleopMode.CLIMB) {
-            disabledInit();
-        }
+    // called when the robot is put into disabled mode
+    public void disabledInit() {
+        spinLaunchWheel = false;
+        targetLaunchSpeed = STARTING_LAUNCH_RPM;
+        ballLocked = true;
+        shotCount = 0;
+        launchWheel.halt();
+        indexerWheel.halt();
     }
 
-    public boolean teleopPeriodic() {
+    // called 50x per second in teleop mode
+    public void teleopPeriodic() {
         updateLaunchWheel();
         updateIndexerWheel();
-        return true;
     }
 
     /**
@@ -88,7 +88,7 @@ public class ShooterSubsystem {
 
             // A button: reset launch speed
             if (controller.getAButtonPressed()) {
-                targetLaunchSpeed = STARTING_LAUNCH_SPEED;
+                targetLaunchSpeed = STARTING_LAUNCH_RPM;
                 Logger.log("reset launch wheel to ", targetLaunchSpeed);
             }
             // X button: go 10% slower
@@ -146,13 +146,5 @@ public class ShooterSubsystem {
             // grabbed, which will take a little time.
             ballLocked = true;
         }
-    }
-
-    public void disabledInit() {
-        spinLaunchWheel = false;
-        ballLocked = true;
-        shotCount = 0;
-        launchWheel.halt();
-        indexerWheel.halt();
     }
 }

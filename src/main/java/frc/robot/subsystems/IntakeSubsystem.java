@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.TeleopMode;
 import frc.robot.motors.MotorFactory;
 import frc.robot.motors.VelocityClosedLoopMotor;
 import frc.robot.util.Logger;
@@ -12,31 +11,35 @@ import frc.robot.util.Logger;
  */
 public class IntakeSubsystem {
 
-    /** This is the starting value for the speed for the intake wheel (in RPM) */
-    public static final double STARTING_SPEED = 2000;
+    /** Starting value for the speed of the intake wheel */
+    public static final double STARTING_RPM = 2000;
     
     private final XboxController controller;
     private final VelocityClosedLoopMotor intakeMotor;
-    private boolean spinWheel = false;             // should the wheel be spinning right now?
-    private double targetSpeed = STARTING_SPEED;   // what speed (in rpm) should it spin at when it spins?
+    private boolean spinWheel;
+    private double targetSpeed;
 
     public IntakeSubsystem(XboxController controller) {
         this.controller = controller;
         this.intakeMotor = MotorFactory.makeVelocityClosedLoopMotor("Intake", 3);
+        disabledInit();
     }
 
+    // called 50x per second, no matter what mode we're in
     public void robotPeriodic() {
         SmartDashboard.putNumber("Intake Target Speed", targetSpeed);
         SmartDashboard.putBoolean("Intake Spinning?", spinWheel);
     }
-
-    /** We want to stop all motors during climb mode */
-    public void teleopInit(TeleopMode newMode) {
-        if (newMode == TeleopMode.CLIMB) {
-            disabledInit();
-        }
-    }
     
+    // called when the robot is put into disabled mode
+    public void disabledInit() {
+        Logger.log("putting intake system in disabled mode");
+        spinWheel = false;
+        targetSpeed = STARTING_RPM;
+        intakeMotor.halt();
+    }
+
+    // called 50x per second in teleop mode
     public void telopPeriodic() {
 
         // back button turns the wheel on and off
@@ -50,7 +53,7 @@ public class IntakeSubsystem {
 
             // hold both bumpers: reset target speed
             if (controller.getLeftBumper() && controller.getRightBumper()) {
-                targetSpeed = STARTING_SPEED;
+                targetSpeed = STARTING_RPM;
                 Logger.log("reset intake wheel to ", targetSpeed);
             }
             // press left bumper: go 10% slower
@@ -78,11 +81,5 @@ public class IntakeSubsystem {
             Logger.log("coasting intake wheel");
             intakeMotor.coast();
         }
-    }
-
-    public void disabledInit() {
-        Logger.log("stopping intake wheel");
-        spinWheel = false;
-        intakeMotor.halt();
     }
 }

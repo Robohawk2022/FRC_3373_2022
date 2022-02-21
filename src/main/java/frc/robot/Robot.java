@@ -6,12 +6,11 @@
 
 package frc.robot;
 
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.ClimberSubsystem;
-import frc.robot.subsystems.EyesSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 
@@ -22,17 +21,12 @@ import frc.robot.subsystems.ShooterSubsystem;
  * project.
  */
 public class Robot extends TimedRobot {
-  private static final String kDefaultAuto = "Default";
-  private static final String kCustomAuto = "My Auto";
 
-  private String m_autoSelected;
-  private final SendableChooser<String> m_chooser = new SendableChooser<>();
+  private XboxController driver;
   private XboxController specialops;
-  private EyesSubsystem eyes;
   private IntakeSubsystem intake;
   private ShooterSubsystem shooter;
   private ClimberSubsystem climber;
-  private TeleopMode teleopMode;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -41,20 +35,17 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
 
-    m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
-    m_chooser.addOption("My Auto", kCustomAuto);
-    SmartDashboard.putData("Auto choices", m_chooser);
+    driver = new XboxController(0);
+    climber = new ClimberSubsystem(driver);
 
     specialops = new XboxController(1);
-    eyes = new EyesSubsystem();
     intake = new IntakeSubsystem(specialops);
     shooter = new ShooterSubsystem(specialops);
-    climber = new ClimberSubsystem(specialops);
 
-    // // swerve controls
-    // swerve = SwerveControl.getInstance();
-    // swerve.setDriveSpeed(0.25);
-    // swerve.changeControllerLimiter(3);
+    if (!isSimulation()) {
+      CameraServer.startAutomaticCapture("Front", 0);
+      CameraServer.startAutomaticCapture("Back", 1);  
+    }
   }
 
   /**
@@ -66,7 +57,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    eyes.robotPeriodic();
     intake.robotPeriodic();
     shooter.robotPeriodic();
     climber.robotPeriodic();
@@ -83,116 +73,23 @@ public class Robot extends TimedRobot {
    * chooser code above as well.
    */
   @Override
-  public void autonomousInit() {
-    m_autoSelected = m_chooser.getSelected();
-    // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
-    System.out.println("Auto selected: " + m_autoSelected);
-  }
+  public void autonomousInit() {}
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {
-    switch (m_autoSelected) {
-      case kCustomAuto:
-        // Put custom auto code here
-        break;
-      case kDefaultAuto:
-      default:
-        // Put default auto code here
-        break;
-    }
-  }
-
-  /** Called to change modes during teleop */
-  private void setTeleopMode(TeleopMode newMode) {
-    eyes.teleopInit(newMode);
-    intake.teleopInit(newMode);
-    shooter.teleopInit(newMode);
-    climber.teleopInit(newMode);
-    teleopMode = newMode;    
-  }
+  public void autonomousPeriodic() {}
 
   /** This function is called once when teleop is enabled. */
   @Override
-  public void teleopInit() {    
-    // swerve.setControlMode(DriveMode.ROBOTCENTRIC);
-    // swerve.recalculateWheelPosition();
-    setTeleopMode(TeleopMode.INTAKE);
-  }
+  public void teleopInit() {}
 
   @Override
   public void teleopPeriodic() {
-
     SmartDashboard.updateValues();
-
-    swerveControls();
-
-    switch (teleopMode) {
-      case INTAKE:
-        intake.telopPeriodic();
-        break;
-      case SHOOT:
-        shooter.teleopPeriodic();
-        break;
-      case CLIMB:
-        climber.teleopPeriodic();
-        break;
-    }
+    intake.telopPeriodic();
+    shooter.teleopPeriodic();
+    climber.teleopPeriodic();
   }
-
-  private void swerveControls() {
-    // /*
-    //  * ######################## Driver Controls ########################
-    //  */
-
-    // swerve.calculateSwerveControl(driver.getRawAxis(0), driver.getRawAxis(1), driver.getRawAxis(4) * 0.75);
-
-
-    // if (driver.isBPushed()) {
-    //     swerve.changeControllerLimiter();
-    // }
-
-    // if (driver.isLBHeld()) {
-    //     swerve.setDriveSpeed(0.45);
-    // } else if (driver.isRBHeld()) {
-    //     swerve.setDriveSpeed(.75);
-    // } else {
-    //     swerve.setDriveSpeed(0.15);
-    // }
-
-    /*
-     * if(driver.isStartPushed()){ swerve.calibrateHome(); }
-     */
-
-    // if (driver.isYPushed()) {
-    //     swerve.recalculateWheelPosition();
-    // }
-
-    // if (driver.getRawAxis(2) > 0.8)
-    //     swerve.setControlMode(DriveMode.FIELDCENTRIC);
-    // else if (driver.getRawAxis(3) > 0.8)
-    //     swerve.setControlMode(DriveMode.ROBOTCENTRIC);
-
-    // switch (driver.getPOV()) {
-    // case 0:
-    //     swerve.changeFront(SwerveControl.Side.NORTH);
-    //     break;
-    // case 90:
-    //     swerve.changeFront(SwerveControl.Side.EAST);
-    //     break;
-    // case 180:
-    //     swerve.changeFront(SwerveControl.Side.SOUTH);
-    //     break;
-    // case 270:
-    //     swerve.changeFront(SwerveControl.Side.WEST);
-    //     break;
-    // }
-
-    // if (driver.isBackPushed()) {
-    //     swerve.resetOrentation();
-    // }
-  }
-
   
   /** This function is called once when the robot is disabled. */
   @Override
@@ -212,15 +109,5 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during test mode. */
   @Override
-  public void testPeriodic() {
-    /** 
-    String robotMode = "Debug"; 
-    SmartDashboard.putString("Robot Mode", robotMode);
-    SmartDashboard.updateValues();
-    if (driver.get()) {
-  }
-*/
-
-    }
-
+  public void testPeriodic() {}
 }

@@ -6,7 +6,6 @@ package frc.robot.testrobots;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.TeleopMode;
 import frc.robot.subsystems.ClimberSubsystem;
 
 /**
@@ -26,7 +25,6 @@ public class RobotClimberOnly extends TimedRobot {
   public void robotInit() {
     specialOpsController = new XboxController(RobotPortMap.SPECIALOPS_CONTROLLER_PORT);
     climber = new ClimberSubsystem(specialOpsController);
-    climber.teleopInit(TeleopMode.CLIMB);
   }
 
   /** This function is called periodically in all modes */
