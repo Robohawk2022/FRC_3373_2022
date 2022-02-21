@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
+import frc.robot.motors.MotorFactory;
 import frc.robot.subsystems.ClimberSubsystem;
 
 /**
@@ -44,6 +45,7 @@ public class RobotClimberOnly extends TimedRobot {
   @Override
   public void robotPeriodic() {
     climber.robotPeriodic();
+    MotorFactory.updateDashboard();
   }
 
   /** This function is called periodically during operator control. */
