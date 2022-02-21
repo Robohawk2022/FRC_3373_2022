@@ -5,7 +5,7 @@
 package frc.robot.testrobots;
 
 import edu.wpi.first.wpilibj.TimedRobot;
-import frc.robot.SpecialOpsController;
+import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.TeleopMode;
 import frc.robot.subsystems.ClimberSubsystem;
 
@@ -15,7 +15,7 @@ import frc.robot.subsystems.ClimberSubsystem;
  */
 public class RobotClimberOnly extends TimedRobot {
   
-  private SpecialOpsController specialOpsController;
+  private XboxController specialOpsController;
   private ClimberSubsystem climber;
 
   /**
@@ -24,7 +24,7 @@ public class RobotClimberOnly extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    specialOpsController = new SpecialOpsController(RobotPortMap.SPECIALOPS_CONTROLLER_PORT);
+    specialOpsController = new XboxController(RobotPortMap.SPECIALOPS_CONTROLLER_PORT);
     climber = new ClimberSubsystem(specialOpsController);
     climber.teleopInit(TeleopMode.CLIMB);
   }

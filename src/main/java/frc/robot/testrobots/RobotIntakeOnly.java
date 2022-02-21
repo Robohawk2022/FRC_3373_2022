@@ -5,7 +5,7 @@
 package frc.robot.testrobots;
 
 import edu.wpi.first.wpilibj.TimedRobot;
-import frc.robot.SpecialOpsController;
+import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.TeleopMode;
 import frc.robot.motors.MotorFactory;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -16,7 +16,7 @@ import frc.robot.subsystems.IntakeSubsystem;
  */
 public class RobotIntakeOnly extends TimedRobot {
   
-  private SpecialOpsController specialOpsController;
+  private XboxController specialOpsController;
   private IntakeSubsystem intake;
 
   /**
@@ -25,7 +25,7 @@ public class RobotIntakeOnly extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    specialOpsController = new SpecialOpsController(RobotPortMap.SPECIALOPS_CONTROLLER_PORT);
+    specialOpsController = new XboxController(RobotPortMap.SPECIALOPS_CONTROLLER_PORT);
     intake = new IntakeSubsystem(specialOpsController);
     intake.teleopInit(TeleopMode.INTAKE);
   }

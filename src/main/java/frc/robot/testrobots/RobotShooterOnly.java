@@ -5,7 +5,7 @@
 package frc.robot.testrobots;
 
 import edu.wpi.first.wpilibj.TimedRobot;
-import frc.robot.SpecialOpsController;
+import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.TeleopMode;
 import frc.robot.motors.MotorFactory;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -16,7 +16,7 @@ import frc.robot.subsystems.ShooterSubsystem;
  */
 public class RobotShooterOnly extends TimedRobot {
   
-  private SpecialOpsController specialOpsController;
+  private XboxController specialOpsController;
   private ShooterSubsystem shooter;
 
   /**
@@ -25,7 +25,7 @@ public class RobotShooterOnly extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    specialOpsController = new SpecialOpsController(RobotPortMap.SPECIALOPS_CONTROLLER_PORT);
+    specialOpsController = new XboxController(RobotPortMap.SPECIALOPS_CONTROLLER_PORT);
     shooter = new ShooterSubsystem(specialOpsController);
     shooter.teleopInit(TeleopMode.SHOOT);
   }

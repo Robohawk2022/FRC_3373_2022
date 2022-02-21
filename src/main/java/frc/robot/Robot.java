@@ -7,45 +7,13 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.SerialPort;
-import frc.robot.SwerveControl.DriveMode;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.EyesSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
-import edu.wpi.first.util.sendable.Sendable;
-import edu.wpi.first.wpilibj.DigitalInput;
-import frc.robot.SuperJoystick;
-
-import java.io.ObjectInputFilter.Status;
-import java.lang.Thread;
-import java.util.Scanner;
-import java.util.concurrent.DelayQueue;
-import com.kauailabs.navx.frc.AHRS;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.cscore.UsbCamera;
-import edu.wpi.first.cscore.VideoSink;
-import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
-
-// talons
-//NOTE: not neccesary unless called in robot.java file
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxPIDController;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMax.IdleMode;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
-import static com.revrobotics.CANSparkMax.ControlType;
-import static com.revrobotics.SparkMaxAnalogSensor.Mode;
-// end
-import frc.robot.SwerveControl.DriveMode;
-
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -59,9 +27,7 @@ public class Robot extends TimedRobot {
 
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
-  private SuperJoystick driver;
-  private SpecialOpsController specialops;
-  private SwerveControl swerve;
+  private XboxController specialops;
   private EyesSubsystem eyes;
   private IntakeSubsystem intake;
   private ShooterSubsystem shooter;
@@ -79,17 +45,16 @@ public class Robot extends TimedRobot {
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
 
-    driver = new SuperJoystick(0);
-    specialops = new SpecialOpsController(1);
+    specialops = new XboxController(1);
     eyes = new EyesSubsystem();
     intake = new IntakeSubsystem(specialops);
     shooter = new ShooterSubsystem(specialops);
     climber = new ClimberSubsystem(specialops);
 
-    // swerve controls
-    swerve = SwerveControl.getInstance();
-    swerve.setDriveSpeed(0.25);
-    swerve.changeControllerLimiter(3);
+    // // swerve controls
+    // swerve = SwerveControl.getInstance();
+    // swerve.setDriveSpeed(0.25);
+    // swerve.changeControllerLimiter(3);
   }
 
   /**
@@ -150,8 +115,8 @@ public class Robot extends TimedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {    
-    swerve.setControlMode(DriveMode.ROBOTCENTRIC);
-    swerve.recalculateWheelPosition();
+    // swerve.setControlMode(DriveMode.ROBOTCENTRIC);
+    // swerve.recalculateWheelPosition();
     setTeleopMode(TeleopMode.INTAKE);
   }
 
@@ -161,12 +126,6 @@ public class Robot extends TimedRobot {
     SmartDashboard.updateValues();
 
     swerveControls();
-
-    if (specialops.wasNextTeleopModeRequested()) {
-      setTeleopMode(teleopMode.next());
-    } else if (specialops.wasPreviousTeleopModeRequested()) {
-      setTeleopMode(teleopMode.previous());
-    }
 
     switch (teleopMode) {
       case INTAKE:
@@ -182,56 +141,56 @@ public class Robot extends TimedRobot {
   }
 
   private void swerveControls() {
-    /*
-     * ######################## Driver Controls ########################
-     */
+    // /*
+    //  * ######################## Driver Controls ########################
+    //  */
 
-    swerve.calculateSwerveControl(driver.getRawAxis(0), driver.getRawAxis(1), driver.getRawAxis(4) * 0.75);
+    // swerve.calculateSwerveControl(driver.getRawAxis(0), driver.getRawAxis(1), driver.getRawAxis(4) * 0.75);
 
 
-    if (driver.isBPushed()) {
-        swerve.changeControllerLimiter();
-    }
+    // if (driver.isBPushed()) {
+    //     swerve.changeControllerLimiter();
+    // }
 
-    if (driver.isLBHeld()) {
-        swerve.setDriveSpeed(0.45);
-    } else if (driver.isRBHeld()) {
-        swerve.setDriveSpeed(.75);
-    } else {
-        swerve.setDriveSpeed(0.15);
-    }
+    // if (driver.isLBHeld()) {
+    //     swerve.setDriveSpeed(0.45);
+    // } else if (driver.isRBHeld()) {
+    //     swerve.setDriveSpeed(.75);
+    // } else {
+    //     swerve.setDriveSpeed(0.15);
+    // }
 
     /*
      * if(driver.isStartPushed()){ swerve.calibrateHome(); }
      */
 
-    if (driver.isYPushed()) {
-        swerve.recalculateWheelPosition();
-    }
+    // if (driver.isYPushed()) {
+    //     swerve.recalculateWheelPosition();
+    // }
 
-    if (driver.getRawAxis(2) > 0.8)
-        swerve.setControlMode(DriveMode.FIELDCENTRIC);
-    else if (driver.getRawAxis(3) > 0.8)
-        swerve.setControlMode(DriveMode.ROBOTCENTRIC);
+    // if (driver.getRawAxis(2) > 0.8)
+    //     swerve.setControlMode(DriveMode.FIELDCENTRIC);
+    // else if (driver.getRawAxis(3) > 0.8)
+    //     swerve.setControlMode(DriveMode.ROBOTCENTRIC);
 
-    switch (driver.getPOV()) {
-    case 0:
-        swerve.changeFront(SwerveControl.Side.NORTH);
-        break;
-    case 90:
-        swerve.changeFront(SwerveControl.Side.EAST);
-        break;
-    case 180:
-        swerve.changeFront(SwerveControl.Side.SOUTH);
-        break;
-    case 270:
-        swerve.changeFront(SwerveControl.Side.WEST);
-        break;
-    }
+    // switch (driver.getPOV()) {
+    // case 0:
+    //     swerve.changeFront(SwerveControl.Side.NORTH);
+    //     break;
+    // case 90:
+    //     swerve.changeFront(SwerveControl.Side.EAST);
+    //     break;
+    // case 180:
+    //     swerve.changeFront(SwerveControl.Side.SOUTH);
+    //     break;
+    // case 270:
+    //     swerve.changeFront(SwerveControl.Side.WEST);
+    //     break;
+    // }
 
-    if (driver.isBackPushed()) {
-        swerve.resetOrentation();
-    }
+    // if (driver.isBackPushed()) {
+    //     swerve.resetOrentation();
+    // }
   }
 
   

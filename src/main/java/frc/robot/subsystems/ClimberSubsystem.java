@@ -1,23 +1,14 @@
 package frc.robot.subsystems;
 
-import frc.robot.SpecialOpsController;
 import frc.robot.TeleopMode;
 import frc.robot.motors.VelocityClosedLoopMotor;
 
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMax.IdleMode;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
-import edu.wpi.first.wpilibj.CAN;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.motorcontrol.MotorController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 /**
  * Subsystem for climbing
- * @param <motorOne>
  */ 
-public class ClimberSubsystem<motorOne> {
+public class ClimberSubsystem {
 
     public static final double MAX_EXTENSION_RPM = 4000; // TODO calibrate with arm on robot
     public static final double MAX_ROTATION_RPM = 4000; // TODO calibrate with arm on robot
