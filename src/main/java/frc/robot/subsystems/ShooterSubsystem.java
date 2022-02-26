@@ -23,10 +23,10 @@ public class ShooterSubsystem {
     public static final double STARTING_LAUNCH_RPM = 2000;
 
     /** How many rotations does the indexer need to lock in a ball? */
-    public static final double LOCKIN_ROTATIONS = 100;
+    public static final double LOCKIN_ROTATIONS = 10;
 
     /** How many rotations does the indexer need to push out a ball? */
-    public static final double SHOOT_ROTATIONS = 100;
+    public static final double SHOOT_ROTATIONS = 10;
 
     private final XboxController controller;
     private final DigitalInput ballAvailable;
