@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.motors.MotorFactory;
@@ -35,10 +34,6 @@ public class RobotClimberOnly extends TimedRobot {
   public void robotInit() {
     specialOpsController = new XboxController(CONTROLLER_PORT);
     climber = new ClimberSubsystem(specialOpsController, EXTENDER_PORT, ROTATOR_PORT);
-    if (!isSimulation() && USE_CAMERAS) {
-      CameraServer.startAutomaticCapture("Front", FRONT_CAMERA_PORT);
-      CameraServer.startAutomaticCapture("Back", BACK_CAMERA_PORT);  
-    }
   }
 
   /** This function is called periodically in all modes */
