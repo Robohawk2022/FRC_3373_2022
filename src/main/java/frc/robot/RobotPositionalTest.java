@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.motors.MotorFactory;
+import frc.robot.motors.NamedMotor;
 import frc.robot.motors.PositionClosedLoopMotor;
 import frc.robot.util.Logger;
 
@@ -18,11 +19,14 @@ public class RobotPositionalTest extends TimedRobot {
   
   public static final int CONTROLLER_PORT = 0;
   public static final int MOTOR_PORT = 3;
+  private static final double MAX_SPEED = 0.5;
+  private static final double THRESH = 0.01;
 
   private XboxController controller;
-  private PositionClosedLoopMotor motor;
+  private NamedMotor motor;
   private boolean motorEnabled;
   private double targetPosition;
+  private double totalDelta;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -31,7 +35,7 @@ public class RobotPositionalTest extends TimedRobot {
   @Override
   public void robotInit() {
     controller = new XboxController(CONTROLLER_PORT);
-    motor = new PositionClosedLoopMotor("Motor", MOTOR_PORT);
+    motor = new NamedMotor("Motor", MOTOR_PORT);
   }
 
   /** This function is called periodically in all modes */
@@ -46,7 +50,7 @@ public class RobotPositionalTest extends TimedRobot {
   @Override
   public void disabledInit() {
     motorEnabled = false;
-    motor.halt();
+    motor.set(0.0);
   }
 
   /** This function is called periodically during operator control. */
@@ -57,7 +61,7 @@ public class RobotPositionalTest extends TimedRobot {
     if (controller.getBackButtonPressed()) {
       motorEnabled = !motorEnabled;
       if (motorEnabled) {
-        targetPosition = motor.getPosition();
+        setTargetPosition(motor.getPosition());
         Logger.log("enabling position control w/ target "+targetPosition);
       } else {
         Logger.log("disabling position control");
@@ -75,19 +79,37 @@ public class RobotPositionalTest extends TimedRobot {
 
       if (controller.getXButtonPressed()) {
         Logger.log("decreasting target position to "+targetPosition);
-        targetPosition = targetPosition - 100;
+        setTargetPosition (targetPosition - 20);
       } else if (controller.getYButtonPressed()) {
         Logger.log("increasing target position to "+targetPosition);
-        targetPosition = targetPosition + 100;
+        setTargetPosition (targetPosition + 20);
       }
-  
+      
       Logger.log("moving motor from "+currentPosition+" to "+targetPosition);
-      motor.rotateAbsolute(targetPosition);
+      double currentDelta = targetPosition-currentPosition;
+      if (Math.abs(currentDelta)> THRESH) {
+        double proportionalSpeed = (currentDelta/totalDelta)*MAX_SPEED;
+        if (currentDelta < 0) {
+          Logger.log("going backwards @ "+proportionalSpeed);
+          motor.set(-proportionalSpeed);
+        }
+        else {
+          Logger.log("going forwards @ "+proportionalSpeed);
+          motor.set(proportionalSpeed);
+        }
+      }
+      else {
+        motor.set(0);
+      }
     }
 
     // if the motor is not enabled, turn off power in brake mode
     else {
-      motor.halt();
+      motor.set(0);
     }
+  }
+  private void setTargetPosition(double newTarget) {
+    targetPosition = newTarget;
+    totalDelta = targetPosition-motor.getPosition();
   }
 }

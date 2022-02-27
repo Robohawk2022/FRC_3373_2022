@@ -26,10 +26,10 @@ public class NamedMotor {
         this.encoder = motor.getEncoder();
 
         motor.restoreFactoryDefaults();
-        motor.setIdleMode(IdleMode.kCoast);
+        motor.setIdleMode(IdleMode.kBrake);
         motor.setInverted(false);
-        motor.setOpenLoopRampRate(2.0);
-        motor.setClosedLoopRampRate(2.0);
+        motor.setOpenLoopRampRate(1.0);
+        motor.setClosedLoopRampRate(1.0);
 
         this.positionKey = name + " Position";
         this.velocityKey = name + " Velocity";
@@ -49,6 +49,9 @@ public class NamedMotor {
 
     public double getPosition() {
         return encoder.getPosition();
+    }
+    public void set(double speed) {
+        motor.set(speed);
     }
 
     public void updateDashboard() {

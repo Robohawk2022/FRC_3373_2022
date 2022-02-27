@@ -6,6 +6,8 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.RobotBase;
 
+
+
 /**
  * Do NOT add any static variables to this class, or any initialization at all. Unless you know what
  * you are doing, do not modify this file except to change the parameter class to the startRobot
@@ -20,9 +22,11 @@ public final class Main {
    * <p>If you change your main robot class, change the parameter type.
    */
   public static void main(String... args) {
-    // RobotBase.startRobot(Robot::new);
-    RobotBase.startRobot(RobotSpecialOpsTestbench::new);
+   //RobotBase.startRobot(Robot::new);
+    //RobotBase.startRobot(RobotEyesOnly::new);
+    //RobotBase.startRobot(RobotShooterOnly::new);
+     // RobotBase.startRobot(RobotIntakeOnly::new);
     // RobotBase.startRobot(RobotClimberOnly::new);
-    // RobotBase.startRobot(RobotPositionalTest::new);
+    RobotBase.startRobot(RobotPositionalTest::new);
   }
 }
