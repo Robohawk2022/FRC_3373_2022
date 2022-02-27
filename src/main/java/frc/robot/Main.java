@@ -27,6 +27,7 @@ public final class Main {
     //RobotBase.startRobot(RobotShooterOnly::new);
      // RobotBase.startRobot(RobotIntakeOnly::new);
     // RobotBase.startRobot(RobotClimberOnly::new);
-    RobotBase.startRobot(RobotPositionalTest::new);
+    //RobotBase.startRobot(RobotPositionalTest::new);
+    RobotBase.startRobot(RobotSpecialOpsTestbench::new);
   }
 }

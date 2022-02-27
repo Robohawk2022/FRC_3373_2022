@@ -28,8 +28,8 @@ public class NamedMotor {
         motor.restoreFactoryDefaults();
         motor.setIdleMode(IdleMode.kBrake);
         motor.setInverted(false);
-        motor.setOpenLoopRampRate(1.0);
-        motor.setClosedLoopRampRate(1.0);
+        motor.setOpenLoopRampRate(0.5);
+        motor.setClosedLoopRampRate(0.5);
 
         this.positionKey = name + " Position";
         this.velocityKey = name + " Velocity";

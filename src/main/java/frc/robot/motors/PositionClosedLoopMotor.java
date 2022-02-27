@@ -2,6 +2,8 @@ package frc.robot.motors;
 
 import com.revrobotics.CANSparkMax.IdleMode;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 /**
  * Subclass of {@link AbstractClosedLoopMotor} for motors that will be moved to
  * set positions, or rotated through set angles.
@@ -12,8 +14,8 @@ import com.revrobotics.CANSparkMax.IdleMode;
  */
 public class PositionClosedLoopMotor extends NamedMotor {
 
-    private static final double MAX_SPEED = 0.5;
-    private static final double THRESHOLD = 0.01;
+    private static final double MAX_SPEED = 0.7;
+    private static final double THRESHOLD = 0.0005;
   
     private double targetPosition;
     private double totalDelta;
@@ -56,7 +58,7 @@ public class PositionClosedLoopMotor extends NamedMotor {
       double currentDelta = targetPosition - currentPosition;
 
       if (Math.abs(currentDelta) > THRESHOLD) {
-        double proportionalSpeed = (currentDelta/totalDelta)*MAX_SPEED;
+        double proportionalSpeed = Math.abs(currentDelta/totalDelta)*MAX_SPEED;
         if (currentDelta < 0) {
           set(-proportionalSpeed);
         }
@@ -67,5 +69,12 @@ public class PositionClosedLoopMotor extends NamedMotor {
       else {
         set(0);
       }
+    }
+
+    
+    public void updateDashboard() {
+        super.updateDashboard();
+        SmartDashboard.putNumber(getName()+" Target Postion", targetPosition);
+        SmartDashboard.putNumber(getName()+" Total Delta", totalDelta);
     }
 }

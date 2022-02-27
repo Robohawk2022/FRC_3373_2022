@@ -23,7 +23,7 @@ public class RobotSpecialOpsTestbench extends TimedRobot {
   public static final int SHOOTER_INDEXER_PORT = 3;
   public static final int SHOOTER_SWITCH_PORT = 3;
 
-  public static final boolean USE_CAMERAS = false; // set to true to enable cameras
+  public static final boolean USE_CAMERAS = true; // set to true to enable cameras
   public static final int FRONT_CAMERA_PORT = 0;
   public static final int BACK_CAMERA_PORT = 1;
 

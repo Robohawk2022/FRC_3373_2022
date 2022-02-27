@@ -105,15 +105,16 @@ public class ShooterSubsystem {
                 Logger.log("sped up launch wheel to ", targetLaunchSpeed);
             }
 
-            Logger.log("spinning launch wheel at ", targetLaunchSpeed);
+            //Logger.log("spinning launch wheel at ", targetLaunchSpeed);
             launchWheel.setRpm(targetLaunchSpeed);
 
             // check to see if it's up to speed
             launchWheelAtSpeed = Math.abs(3.0 * launchWheel.getRpm() - targetLaunchSpeed) < (LAUNCH_WINDOW * targetLaunchSpeed);
         }
         else {
-            Logger.log("coasting launch wheel");
+            //Logger.log("coasting launch wheel");
             launchWheel.coast();
+            launchWheelAtSpeed = false;
         }
     }
 
@@ -149,5 +150,6 @@ public class ShooterSubsystem {
             // grabbed, which will take a little time.
             ballLocked = true;
         }
+        indexerWheel.updateSpeed();
     }
 }
