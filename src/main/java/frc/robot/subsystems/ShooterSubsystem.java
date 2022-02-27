@@ -65,7 +65,7 @@ public class ShooterSubsystem {
         ballLocked = true;
         shotCount = 0;
         launchWheel.halt();
-        indexerWheel.halt();
+        indexerWheel.set(0);
     }
 
     // called 50x per second in teleop mode
@@ -129,7 +129,7 @@ public class ShooterSubsystem {
             Logger.log("Checking for shot");
             if (controller.getBButtonPressed() && launchWheelAtSpeed) {
                 Logger.log("Engaging indexer wheel to SHOOT ball");
-                indexerWheel.rotateRelative(SHOOT_ROTATIONS);
+                indexerWheel.rotate(SHOOT_ROTATIONS);
                 // TODO - we will probably have to replace this with a timer, because we
                 // don't want to consider the ball "unlocked" until it's actually been
                 // ejected, which will take a little time.
@@ -142,7 +142,7 @@ public class ShooterSubsystem {
         // go ahead and lock one in
         else if (ballAvailable.get() == BALL_AVAILABLE_PRESSED) {
             Logger.log("Engaging indexer wheel to lock ball");
-            indexerWheel.rotateRelative(LOCKIN_ROTATIONS);
+            indexerWheel.rotate(LOCKIN_ROTATIONS);
 
             // TODO - we will probably have to replace this with a timer, because we
             // don't want to consider the ball "locked" until it's actually been

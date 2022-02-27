@@ -23,7 +23,7 @@ public class RobotPositionalTest extends TimedRobot {
   private static final double THRESH = 0.01;
 
   private XboxController controller;
-  private NamedMotor motor;
+  private PositionClosedLoopMotor motor;
   private boolean motorEnabled;
   private double targetPosition;
   private double totalDelta;
@@ -35,7 +35,7 @@ public class RobotPositionalTest extends TimedRobot {
   @Override
   public void robotInit() {
     controller = new XboxController(CONTROLLER_PORT);
-    motor = new NamedMotor("Motor", MOTOR_PORT);
+    motor = new PositionClosedLoopMotor("Motor", MOTOR_PORT);
   }
 
   /** This function is called periodically in all modes */
@@ -61,10 +61,7 @@ public class RobotPositionalTest extends TimedRobot {
     if (controller.getBackButtonPressed()) {
       motorEnabled = !motorEnabled;
       if (motorEnabled) {
-        setTargetPosition(motor.getPosition());
-        Logger.log("enabling position control w/ target "+targetPosition);
-      } else {
-        Logger.log("disabling position control");
+        motor.startClosedLoopControl();
       }
     }
 
@@ -74,42 +71,19 @@ public class RobotPositionalTest extends TimedRobot {
     //    - otherwise, we'll hold still at the current position
     if (motorEnabled) {
 
-      // by default, we will just hold the motor still at its current position
-      double currentPosition = motor.getPosition();
-
       if (controller.getXButtonPressed()) {
         Logger.log("decreasting target position to "+targetPosition);
-        setTargetPosition (targetPosition - 20);
+        motor.rotate(-20);
       } else if (controller.getYButtonPressed()) {
         Logger.log("increasing target position to "+targetPosition);
-        setTargetPosition (targetPosition + 20);
+        motor.rotate(20);
       }
-      
-      Logger.log("moving motor from "+currentPosition+" to "+targetPosition);
-      double currentDelta = targetPosition-currentPosition;
-      if (Math.abs(currentDelta)> THRESH) {
-        double proportionalSpeed = (currentDelta/totalDelta)*MAX_SPEED;
-        if (currentDelta < 0) {
-          Logger.log("going backwards @ "+proportionalSpeed);
-          motor.set(-proportionalSpeed);
-        }
-        else {
-          Logger.log("going forwards @ "+proportionalSpeed);
-          motor.set(proportionalSpeed);
-        }
-      }
-      else {
-        motor.set(0);
-      }
+      motor.updateSpeed();
     }
 
     // if the motor is not enabled, turn off power in brake mode
     else {
       motor.set(0);
     }
-  }
-  private void setTargetPosition(double newTarget) {
-    targetPosition = newTarget;
-    totalDelta = targetPosition-motor.getPosition();
   }
 }

@@ -50,6 +50,7 @@ public class NamedMotor {
     public double getPosition() {
         return encoder.getPosition();
     }
+    
     public void set(double speed) {
         motor.set(speed);
     }
