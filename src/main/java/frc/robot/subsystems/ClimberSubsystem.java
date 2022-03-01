@@ -1,58 +1,53 @@
 package frc.robot.subsystems;
 
+import frc.robot.config.ClimberConfig;
+import frc.robot.motors.NamedMotor;
 import frc.robot.motors.VelocityClosedLoopMotor;
 import frc.robot.util.Logger;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * Subsystem for climbing
- * TODO calibrate RPM for extension/rotation motors
- * TODO write routine to reset limits
  */ 
 public class ClimberSubsystem {
 
-    /** Max speed of the extension motor */
-    public static final double MAX_EXTENSION_RPM = 4000;
-
-    /** Max speed of the extension motor */
-    public static final double MAX_ROTATION_RPM = 4000;
-
     private final XboxController controller;
-    private final VelocityClosedLoopMotor extenderMotor;
-    private final VelocityClosedLoopMotor rotatorMotor;
-    private double minRotation;
-    private double maxRotation;
-    private double minExtension;
-    private double maxExtension;
+    private final ClimberConfig config;
+    private final NamedMotor extenderMotor;
+    private final DigitalInput extenderLimitSwitch;
+    private final NamedMotor rotatorMotor;
+    private final DigitalInput rotatorLimitSwitch;
 
-    public ClimberSubsystem(XboxController specialOpsController, int extenderMotorPort, int rotatorMotorPort) {
-        controller = specialOpsController;
-        extenderMotor = new VelocityClosedLoopMotor("Extender", extenderMotorPort);
-        rotatorMotor = new VelocityClosedLoopMotor("Rotator", rotatorMotorPort);
-        setLimits();
+    public ClimberSubsystem(XboxController controller, ClimberConfig config) {
+        this.controller = controller;
+        this.config = config;
+        this.extenderMotor = new VelocityClosedLoopMotor("Extender", config.extenderPort);
+        this.extenderLimitSwitch = new DigitalInput(config.extenderLimitPort);
+        this.rotatorMotor = new VelocityClosedLoopMotor("Rotator", config.rotatorPort);
+        this.rotatorLimitSwitch = new DigitalInput(config.rotatorLimitPort);
     }
 
-    private void setLimits() {
-        minRotation = Double.NEGATIVE_INFINITY;
-        maxRotation = Double.POSITIVE_INFINITY;
-        minExtension = Double.NEGATIVE_INFINITY;
-        maxExtension = Double.POSITIVE_INFINITY;
+    public boolean atExtenderLimit() {
+        return extenderLimitSwitch.get() == config.extenderLimitPressedValue;
+    }
+
+    public boolean atRotatorLimit() {
+        return rotatorLimitSwitch.get() == config.rotatorLimitPressedValue;
     }
 
     // called 50x per second, no matter what mode we're in
     public void robotPeriodic() {
-        SmartDashboard.putNumber("Climber Max Rotation", maxRotation);
-        SmartDashboard.putNumber("Climber Min Rotation", minRotation);
-        SmartDashboard.putNumber("Climber Max Extension", maxExtension);
-        SmartDashboard.putNumber("Climber Min Extension", minExtension);
+        SmartDashboard.putBoolean("At Extender Limit?", atExtenderLimit());
+        SmartDashboard.putBoolean("At Rotator Limit?", atRotatorLimit());
     }
 
     // called when the robot is put into disabled mode
     public void disabledInit() {
         Logger.log("putting climbing system in disabled mode");
-        extenderMotor.halt();
-        rotatorMotor.halt();
+        extenderMotor.set(0.0);
+        rotatorMotor.set(0.0);
     }
 
     // called 50x per second in teleop mode
@@ -62,32 +57,38 @@ public class ClimberSubsystem {
     }
 
     private void updateExtender() {
-        double extensionRate = controller.getLeftY() * MAX_EXTENSION_RPM;
-        double currentExtensionPosition = extenderMotor.getPosition();
 
-        if (extensionRate > 0.0 && currentExtensionPosition < maxExtension) {
-            extenderMotor.setRpm(extensionRate);
+        double extensionRate = computeOutput(            
+            controller.getRawAxis(config.extenderAxis), 
+            config.extenderDeadband,
+            config.extenderMaxOutput);
+
+        if (extensionRate < 0.0 && atExtenderLimit()) {
+            extensionRate = 0.0;
         }
-        else if (extensionRate < 0.0 && currentExtensionPosition > minExtension) {
-            extenderMotor.setRpm(extensionRate);
-        }
-        else {
-            extenderMotor.halt();
-        }
+
+        extenderMotor.set(extensionRate);
     }
 
     private void updateRotator() {
-        double rotationRate = controller.getRightX() * MAX_ROTATION_RPM;
-        double currentRotationPosition = rotatorMotor.getPosition();
 
-        if (rotationRate > 0.0 && currentRotationPosition < maxRotation) {
-            rotatorMotor.setRpm(rotationRate);
+        double rotationRate = computeOutput(            
+            controller.getRawAxis(config.rotatorAxis), 
+            config.rotatorDeadband,
+            config.rotatorMaxOutput);
+
+        if (rotationRate < 0.0 && atRotatorLimit()) {
+            rotationRate = 0.0;
         }
-        else if (rotationRate < 0.0 && currentRotationPosition > minRotation) {
-            rotatorMotor.setRpm(rotationRate);
+
+        rotatorMotor.set(rotationRate);
+    }
+
+    private double computeOutput(double stickValue, double deadband, double maxOutput) {
+        double absStick = Math.abs(stickValue);
+        if (absStick < deadband) {
+            return 0.0;
         }
-        else {
-            rotatorMotor.halt();
-        }
+        return (absStick * stickValue) * maxOutput;
     }
 }

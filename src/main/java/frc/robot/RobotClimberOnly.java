@@ -6,6 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
+import frc.robot.config.ClimberConfig;
 import frc.robot.motors.MotorFactory;
 import frc.robot.subsystems.ClimberSubsystem;
 
@@ -15,15 +16,7 @@ import frc.robot.subsystems.ClimberSubsystem;
  */
 public class RobotClimberOnly extends TimedRobot {
   
-  public static final int CONTROLLER_PORT = 0;
-  public static final int EXTENDER_PORT = 1;
-  public static final int ROTATOR_PORT = 1;
-
-  public static final boolean USE_CAMERAS = false;
-  public static final int FRONT_CAMERA_PORT = 0;
-  public static final int BACK_CAMERA_PORT = 1;
-
-  private XboxController specialOpsController;
+  private XboxController controller;
   private ClimberSubsystem climber;
 
   /**
@@ -32,8 +25,8 @@ public class RobotClimberOnly extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    specialOpsController = new XboxController(CONTROLLER_PORT);
-    climber = new ClimberSubsystem(specialOpsController, EXTENDER_PORT, ROTATOR_PORT);
+    controller = new XboxController(0);
+    climber = new ClimberSubsystem(controller, ClimberConfig.TESTBENCH);
   }
 
   /** This function is called periodically in all modes */

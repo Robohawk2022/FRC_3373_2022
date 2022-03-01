@@ -28,6 +28,6 @@ public final class Main {
      // RobotBase.startRobot(RobotIntakeOnly::new);
     // RobotBase.startRobot(RobotClimberOnly::new);
     //RobotBase.startRobot(RobotPositionalTest::new);
-    RobotBase.startRobot(RobotSpecialOpsTestbench::new);
+    RobotBase.startRobot(RobotClimberOnly::new);
   }
 }

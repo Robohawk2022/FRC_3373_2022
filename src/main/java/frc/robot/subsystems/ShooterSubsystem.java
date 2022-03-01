@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.config.ShooterConfig;
 import frc.robot.motors.MotorFactory;
 import frc.robot.motors.PositionClosedLoopMotor;
 import frc.robot.motors.VelocityClosedLoopMotor;
@@ -13,39 +14,23 @@ import frc.robot.util.Logger;
  */
 public class ShooterSubsystem {
 
-    /** How close to target speed does the launch wheel need to be in order to shoot? */
-    public static final double LAUNCH_WINDOW = 0.1;
-
-    /** Because sometimes DigitalInput switches are reversed */
-    public static final boolean BALL_AVAILABLE_PRESSED = true;
-
-    /** Starting speed of the launch wheel */
-    public static final double STARTING_LAUNCH_RPM = 2000;
-
-    /** How many rotations does the indexer need to lock in a ball? */
-    public static final double LOCKIN_ROTATIONS = 10;
-
-    /** How many rotations does the indexer need to push out a ball? */
-    public static final double SHOOT_ROTATIONS = 10;
-
     private final XboxController controller;
     private final DigitalInput ballAvailable;
     private final VelocityClosedLoopMotor launchWheel;
     private final PositionClosedLoopMotor indexerWheel;
+    private final ShooterConfig config;
     private boolean spinLaunchWheel;
     private boolean launchWheelAtSpeed;
     private double targetLaunchSpeed;
     private boolean ballLocked;
     private int shotCount;
 
-    public ShooterSubsystem(XboxController controller, 
-            int launchMotorPort, 
-            int indexerMotorPort, 
-            int ballAvailableSwitchPort) {
+    public ShooterSubsystem(XboxController controller, ShooterConfig config) {
         this.controller = controller;
-        this.ballAvailable = new DigitalInput(ballAvailableSwitchPort);
-        this.launchWheel = MotorFactory.makeVelocityClosedLoopMotor("Launch", launchMotorPort);
-        this.indexerWheel = MotorFactory.makePositionClosedLoopMotor("Indexer", indexerMotorPort);
+        this.config = config;
+        this.ballAvailable = new DigitalInput(config.ballSwitchPort);
+        this.launchWheel = MotorFactory.makeVelocityClosedLoopMotor("Launch", config.launcherPort);
+        this.indexerWheel = MotorFactory.makePositionClosedLoopMotor("Indexer", config.indexerPort);
         disabledInit();
     }
 
@@ -61,7 +46,7 @@ public class ShooterSubsystem {
     // called when the robot is put into disabled mode
     public void disabledInit() {
         spinLaunchWheel = false;
-        targetLaunchSpeed = STARTING_LAUNCH_RPM;
+        targetLaunchSpeed = config.launcherStartingRpm;
         ballLocked = true;
         shotCount = 0;
         launchWheel.halt();
@@ -81,7 +66,7 @@ public class ShooterSubsystem {
     protected void updateLaunchWheel() {
 
         // start button turns the launch wheel on and off
-        if (controller.getStartButtonPressed()) {
+        if (controller.getBackButtonPressed()) {
             spinLaunchWheel = !spinLaunchWheel;
             Logger.log("toggled launch wheel to ", spinLaunchWheel);
         }
@@ -89,30 +74,26 @@ public class ShooterSubsystem {
         // if the launch wheel is spinning, we'll allow speed changes
         if (spinLaunchWheel) {
 
-            // A button: reset launch speed
-            if (controller.getAButtonPressed()) {
-                targetLaunchSpeed = STARTING_LAUNCH_RPM;
+            // reset launch speed
+            if (controller.getRawButtonPressed(config.resetSpeedButton)) {
+                targetLaunchSpeed = config.launcherStartingRpm;
                 Logger.log("reset launch wheel to ", targetLaunchSpeed);
             }
-            // X button: go 10% slower
-            else if (controller.getXButtonPressed()) {
+            // go 10% slower
+            else if (controller.getRawButtonPressed(config.slowDownButton)) {
                 targetLaunchSpeed *= 0.9;
                 Logger.log("slowed down launch wheel to ", targetLaunchSpeed);
             }
-            // Y button: go 10% faster
-            else if (controller.getYButtonPressed()) {
+            // go 10% faster
+            else if (controller.getRawButtonPressed(config.speedUpButton)) {
                 targetLaunchSpeed *= 1.1;
                 Logger.log("sped up launch wheel to ", targetLaunchSpeed);
             }
 
-            //Logger.log("spinning launch wheel at ", targetLaunchSpeed);
             launchWheel.setRpm(targetLaunchSpeed);
-
-            // check to see if it's up to speed
-            launchWheelAtSpeed = Math.abs(3.0 * launchWheel.getRpm() - targetLaunchSpeed) < (LAUNCH_WINDOW * targetLaunchSpeed);
+            launchWheelAtSpeed = Math.abs(config.launcherRpmScale * launchWheel.getRpm() - targetLaunchSpeed) < (config.launcherFudgeWindow * targetLaunchSpeed);
         }
         else {
-            //Logger.log("coasting launch wheel");
             launchWheel.coast();
             launchWheelAtSpeed = false;
         }
@@ -128,12 +109,9 @@ public class ShooterSubsystem {
         // to be up to speed before they can.
         if (ballLocked) {
             Logger.log("Checking for shot");
-            if (controller.getBButtonPressed() && launchWheelAtSpeed) {
+            if (controller.getRawButtonPressed(config.shootButton) && launchWheelAtSpeed) {
                 Logger.log("Engaging indexer wheel to SHOOT ball");
-                indexerWheel.rotate(SHOOT_ROTATIONS);
-                // TODO - we will probably have to replace this with a timer, because we
-                // don't want to consider the ball "unlocked" until it's actually been
-                // ejected, which will take a little time.
+                rotateIndexer(config.indexerEjectDegrees);
                 ballLocked = false;
                 shotCount++;
             }
@@ -141,15 +119,15 @@ public class ShooterSubsystem {
 
         // if we don't have a ball locked, and there's one available, we'll
         // go ahead and lock one in
-        else if (ballAvailable.get() == BALL_AVAILABLE_PRESSED) {
+        else if (ballAvailable.get() == config.ballSwitchPressedValue) {
             Logger.log("Engaging indexer wheel to lock ball");
-            indexerWheel.rotate(LOCKIN_ROTATIONS);
-
-            // TODO - we will probably have to replace this with a timer, because we
-            // don't want to consider the ball "locked" until it's actually been
-            // grabbed, which will take a little time.
+            rotateIndexer(config.indexerLockinDegrees);
             ballLocked = true;
         }
         indexerWheel.updateSpeed();
+    }
+
+    private void rotateIndexer(double degrees) {
+        indexerWheel.rotate((degrees / 360.0) * config.indexerGearRatio);
     }
 }

@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.config.IntakeConfig;
 import frc.robot.motors.MotorFactory;
 import frc.robot.motors.VelocityClosedLoopMotor;
 import frc.robot.util.Logger;
@@ -10,18 +11,17 @@ import frc.robot.util.Logger;
  * Subsystem for ball intake 
  */
 public class IntakeSubsystem {
-
-    /** Starting value for the speed of the intake wheel */
-    public static final double STARTING_RPM = 2000;
     
     private final XboxController controller;
+    private final IntakeConfig config;
     private final VelocityClosedLoopMotor intakeMotor;
     private boolean spinWheel;
     private double targetSpeed;
 
-    public IntakeSubsystem(XboxController controller, int intakeMotorPort) {
+    public IntakeSubsystem(XboxController controller, IntakeConfig config) {
         this.controller = controller;
-        this.intakeMotor = MotorFactory.makeVelocityClosedLoopMotor("Intake", intakeMotorPort);
+        this.config = config;
+        this.intakeMotor = MotorFactory.makeVelocityClosedLoopMotor("Intake", config.intakePort);
         disabledInit();
     }
 
@@ -35,7 +35,7 @@ public class IntakeSubsystem {
     public void disabledInit() {
         Logger.log("putting intake system in disabled mode");
         spinWheel = false;
-        targetSpeed = STARTING_RPM;
+        targetSpeed = config.intakeStartingRpm * config.intakeRpmScale;
         intakeMotor.halt();
     }
 
@@ -43,7 +43,7 @@ public class IntakeSubsystem {
     public void telopPeriodic() {
 
         // back button turns the wheel on and off
-        if (controller.getBackButtonPressed()) {
+        if (controller.getRawButtonPressed(config.startStopButton)) {
             spinWheel = !spinWheel;
             Logger.log("toggled intake wheel to ", spinWheel);
         }
@@ -51,24 +51,24 @@ public class IntakeSubsystem {
         // if the wheel is spinning, we'll allow speed changes
         if (spinWheel) {
 
-            // hold both bumpers: reset target speed
-            if (controller.getLeftBumper() && controller.getRightBumper()) {
-                targetSpeed = STARTING_RPM;
-                Logger.log("reset intake wheel to ", targetSpeed);
+            // reset speed
+            if (controller.getRawButtonPressed(config.resetSpeedButton)) {
+                targetSpeed = config.intakeStartingRpm;
+                Logger.log("reset launch wheel to ", targetSpeed);
             }
-            // press left bumper: go 10% slower
-            else if (controller.getLeftBumperPressed()) {
+            // go 10% slower
+            else if (controller.getRawButtonPressed(config.slowDownButton)) {
                 targetSpeed *= 0.9;
                 Logger.log("slowed down intake wheel to ", targetSpeed);
             }
-            // press right bumper: go 10% faster
-            else if (controller.getRightBumperPressed()) {
+            // go 10% faster
+            else if (controller.getRawButtonPressed(config.speedUpButton)) {
                 targetSpeed *= 1.1;
                 Logger.log("sped up intake wheel to ", targetSpeed);
             }
 
-            // hold left trigger: reverse the wheel
-            if (controller.getLeftTriggerAxis() > 0.5) {
+            // hreverse the wheel
+            if (controller.getRawAxis(config.reverseTrigger) > 0.5) {
                 intakeMotor.setRpm(-targetSpeed);
                 Logger.log("reversing intake wheel to ", targetSpeed);
             }
