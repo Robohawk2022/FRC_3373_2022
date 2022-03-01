@@ -27,7 +27,6 @@ public class ClimberConfig implements Serializable {
     public int rotatorLimitPort;               // port number for rotator limit switch
     public boolean rotatorLimitPressedValue;   // value when this switch is pressed
 
-
     public static final ClimberConfig TESTBENCH = new ClimberConfig();
     static {
 

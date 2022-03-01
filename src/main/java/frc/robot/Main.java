@@ -22,12 +22,6 @@ public final class Main {
    * <p>If you change your main robot class, change the parameter type.
    */
   public static void main(String... args) {
-   //RobotBase.startRobot(Robot::new);
-    //RobotBase.startRobot(RobotEyesOnly::new);
-    //RobotBase.startRobot(RobotShooterOnly::new);
-     // RobotBase.startRobot(RobotIntakeOnly::new);
-    // RobotBase.startRobot(RobotClimberOnly::new);
-    //RobotBase.startRobot(RobotPositionalTest::new);
     RobotBase.startRobot(RobotClimberOnly::new);
   }
 }

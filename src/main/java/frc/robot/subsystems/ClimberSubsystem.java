@@ -63,6 +63,7 @@ public class ClimberSubsystem {
             config.extenderDeadband,
             config.extenderMaxOutput);
 
+        // stop extension if we're at the limit
         if (extensionRate < 0.0 && atExtenderLimit()) {
             extensionRate = 0.0;
         }
@@ -77,6 +78,7 @@ public class ClimberSubsystem {
             config.rotatorDeadband,
             config.rotatorMaxOutput);
 
+        // stop rotation if we're at the limit
         if (rotationRate < 0.0 && atRotatorLimit()) {
             rotationRate = 0.0;
         }
@@ -84,6 +86,10 @@ public class ClimberSubsystem {
         rotatorMotor.set(rotationRate);
     }
 
+    // converts stick input into an output rate. three considerations:
+    //   - ignore very small inputs so we're not sensitive to random bumps
+    //   - square input so we speed up gradually
+    //   - don't lose the sign value (pos/neg)
     private double computeOutput(double stickValue, double deadband, double maxOutput) {
         double absStick = Math.abs(stickValue);
         if (absStick < deadband) {
