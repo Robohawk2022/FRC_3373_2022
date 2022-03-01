@@ -30,6 +30,8 @@ public class Robot extends TimedRobot {
   public static final int SHOOTER_SWITCH_PORT = 3;
   public static final int CLIMBER_EXTENDER_PORT = 1;
   public static final int CLIMBER_ROTATOR_PORT = 1;
+  public static final int CLIMBER_EXTENDER_SWITCH = 1;
+  public static final int CLIMBER_ROTATOR_SWITCH = 1;
 
   public static final int FRONT_CAMERA_PORT = 0;
   public static final int BACK_CAMERA_PORT = 1;
@@ -48,7 +50,7 @@ public class Robot extends TimedRobot {
   public void robotInit() {
 
     driver = new XboxController(DRIVER_PORT);
-    climber = new ClimberSubsystem(driver, CLIMBER_EXTENDER_PORT, CLIMBER_ROTATOR_PORT);
+    climber = new ClimberSubsystem(driver, CLIMBER_EXTENDER_PORT, CLIMBER_EXTENDER_SWITCH, CLIMBER_ROTATOR_PORT, CLIMBER_ROTATOR_SWITCH);
 
     specialops = new XboxController(SPECIAL_OPS_PORT);
     intake = new IntakeSubsystem(specialops, INTAKE_PORT);

@@ -17,7 +17,9 @@ public class RobotClimberOnly extends TimedRobot {
   
   public static final int CONTROLLER_PORT = 0;
   public static final int EXTENDER_PORT = 1;
-  public static final int ROTATOR_PORT = 1;
+  public static final int ROTATOR_PORT = 4;
+  public static final int EXTENDER_SWITCH = 0;
+  public static final int ROTATOR_SWITCH = 3;
 
   public static final boolean USE_CAMERAS = false;
   public static final int FRONT_CAMERA_PORT = 0;
@@ -33,7 +35,7 @@ public class RobotClimberOnly extends TimedRobot {
   @Override
   public void robotInit() {
     specialOpsController = new XboxController(CONTROLLER_PORT);
-    climber = new ClimberSubsystem(specialOpsController, EXTENDER_PORT, ROTATOR_PORT);
+    climber = new ClimberSubsystem(specialOpsController, EXTENDER_PORT, EXTENDER_SWITCH, ROTATOR_PORT, ROTATOR_SWITCH);
   }
 
   /** This function is called periodically in all modes */
