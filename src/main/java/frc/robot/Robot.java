@@ -29,14 +29,14 @@ public class Robot extends TimedRobot {
 
   public static final int DRIVER_PORT = 0;
   public static final int SPECIAL_OPS_PORT = 1;
-  public static final int INTAKE_PORT = 1;
-  public static final int SHOOTER_LAUNCH_PORT = 4;
-  public static final int SHOOTER_INDEXER_PORT = 3;
+  public static final int INTAKE_PORT = 9;
+  public static final int SHOOTER_LAUNCH_PORT = 10;
+  public static final int SHOOTER_INDEXER_PORT = 11;
   public static final int SHOOTER_SWITCH_PORT = 3;
-  public static final int CLIMBER_EXTENDER_PORT = 1;
-  public static final int CLIMBER_ROTATOR_PORT = 1;
-  public static final int CLIMBER_EXTENDER_SWITCH = 1;
-  public static final int CLIMBER_ROTATOR_SWITCH = 1;
+  // public static final int CLIMBER_EXTENDER_PORT = 1;
+  // public static final int CLIMBER_ROTATOR_PORT = 1;
+  // public static final int CLIMBER_EXTENDER_SWITCH = 1;
+  // public static final int CLIMBER_ROTATOR_SWITCH = 1;
 
   public static final int FRONT_CAMERA_PORT = 0;
   public static final int BACK_CAMERA_PORT = 1;
@@ -46,14 +46,14 @@ public class Robot extends TimedRobot {
   private IntakeSubsystem intake;
   private ShooterSubsystem shooter;
   private ClimberSubsystem climber;
-  private static final int  FLangleID = 4;
-  private static final int FLdriveID = 3;
-  private static final int  FRangleID = 2;
-  private static final int FRdriveID = 1;
-  private static final int  BRangleID = 8;
-  private static final int BRdriveID = 7;
-  private static final int  BLangleID = 6;
-  private static final int BLdriveID = 5;
+  private static final int  FLangleID = 8;
+  private static final int FLdriveID = 7;
+  private static final int  FRangleID = 6;
+  private static final int FRdriveID = 5;
+  private static final int  BRangleID = 4;
+  private static final int BRdriveID = 3;
+  private static final int  BLangleID = 2;
+  private static final int BLdriveID = 1;
   private CANSparkMax FLangleMotor;
   private CANSparkMax FLdriveMotor;
   private CANSparkMax FRdriveMotor;
@@ -80,7 +80,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
 
-    driver = new XboxController(DRIVER_PORT);
+    drive_control = new XboxController(DRIVER_PORT);
     climber = new ClimberSubsystem(driver, CLIMBER_EXTENDER_PORT, CLIMBER_EXTENDER_SWITCH, CLIMBER_ROTATOR_PORT, CLIMBER_ROTATOR_SWITCH);
 
     specialops = new XboxController(SPECIAL_OPS_PORT);
@@ -105,7 +105,6 @@ public class Robot extends TimedRobot {
     m_encoder3 = BRangleMotor.getEncoder();
     m_encoder4 = BLangleMotor.getEncoder();
 
-    drive_control = new XboxController(0);
 
     kP = 0.1; 
     kI = 1e-4;
