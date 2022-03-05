@@ -6,10 +6,13 @@ package frc.robot;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkMaxAnalogSensor;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.SparkMaxAnalogSensor.Mode;
 
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.wpilibj.AnalogEncoder;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -63,10 +66,10 @@ public class Robot extends TimedRobot {
   private SparkMaxPIDController m_PIDController2;
   private SparkMaxPIDController m_PIDController3;
   private SparkMaxPIDController m_PIDController4;
-  private RelativeEncoder m_encoder1;
-  private RelativeEncoder m_encoder2;
-  private RelativeEncoder m_encoder3;
-  private RelativeEncoder m_encoder4;
+  private SparkMaxAnalogSensor m_encoder1;
+  private SparkMaxAnalogSensor m_encoder2;
+  private SparkMaxAnalogSensor m_encoder3;
+  private SparkMaxAnalogSensor m_encoder4;
   private XboxController drive_control;
   public double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput;
 
@@ -99,10 +102,11 @@ public class Robot extends TimedRobot {
     m_PIDController3 = BRangleMotor.getPIDController();
     m_PIDController4 = BLangleMotor.getPIDController();
 
-    m_encoder1 = FLangleMotor.getEncoder();
-    m_encoder2 = FRangleMotor.getEncoder();
-    m_encoder3 = BRangleMotor.getEncoder();
-    m_encoder4 = BLangleMotor.getEncoder();
+    m_encoder1 = FLangleMotor.getAnalog(Mode.kAbsolute);
+    m_encoder2 = FRangleMotor.getAnalog(Mode.kAbsolute);
+    m_encoder3 = BRangleMotor.getAnalog(Mode.kAbsolute);
+    m_encoder4 = BLangleMotor.getAnalog(Mode.kAbsolute);
+
 
     kP = 0.1; 
     kI = 1e-4;
@@ -111,6 +115,14 @@ public class Robot extends TimedRobot {
     kFF = 0; 
     kMaxOutput = 1; 
     kMinOutput = -1;
+
+    m_PIDController1.setFeedbackDevice(m_encoder1);
+    m_PIDController2.setFeedbackDevice(m_encoder2);
+    m_PIDController3.setFeedbackDevice(m_encoder3);
+    m_PIDController4.setFeedbackDevice(m_encoder4);
+
+
+
 
     m_PIDController1.setP(kP);
     m_PIDController2.setP(kP);
