@@ -85,14 +85,14 @@ public class Robot extends TimedRobot {
     intake = new IntakeSubsystem(specialops, INTAKE_PORT);
     shooter = new ShooterSubsystem(specialops, SHOOTER_LAUNCH_PORT, SHOOTER_INDEXER_PORT, SHOOTER_SWITCH_PORT);
 
-    FLangleMotor = new CANSparkMax(FLangleID, MotorType.kBrushless);
+    FLangleMotor = new CANSparkMax(FLangleID, MotorType.kBrushed);
     FLdriveMotor = new CANSparkMax(FLdriveID, MotorType.kBrushless);
-    FRangleMotor = new CANSparkMax(FRangleID, MotorType.kBrushless);
+    FRangleMotor = new CANSparkMax(FRangleID, MotorType.kBrushed);
     FRdriveMotor = new CANSparkMax(FRdriveID, MotorType.kBrushless);
-    BRangleMotor = new CANSparkMax(BRangleID, MotorType.kBrushless);
+    BRangleMotor = new CANSparkMax(BRangleID, MotorType.kBrushed);
     BRdriveMotor = new CANSparkMax(BRdriveID, MotorType.kBrushless);
     BLdriveMotor = new CANSparkMax(BLdriveID, MotorType.kBrushless);
-    BLangleMotor = new CANSparkMax(BLangleID, MotorType.kBrushless);
+    BLangleMotor = new CANSparkMax(BLangleID, MotorType.kBrushed);
 
     m_PIDController1 = FLangleMotor.getPIDController();
     m_PIDController2 = FRangleMotor.getPIDController();
