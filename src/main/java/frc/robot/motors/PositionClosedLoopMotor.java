@@ -28,7 +28,7 @@ public class PositionClosedLoopMotor extends NamedMotor {
     /**
      * Sets the target position to the current position
      */
-    public void startClosedLoopControl() {
+    public void resetClosedLoopControl() {
         setTargetPosition(getPosition());
     }
 

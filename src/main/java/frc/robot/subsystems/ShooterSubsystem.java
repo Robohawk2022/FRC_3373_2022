@@ -29,21 +29,22 @@ public class ShooterSubsystem {
     public static final double SHOOT_ROTATIONS = 10;
 
     private final XboxController controller;
-    private final DigitalInput ballAvailable;
+    private final DigitalInput ballSensor;
     private final VelocityClosedLoopMotor launchWheel;
     private final PositionClosedLoopMotor indexerWheel;
     private boolean spinLaunchWheel;
     private boolean launchWheelAtSpeed;
     private double targetLaunchSpeed;
-    private boolean ballLocked;
+    private boolean sensorWasTripped;
     private int shotCount;
 
     public ShooterSubsystem(XboxController controller, 
             int launchMotorPort, 
             int indexerMotorPort, 
             int ballAvailableSwitchPort) {
+        System.err.println("initializing shooter");
         this.controller = controller;
-        this.ballAvailable = new DigitalInput(ballAvailableSwitchPort);
+        this.ballSensor = new DigitalInput(ballAvailableSwitchPort);
         this.launchWheel = MotorFactory.makeVelocityClosedLoopMotor("Launch", launchMotorPort);
         this.indexerWheel = MotorFactory.makePositionClosedLoopMotor("Indexer", indexerMotorPort);
         disabledInit();
@@ -53,7 +54,7 @@ public class ShooterSubsystem {
     public void robotPeriodic() {
         SmartDashboard.putBoolean("Launch Spinning?", spinLaunchWheel);
         SmartDashboard.putNumber("Launch Target Speed", targetLaunchSpeed);
-        SmartDashboard.putBoolean("Ball Locked?", ballLocked);
+        SmartDashboard.putBoolean("Ball Locked?", sensorWasTripped);
         SmartDashboard.putNumber("Shot Count", shotCount);
         SmartDashboard.putBoolean("Launch wheel at speed??", launchWheelAtSpeed);
     }
@@ -62,10 +63,10 @@ public class ShooterSubsystem {
     public void disabledInit() {
         spinLaunchWheel = false;
         targetLaunchSpeed = STARTING_LAUNCH_RPM;
-        ballLocked = true;
+        sensorWasTripped = true;
         shotCount = 0;
         launchWheel.halt();
-        indexerWheel.set(0);
+        indexerWheel.resetClosedLoopControl();
     }
 
     // called 50x per second in teleop mode
@@ -126,30 +127,35 @@ public class ShooterSubsystem {
         // if we have a ball locked, then the only option we need to worry
         // about is whether someone wants to shoot it. the launch wheel has
         // to be up to speed before they can.
-        if (ballLocked) {
-            Logger.log("Checking for shot");
-            if (controller.getBButtonPressed() && launchWheelAtSpeed) {
-                Logger.log("Engaging indexer wheel to SHOOT ball");
-                indexerWheel.rotate(SHOOT_ROTATIONS);
-                // TODO - we will probably have to replace this with a timer, because we
-                // don't want to consider the ball "unlocked" until it's actually been
-                // ejected, which will take a little time.
-                ballLocked = false;
-                shotCount++;
+        if (ballSensor.get()) {
+            if (!sensorWasTripped) {
+                Logger.log("rotating for intake");
+                indexerWheel.rotate(LOCKIN_ROTATIONS);
             }
+            sensorWasTripped = true;
+        }
+        else {
+            sensorWasTripped = false;
         }
 
+        if (controller.getBButtonPressed()) {
+            if (ballSensor.get() && launchWheelAtSpeed) {
+                Logger.log("shooting!");
+                indexerWheel.rotate(SHOOT_ROTATIONS);    
+            }
+        }
         // if we don't have a ball locked, and there's one available, we'll
         // go ahead and lock one in
-        else if (ballAvailable.get() == BALL_AVAILABLE_PRESSED) {
-            Logger.log("Engaging indexer wheel to lock ball");
-            indexerWheel.rotate(LOCKIN_ROTATIONS);
+       // else if (ballAvailable.get() == BALL_AVAILABLE_PRESSED) {
+         //   Logger.log("Engaging indexer wheel to lock ball");
+           // indexerWheel.rotate(LOCKIN_ROTATIONS);
 
             // TODO - we will probably have to replace this with a timer, because we
             // don't want to consider the ball "locked" until it's actually been
             // grabbed, which will take a little time.
-            ballLocked = true;
-        }
+            //ballLocked = true;
+        //}
+        Logger.log("updating index wheel speed");
         indexerWheel.updateSpeed();
     }
 }

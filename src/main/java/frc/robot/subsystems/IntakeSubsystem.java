@@ -78,7 +78,6 @@ public class IntakeSubsystem {
             }       
         }
         else {
-            Logger.log("coasting intake wheel");
             intakeMotor.coast();
         }
     }
