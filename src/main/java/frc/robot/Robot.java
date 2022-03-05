@@ -6,6 +6,11 @@
 
 package frc.robot;
 
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
@@ -41,6 +46,32 @@ public class Robot extends TimedRobot {
   private IntakeSubsystem intake;
   private ShooterSubsystem shooter;
   private ClimberSubsystem climber;
+  private static final int  FLangleID = 4;
+  private static final int FLdriveID = 3;
+  private static final int  FRangleID = 2;
+  private static final int FRdriveID = 1;
+  private static final int  BRangleID = 8;
+  private static final int BRdriveID = 7;
+  private static final int  BLangleID = 6;
+  private static final int BLdriveID = 5;
+  private CANSparkMax FLangleMotor;
+  private CANSparkMax FLdriveMotor;
+  private CANSparkMax FRdriveMotor;
+  private CANSparkMax FRangleMotor;
+  private CANSparkMax BLangleMotor;
+  private CANSparkMax BLdriveMotor;
+  private CANSparkMax BRdriveMotor;
+  private CANSparkMax BRangleMotor;
+  private SparkMaxPIDController m_PIDController1;
+  private SparkMaxPIDController m_PIDController2;
+  private SparkMaxPIDController m_PIDController3;
+  private SparkMaxPIDController m_PIDController4;
+  private RelativeEncoder m_encoder1;
+  private RelativeEncoder m_encoder2;
+  private RelativeEncoder m_encoder3;
+  private RelativeEncoder m_encoder4;
+  private XboxController drive_control;
+  public double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -55,6 +86,75 @@ public class Robot extends TimedRobot {
     specialops = new XboxController(SPECIAL_OPS_PORT);
     intake = new IntakeSubsystem(specialops, INTAKE_PORT);
     shooter = new ShooterSubsystem(specialops, SHOOTER_LAUNCH_PORT, SHOOTER_INDEXER_PORT, SHOOTER_SWITCH_PORT);
+    FLangleMotor = new CANSparkMax(FLangleID, MotorType.kBrushless);
+    FLdriveMotor = new CANSparkMax(FLdriveID, MotorType.kBrushless);
+    FRangleMotor = new CANSparkMax(FRangleID, MotorType.kBrushless);
+    FRdriveMotor = new CANSparkMax(FRdriveID, MotorType.kBrushless);
+    BRangleMotor = new CANSparkMax(BRangleID, MotorType.kBrushless);
+    BRdriveMotor = new CANSparkMax(BRdriveID, MotorType.kBrushless);
+    BLdriveMotor = new CANSparkMax(BLdriveID, MotorType.kBrushless);
+    BLangleMotor = new CANSparkMax(BLangleID, MotorType.kBrushless);
+
+    m_PIDController1 = FLangleMotor.getPIDController();
+    m_PIDController2 = FRangleMotor.getPIDController();
+    m_PIDController3 = BRangleMotor.getPIDController();
+    m_PIDController4 = BLangleMotor.getPIDController();
+
+    m_encoder1 = FLangleMotor.getEncoder();
+    m_encoder2 = FRangleMotor.getEncoder();
+    m_encoder3 = BRangleMotor.getEncoder();
+    m_encoder4 = BLangleMotor.getEncoder();
+
+    drive_control = new XboxController(0);
+
+    kP = 0.1; 
+    kI = 1e-4;
+    kD = 1; 
+    kIz = 0; 
+    kFF = 0; 
+    kMaxOutput = 1; 
+    kMinOutput = -1;
+
+    m_PIDController1.setP(kP);
+    m_PIDController2.setP(kP);
+    m_PIDController3.setP(kP);
+    m_PIDController4.setP(kP);
+
+    m_PIDController1.setI(kI);
+    m_PIDController2.setI(kI);
+    m_PIDController3.setI(kI);
+    m_PIDController4.setI(kI);
+
+    m_PIDController1.setD(kD);
+    m_PIDController2.setD(kD);
+    m_PIDController3.setD(kD);
+    m_PIDController4.setD(kD);
+
+    m_PIDController1.setIZone(kIz);
+    m_PIDController2.setIZone(kIz);
+    m_PIDController3.setIZone(kIz);
+    m_PIDController4.setIZone(kIz);
+
+    m_PIDController1.setFF(kFF);
+    m_PIDController2.setFF(kFF);
+    m_PIDController3.setFF(kFF);
+    m_PIDController4.setFF(kFF);
+
+    m_PIDController1.setOutputRange(kMinOutput, kMaxOutput);
+    m_PIDController2.setOutputRange(kMinOutput, kMaxOutput);
+    m_PIDController3.setOutputRange(kMinOutput, kMaxOutput);
+    m_PIDController4.setOutputRange(kMinOutput, kMaxOutput);
+
+    SmartDashboard.putNumber("P Gain", kP);
+    SmartDashboard.putNumber("I Gain", kI);
+    SmartDashboard.putNumber("D Gain", kD);
+    SmartDashboard.putNumber("I Zone", kIz);
+    SmartDashboard.putNumber("Feed Forward", kFF);
+    SmartDashboard.putNumber("Max Output", kMaxOutput);
+    SmartDashboard.putNumber("Min Output", kMinOutput);
+    SmartDashboard.putNumber("Set Rotations", 0);
+    SmartDashboard.putNumber("Run Speed Motor?", 0);
+    SmartDashboard.putBoolean("Joystick Control", false);
 
     if (!isSimulation()) {
       CameraServer.startAutomaticCapture("Front", FRONT_CAMERA_PORT);
@@ -103,6 +203,108 @@ public class Robot extends TimedRobot {
     intake.telopPeriodic();
     shooter.teleopPeriodic();
     climber.teleopPeriodic();
+    double p = SmartDashboard.getNumber("P Gain", 0);
+    double i = SmartDashboard.getNumber("I Gain", 0);
+    double d = SmartDashboard.getNumber("D Gain", 0);
+    double iz = SmartDashboard.getNumber("I Zone", 0);
+    double ff = SmartDashboard.getNumber("Feed Forward", 0);
+    double max = SmartDashboard.getNumber("Max Output", 0);
+    double min = SmartDashboard.getNumber("Min Output", 0);
+    double rotations = SmartDashboard.getNumber("Set Rotations", 0);
+    double Speed_Motor = SmartDashboard.getNumber("Run Speed Motor?", 0);
+    boolean drive_mode = SmartDashboard.getBoolean("Joystick Control", false);
+
+    if(drive_control.getLeftY() > 0) {
+      FLdriveMotor.set((drive_control.getLeftY() * -1) / 4);
+      FRdriveMotor.set((drive_control.getLeftY() * -1) / 4);
+      BRdriveMotor.set(drive_control.getLeftY() / 4);
+      BLdriveMotor.set(drive_control.getLeftY() / 4);
+
+      m_PIDController1.setReference(((drive_control.getRawAxis(0) * -10) / -2), CANSparkMax.ControlType.kPosition);
+      m_PIDController2.setReference(((drive_control.getRawAxis(0) * -10) / -2), CANSparkMax.ControlType.kPosition);
+      m_PIDController3.setReference(((drive_control.getRawAxis(0) * -10) / -2), CANSparkMax.ControlType.kPosition);
+      m_PIDController4.setReference(((drive_control.getRawAxis(0) * -10) / -2), CANSparkMax.ControlType.kPosition);            
+    }
+    if(drive_control.getLeftY() < 0) {
+      FLdriveMotor.set((drive_control.getLeftY() * -1) / 4);
+      FRdriveMotor.set((drive_control.getLeftY() * -1) / 4);
+      BRdriveMotor.set(drive_control.getLeftY() / 4);
+      BLdriveMotor.set(drive_control.getLeftY() / 4);
+
+      m_PIDController1.setReference(((drive_control.getRawAxis(0) * -10) / 2), CANSparkMax.ControlType.kPosition);
+      m_PIDController2.setReference(((drive_control.getRawAxis(0) * -10) / 2), CANSparkMax.ControlType.kPosition);
+      m_PIDController3.setReference(((drive_control.getRawAxis(0) * -10) / 2), CANSparkMax.ControlType.kPosition);
+      m_PIDController4.setReference(((drive_control.getRawAxis(0) * -10) / 2), CANSparkMax.ControlType.kPosition);   
+
+    }
+    if(drive_control.getRightX() > .0) {
+      m_PIDController1.setReference(-2,  CANSparkMax.ControlType.kPosition);
+      FLdriveMotor.set(.25);
+      m_PIDController2.setReference(2,  CANSparkMax.ControlType.kPosition);
+      FRdriveMotor.set(-1 * .25);
+      m_PIDController3.setReference(-2,  CANSparkMax.ControlType.kPosition);
+      BLdriveMotor.set(-1 * .25);
+      m_PIDController4.setReference(2,  CANSparkMax.ControlType.kPosition);
+      BRdriveMotor.set(.25);
+    }
+      // Rotation
+    if(drive_control.getRightX() < 0) {
+      m_PIDController1.setReference(-1 * 2,  CANSparkMax.ControlType.kPosition);
+      FLdriveMotor.set(-1 * .25);
+      m_PIDController2.setReference(2,  CANSparkMax.ControlType.kPosition);
+      FRdriveMotor.set(.25);
+      m_PIDController3.setReference(-1 * 2,  CANSparkMax.ControlType.kPosition);
+      BLdriveMotor.set(.25);
+      m_PIDController4.setReference(2,  CANSparkMax.ControlType.kPosition);
+      BRdriveMotor.set(-1 * .25);    
+    }
+
+    SnakeDrive();
+    AimBot();
+    StrafeSwerve();
+  }
+  public void StrafeSwerve() {
+    if(drive_control.getRawAxis(0) == 1) {
+      m_PIDController1.setReference(4,  CANSparkMax.ControlType.kPosition);
+      FLdriveMotor.set(- .25);
+      m_PIDController2.setReference(4,  CANSparkMax.ControlType.kPosition);
+      FRdriveMotor.set(- .25);
+      m_PIDController3.setReference(4,  CANSparkMax.ControlType.kPosition);
+      BLdriveMotor.set(.25);
+      m_PIDController4.setReference(4,  CANSparkMax.ControlType.kPosition);
+      BRdriveMotor.set(.25);
+    }
+    if(drive_control.getRawAxis(0) == -1) {
+      m_PIDController1.setReference(4,  CANSparkMax.ControlType.kPosition);
+      FLdriveMotor.set(.25);
+      m_PIDController2.setReference(4,  CANSparkMax.ControlType.kPosition);
+      FRdriveMotor.set(.25);
+      m_PIDController3.setReference(4,  CANSparkMax.ControlType.kPosition);
+      BLdriveMotor.set(- .25);
+      m_PIDController4.setReference(4,  CANSparkMax.ControlType.kPosition);
+      BRdriveMotor.set(- .25);
+    }    
+  }
+  public void SnakeDrive() {
+    if(drive_control.getLeftTriggerAxis() > .05) {
+      int limiter = 5;
+    }
+    else {
+      int limiter = 10;
+    }
+  }
+
+  public void AimBot() {
+    if(drive_control.getLeftBumper() == true) {
+      m_PIDController1.setReference(-2,  CANSparkMax.ControlType.kPosition);
+      m_PIDController2.setReference(2,  CANSparkMax.ControlType.kPosition);
+      m_PIDController3.setReference(-2,  CANSparkMax.ControlType.kPosition);
+      m_PIDController4.setReference(2,  CANSparkMax.ControlType.kPosition);
+      FLdriveMotor.set(drive_control.getRightX() / 15);
+      FRdriveMotor.set((drive_control.getRightX() * -1) / 15);
+      BRdriveMotor.set(drive_control.getRightX() / 15);
+      BLdriveMotor.set((drive_control.getRightX() * -1) / 15);
+    }
   }
   
   /** This function is called once when the robot is disabled. */
