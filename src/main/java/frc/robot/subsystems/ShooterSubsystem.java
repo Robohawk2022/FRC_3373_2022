@@ -54,9 +54,9 @@ public class ShooterSubsystem {
     public void robotPeriodic() {
         SmartDashboard.putBoolean("Launch Spinning?", spinLaunchWheel);
         SmartDashboard.putNumber("Launch Target Speed", targetLaunchSpeed);
-        SmartDashboard.putBoolean("Ball Locked?", sensorWasTripped);
+        SmartDashboard.putBoolean("Sensor Tripped?", sensorWasTripped);
         SmartDashboard.putNumber("Shot Count", shotCount);
-        SmartDashboard.putBoolean("Launch wheel at speed??", launchWheelAtSpeed);
+        SmartDashboard.putBoolean("Launch wheel at speed?", launchWheelAtSpeed);
     }
 
     // called when the robot is put into disabled mode
@@ -106,14 +106,10 @@ public class ShooterSubsystem {
                 Logger.log("sped up launch wheel to ", targetLaunchSpeed);
             }
 
-            //Logger.log("spinning launch wheel at ", targetLaunchSpeed);
             launchWheel.setRpm(targetLaunchSpeed);
-
-            // check to see if it's up to speed
             launchWheelAtSpeed = Math.abs(3.0 * launchWheel.getRpm() - targetLaunchSpeed) < (LAUNCH_WINDOW * targetLaunchSpeed);
         }
         else {
-            //Logger.log("coasting launch wheel");
             launchWheel.coast();
             launchWheelAtSpeed = false;
         }
@@ -123,10 +119,9 @@ public class ShooterSubsystem {
      * Updates the indexer wheel - turning it to fire or intake a ball.
      */
     public void updateIndexerWheel() {
-        
-        // if we have a ball locked, then the only option we need to worry
-        // about is whether someone wants to shoot it. the launch wheel has
-        // to be up to speed before they can.
+
+        // trigger indexing IF there is a ball in front of the sensor now,
+        // and there wasn't one last time
         if (ballSensor.get()) {
             if (!sensorWasTripped) {
                 Logger.log("rotating for intake");
@@ -138,24 +133,15 @@ public class ShooterSubsystem {
             sensorWasTripped = false;
         }
 
+        // if someone wants to shoot, and the wheel's at speed and we 
+        // have a ball, go for it!
         if (controller.getBButtonPressed()) {
             if (ballSensor.get() && launchWheelAtSpeed) {
                 Logger.log("shooting!");
                 indexerWheel.rotate(SHOOT_ROTATIONS);    
             }
         }
-        // if we don't have a ball locked, and there's one available, we'll
-        // go ahead and lock one in
-       // else if (ballAvailable.get() == BALL_AVAILABLE_PRESSED) {
-         //   Logger.log("Engaging indexer wheel to lock ball");
-           // indexerWheel.rotate(LOCKIN_ROTATIONS);
 
-            // TODO - we will probably have to replace this with a timer, because we
-            // don't want to consider the ball "locked" until it's actually been
-            // grabbed, which will take a little time.
-            //ballLocked = true;
-        //}
-        Logger.log("updating index wheel speed");
         indexerWheel.updateSpeed();
     }
 }

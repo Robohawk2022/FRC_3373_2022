@@ -1,5 +1,3 @@
-
-  
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
@@ -81,11 +79,13 @@ public class Robot extends TimedRobot {
   public void robotInit() {
 
     drive_control = new XboxController(DRIVER_PORT);
-    climber = new ClimberSubsystem(driver, CLIMBER_EXTENDER_PORT, CLIMBER_EXTENDER_SWITCH, CLIMBER_ROTATOR_PORT, CLIMBER_ROTATOR_SWITCH);
+    
+    climber = null; // new ClimberSubsystem(driver, CLIMBER_EXTENDER_PORT, CLIMBER_EXTENDER_SWITCH, CLIMBER_ROTATOR_PORT, CLIMBER_ROTATOR_SWITCH);
 
     specialops = new XboxController(SPECIAL_OPS_PORT);
     intake = new IntakeSubsystem(specialops, INTAKE_PORT);
     shooter = new ShooterSubsystem(specialops, SHOOTER_LAUNCH_PORT, SHOOTER_INDEXER_PORT, SHOOTER_SWITCH_PORT);
+
     FLangleMotor = new CANSparkMax(FLangleID, MotorType.kBrushless);
     FLdriveMotor = new CANSparkMax(FLdriveID, MotorType.kBrushless);
     FRangleMotor = new CANSparkMax(FRangleID, MotorType.kBrushless);
@@ -170,9 +170,15 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    intake.robotPeriodic();
-    shooter.robotPeriodic();
-    climber.robotPeriodic();
+    if (intake != null) {
+      intake.robotPeriodic();
+    }
+    if (shooter != null) {
+      shooter.robotPeriodic();
+    }
+    if (climber != null) {
+      climber.robotPeriodic();
+    }
   }
 
   /**
@@ -199,19 +205,16 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     SmartDashboard.updateValues();
-    intake.telopPeriodic();
+    if (intake != null) {
+      intake.telopPeriodic();
+    }
+    if (shooter != null) {
+      shooter.teleopPeriodic();      
+    }
     shooter.teleopPeriodic();
-    climber.teleopPeriodic();
-    double p = SmartDashboard.getNumber("P Gain", 0);
-    double i = SmartDashboard.getNumber("I Gain", 0);
-    double d = SmartDashboard.getNumber("D Gain", 0);
-    double iz = SmartDashboard.getNumber("I Zone", 0);
-    double ff = SmartDashboard.getNumber("Feed Forward", 0);
-    double max = SmartDashboard.getNumber("Max Output", 0);
-    double min = SmartDashboard.getNumber("Min Output", 0);
-    double rotations = SmartDashboard.getNumber("Set Rotations", 0);
-    double Speed_Motor = SmartDashboard.getNumber("Run Speed Motor?", 0);
-    boolean drive_mode = SmartDashboard.getBoolean("Joystick Control", false);
+    if (climber != null) {
+      climber.teleopPeriodic();
+    }
 
     if(drive_control.getLeftY() > 0) {
       FLdriveMotor.set((drive_control.getLeftY() * -1) / 4);
@@ -258,7 +261,6 @@ public class Robot extends TimedRobot {
       BRdriveMotor.set(-1 * .25);    
     }
 
-    SnakeDrive();
     AimBot();
     StrafeSwerve();
   }
@@ -284,14 +286,6 @@ public class Robot extends TimedRobot {
       BRdriveMotor.set(- .25);
     }    
   }
-  public void SnakeDrive() {
-    if(drive_control.getLeftTriggerAxis() > .05) {
-      int limiter = 5;
-    }
-    else {
-      int limiter = 10;
-    }
-  }
 
   public void AimBot() {
     if(drive_control.getLeftBumper() == true) {
@@ -309,9 +303,15 @@ public class Robot extends TimedRobot {
   /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {
-    intake.disabledInit();
-    shooter.disabledInit();
-    climber.disabledInit();
+    if (intake != null) {
+      intake.disabledInit();
+    }
+    if (shooter != null) {
+      shooter.disabledInit();
+    }
+    if (climber != null) {
+      climber.disabledInit();
+    }
   }
 
   /** This function is called periodically when disabled. */
