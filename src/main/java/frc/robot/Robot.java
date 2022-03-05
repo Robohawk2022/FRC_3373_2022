@@ -39,7 +39,6 @@ public class Robot extends TimedRobot {
   public static final int FRONT_CAMERA_PORT = 0;
   public static final int BACK_CAMERA_PORT = 1;
 
-  private XboxController driver;
   private XboxController specialops;
   private IntakeSubsystem intake;
   private ShooterSubsystem shooter;
@@ -104,7 +103,6 @@ public class Robot extends TimedRobot {
     m_encoder2 = FRangleMotor.getEncoder();
     m_encoder3 = BRangleMotor.getEncoder();
     m_encoder4 = BLangleMotor.getEncoder();
-
 
     kP = 0.1; 
     kI = 1e-4;
