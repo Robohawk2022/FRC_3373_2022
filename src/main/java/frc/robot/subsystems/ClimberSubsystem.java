@@ -14,13 +14,16 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class ClimberSubsystem {
 
     /** Max speed of the extension motor */
-    public static final double MAX_EXTENSION_OUTPUT = 0.7;
+    public static final double MAX_EXTENSION_OUTPUT = 0.6;
 
     /** Max speed of the extension motor */
-    public static final double MAX_ROTATION_OUTPUT = 0.7;
+    public static final double MAX_ROTATION_OUTPUT = 0.6;
+
+    /** Max speed of the extension motor */
+    public static final double RESET_SPEED = -0.1;
 
     /** Value of extender switch when pressed */
-    public static final boolean EXTENDER_SWITCH_PRESSED = true;
+    public static final boolean EXTENDER_SWITCH_PRESSED = false;
 
     /** Value of rotator switch when pressed */
     public static final boolean ROTATOR_SWITCH_PRESSED = true;
@@ -33,6 +36,7 @@ public class ClimberSubsystem {
     private final NamedMotor rotatorMotor;
     private final DigitalInput extenderSwitch;
     private final DigitalInput rotatorSwitch;
+    private boolean resetting;
 
     public ClimberSubsystem(XboxController controller, 
         int extenderMotorPort, int extenderSwitchPort,
@@ -42,6 +46,7 @@ public class ClimberSubsystem {
         this.extenderSwitch = new DigitalInput(extenderSwitchPort);
         this.rotatorMotor = new NamedMotor("Rotator", rotatorMotorPort);
         this.rotatorSwitch = new DigitalInput(rotatorSwitchPort);
+        disabledInit();
     }
 
     private boolean atExtenderLimit() {
@@ -63,22 +68,46 @@ public class ClimberSubsystem {
         Logger.log("putting climbing system in disabled mode");
         extenderMotor.set(0.0);
         rotatorMotor.set(0.0);
+        resetting = false;
     }
 
     // called 50x per second in teleop mode
     public void teleopPeriodic() {
 
-        double extensionOutput = clean(controller.getLeftY()) * MAX_EXTENSION_OUTPUT;
-        if (extensionOutput < 0.0 && atExtenderLimit()) {
-            extensionOutput = 0.0;
+        if (controller.getBButtonPressed()) {
+            resetting = !resetting;
         }
-        extenderMotor.set(extensionOutput);
 
-        double rotatorOutput = clean(controller.getLeftY()) * MAX_ROTATION_OUTPUT;
-        if (rotatorOutput < 0.0 && atRotatorLimit()) {
-            rotatorOutput = 0.0;
+        double extRate = 0.0;
+        double rotRate = 0.0;
+
+        if (resetting) {
+            extRate = RESET_SPEED;
+            rotRate = RESET_SPEED;
+            if (atExtenderLimit() && atRotatorLimit()) {
+                resetting = false;
+            }
         }
-        rotatorMotor.set(rotatorOutput);
+        else {
+            extRate = clean(controller.getLeftY());
+            rotRate = clean(controller.getRightX());
+        }
+
+        if (extRate != 0.0) {
+            if (extRate < 0.0 && atExtenderLimit()) {
+                extRate = 0.0;
+            }
+            extRate *= MAX_EXTENSION_OUTPUT;
+        }
+        extenderMotor.set(extRate);
+    
+        if (rotRate != 0.0) {
+            if (rotRate < 0.0 && atRotatorLimit()) {
+                rotRate = 0.0;
+            }
+            rotRate *= MAX_ROTATION_OUTPUT;
+        }
+        rotatorMotor.set(rotRate);
     }
 
     private double clean(double stickValue) {
