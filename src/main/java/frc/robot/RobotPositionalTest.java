@@ -61,7 +61,7 @@ public class RobotPositionalTest extends TimedRobot {
     if (controller.getBackButtonPressed()) {
       motorEnabled = !motorEnabled;
       if (motorEnabled) {
-        motor.startClosedLoopControl();
+        motor.resetClosedLoopControl();
       }
     }
 
