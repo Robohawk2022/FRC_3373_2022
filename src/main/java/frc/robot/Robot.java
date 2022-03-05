@@ -103,9 +103,14 @@ public class Robot extends TimedRobot {
     m_PIDController4 = BLangleMotor.getPIDController();
 
     m_encoder1 = FLangleMotor.getAnalog(Mode.kAbsolute);
+    m_encoder1.setInverted(true);
     m_encoder2 = FRangleMotor.getAnalog(Mode.kAbsolute);
+    m_encoder2.setInverted(true);
     m_encoder3 = BRangleMotor.getAnalog(Mode.kAbsolute);
+    m_encoder3.setInverted(true);
     m_encoder4 = BLangleMotor.getAnalog(Mode.kAbsolute);
+    m_encoder4.setInverted(true);
+
 
 
     kP = 0.1; 
