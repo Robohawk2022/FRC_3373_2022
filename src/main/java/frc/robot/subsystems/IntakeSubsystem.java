@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.motors.MotorFactory;
@@ -13,11 +14,18 @@ public class IntakeSubsystem {
 
     /** Starting value for the speed of the intake wheel */
     public static final double STARTING_RPM = 2000;
+
+    /** Speed value for dropping the frame */
+    public static final double DROP_FRAME_SPEED = 0.1;
+
+    /** Amount of time for dropping the frame */
+    public static final double DROP_FRAME_SECONDS = 3.0;
     
     private final XboxController controller;
     private final VelocityClosedLoopMotor intakeMotor;
     private boolean spinWheel;
     private double targetSpeed;
+    private double autonomousStart;
 
     public IntakeSubsystem(XboxController controller, int intakeMotorPort) {
         this.controller = controller;
@@ -36,7 +44,23 @@ public class IntakeSubsystem {
         Logger.log("putting intake system in disabled mode");
         spinWheel = false;
         targetSpeed = STARTING_RPM;
+        autonomousStart = -1L;
         intakeMotor.halt();
+    }
+
+    // called at the beginning of autonomous
+    public void autonomousInit() {
+        autonomousStart = Timer.getFPGATimestamp();
+    }
+
+    // called 50x per second in autonomous
+    public void autonomousPeriodic() {
+        double now = Timer.getFPGATimestamp();
+        if (now - Timer.getFPGATimestamp() < DROP_FRAME_SECONDS) {
+            intakeMotor.set(DROP_FRAME_SPEED);
+        } else {
+            intakeMotor.set(0.0);
+        }
     }
 
     // called 50x per second in teleop mode

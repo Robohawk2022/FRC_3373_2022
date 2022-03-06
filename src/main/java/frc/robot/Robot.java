@@ -207,11 +207,19 @@ public class Robot extends TimedRobot {
    * chooser code above as well.
    */
   @Override
-  public void autonomousInit() {}
+  public void autonomousInit() {
+    if (intake != null) {
+      intake.autonomousInit();
+    }
+  }
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+    if (intake != null) {
+      intake.autonomousPeriodic();
+    }
+  }
 
   /** This function is called once when teleop is enabled. */
   @Override
