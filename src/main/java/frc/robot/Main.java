@@ -23,12 +23,14 @@ public final class Main {
    */
   public static void main(String... args) {
     System.err.println("starting robot ...");
-   //RobotBase.startRobot(Robot::new);
+    //RobotBase.startRobot(Robot::new);
     //RobotBase.startRobot(RobotEyesOnly::new);
     //RobotBase.startRobot(RobotShooterOnly::new);
      // RobotBase.startRobot(RobotIntakeOnly::new);
     // RobotBase.startRobot(RobotClimberOnly::new);
     //RobotBase.startRobot(RobotPositionalTest::new);
-    RobotBase.startRobot(RobotSpecialOpsTestbench::new);
+    //RobotBase.startRobot(RobotSpecialOpsTestbench::new);
+
+    RobotBase.startRobot(RobotTest::new);
   }
 }

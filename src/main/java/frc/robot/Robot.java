@@ -85,8 +85,8 @@ public class Robot extends TimedRobot {
     climber = null; // new ClimberSubsystem(driver, CLIMBER_EXTENDER_PORT, CLIMBER_EXTENDER_SWITCH, CLIMBER_ROTATOR_PORT, CLIMBER_ROTATOR_SWITCH);
 
     specialops = new XboxController(SPECIAL_OPS_PORT);
-    intake = new IntakeSubsystem(specialops, INTAKE_PORT);
-    shooter = new ShooterSubsystem(specialops, SHOOTER_LAUNCH_PORT, SHOOTER_INDEXER_PORT, SHOOTER_SWITCH_PORT);
+    //intake = new IntakeSubsystem(specialops, INTAKE_PORT);
+    //shooter = new ShooterSubsystem(specialops, SHOOTER_LAUNCH_PORT, SHOOTER_INDEXER_PORT, SHOOTER_SWITCH_PORT);
 
     FLangleMotor = new CANSparkMax(FLangleID, MotorType.kBrushed);
     FLdriveMotor = new CANSparkMax(FLdriveID, MotorType.kBrushless);
@@ -110,8 +110,7 @@ public class Robot extends TimedRobot {
     m_encoder3.setInverted(true);
     m_encoder4 = BLangleMotor.getAnalog(Mode.kAbsolute);
     m_encoder4.setInverted(true);
-
-
+    m_encoder3.setPositionConversionFactor(0.1);
 
     kP = 0.1; 
     kI = 1e-4;
@@ -125,9 +124,6 @@ public class Robot extends TimedRobot {
     m_PIDController2.setFeedbackDevice(m_encoder2);
     m_PIDController3.setFeedbackDevice(m_encoder3);
     m_PIDController4.setFeedbackDevice(m_encoder4);
-
-
-
 
     m_PIDController1.setP(kP);
     m_PIDController2.setP(kP);
@@ -170,10 +166,15 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Run Speed Motor?", 0);
     SmartDashboard.putBoolean("Joystick Control", false);
 
-    if (!isSimulation()) {
-      CameraServer.startAutomaticCapture("Front", FRONT_CAMERA_PORT);
-      CameraServer.startAutomaticCapture("Back", BACK_CAMERA_PORT);  
-    }
+    SmartDashboard.putNumber("FLPosition", m_encoder1.getPosition());
+    SmartDashboard.putNumber("FRPosition", m_encoder2.getPosition());
+    SmartDashboard.putNumber("BRPosition", m_encoder3.getPosition());
+    SmartDashboard.putNumber("BLPosition", m_encoder4.getPosition());
+
+    // if (!isSimulation()) {
+    //   CameraServer.startAutomaticCapture("Front", FRONT_CAMERA_PORT);
+    //   CameraServer.startAutomaticCapture("Back", BACK_CAMERA_PORT);  
+    // }
   }
 
   /**
@@ -194,6 +195,11 @@ public class Robot extends TimedRobot {
     if (climber != null) {
       climber.robotPeriodic();
     }
+
+    SmartDashboard.putNumber("FLPosition", m_encoder1.getPosition());
+    SmartDashboard.putNumber("FRPosition", m_encoder2.getPosition());
+    SmartDashboard.putNumber("BRPosition", m_encoder3.getPosition());
+    SmartDashboard.putNumber("BLPosition", m_encoder4.getPosition());
   }
 
   /**
@@ -226,7 +232,7 @@ public class Robot extends TimedRobot {
     if (shooter != null) {
       shooter.teleopPeriodic();      
     }
-    shooter.teleopPeriodic();
+    //shooter.teleopPeriodic();
     if (climber != null) {
       climber.teleopPeriodic();
     }
@@ -236,7 +242,7 @@ public class Robot extends TimedRobot {
       FRdriveMotor.set((drive_control.getLeftY() * -1) / 4);
       BRdriveMotor.set(drive_control.getLeftY() / 4);
       BLdriveMotor.set(drive_control.getLeftY() / 4);
-
+      System.out.println(((drive_control.getRawAxis(0) * -10) / -2));
       m_PIDController1.setReference(((drive_control.getRawAxis(0) * -10) / -2), CANSparkMax.ControlType.kPosition);
       m_PIDController2.setReference(((drive_control.getRawAxis(0) * -10) / -2), CANSparkMax.ControlType.kPosition);
       m_PIDController3.setReference(((drive_control.getRawAxis(0) * -10) / -2), CANSparkMax.ControlType.kPosition);
