@@ -4,12 +4,13 @@
 
 package frc.robot;
 
-import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxAnalogSensor;
 import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.SparkMaxRelativeEncoder;
+import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.SparkMaxAnalogSensor.Mode;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.AnalogEncoder;
@@ -46,8 +47,8 @@ public class Robot extends TimedRobot {
   private IntakeSubsystem intake;
   private ShooterSubsystem shooter;
   private ClimberSubsystem climber;
-  private static final int  FLangleID = 8;
-  private static final int FLdriveID = 7;
+  private static final int  FLangleID = 61;
+  private static final int FLdriveID = 60;
   private static final int  FRangleID = 6;
   private static final int FRdriveID = 5;
   private static final int  BRangleID = 4;
@@ -66,10 +67,10 @@ public class Robot extends TimedRobot {
   private SparkMaxPIDController m_PIDController2;
   private SparkMaxPIDController m_PIDController3;
   private SparkMaxPIDController m_PIDController4;
-  private SparkMaxAnalogSensor m_encoder1;
-  private SparkMaxAnalogSensor m_encoder2;
-  private SparkMaxAnalogSensor m_encoder3;
-  private SparkMaxAnalogSensor m_encoder4;
+  private RelativeEncoder m_encoder1;
+  private RelativeEncoder m_encoder2;
+  private RelativeEncoder m_encoder3;
+  private RelativeEncoder m_encoder4;
   private XboxController drive_control;
   public double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput;
 
@@ -102,19 +103,24 @@ public class Robot extends TimedRobot {
     m_PIDController3 = BRangleMotor.getPIDController();
     m_PIDController4 = BLangleMotor.getPIDController();
 
-    m_encoder1 = FLangleMotor.getAnalog(Mode.kAbsolute);
-    m_encoder1.setInverted(true);
-    m_encoder2 = FRangleMotor.getAnalog(Mode.kAbsolute);
-    m_encoder2.setInverted(true);
-    m_encoder3 = BRangleMotor.getAnalog(Mode.kAbsolute);
-    m_encoder3.setInverted(true);
-    m_encoder4 = BLangleMotor.getAnalog(Mode.kAbsolute);
-    m_encoder4.setInverted(true);
+    m_encoder1 = FLangleMotor.getEncoder(SparkMaxRelativeEncoder.Type.kQuadrature, 104);
+    m_encoder1.setPosition(0);
+    m_encoder1.setInverted(false);
+    m_encoder2 = FRangleMotor.getEncoder(SparkMaxRelativeEncoder.Type.kQuadrature, 104);
+    m_encoder2.setInverted(false);
+    m_encoder2.setPosition(0);
+    m_encoder3 = BRangleMotor.getEncoder(SparkMaxRelativeEncoder.Type.kQuadrature, 104);
+    m_encoder3.setInverted(false);
+    m_encoder3.setPosition(0);
+    m_encoder4 = BLangleMotor.getEncoder(SparkMaxRelativeEncoder.Type.kQuadrature, 104);
+    m_encoder4.setInverted(false);
+    m_encoder4.setPosition(0);
 
 
 
-    kP = 0.1; 
-    kI = 1e-4;
+
+    kP = 150; 
+    kI = 1e-3;
     kD = 1; 
     kIz = 0; 
     kFF = 0; 
@@ -125,9 +131,6 @@ public class Robot extends TimedRobot {
     m_PIDController2.setFeedbackDevice(m_encoder2);
     m_PIDController3.setFeedbackDevice(m_encoder3);
     m_PIDController4.setFeedbackDevice(m_encoder4);
-
-
-
 
     m_PIDController1.setP(kP);
     m_PIDController2.setP(kP);
@@ -168,7 +171,12 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Min Output", kMinOutput);
     SmartDashboard.putNumber("Set Rotations", 0);
     SmartDashboard.putNumber("Run Speed Motor?", 0);
-    SmartDashboard.putBoolean("Joystick Control", false);
+    
+    FLangleMotor.setInverted(true);
+    FRangleMotor.setInverted(true);
+    BLangleMotor.setInverted(true);
+    BRangleMotor.setInverted(true);
+
 
     if (!isSimulation()) {
       CameraServer.startAutomaticCapture("Front", FRONT_CAMERA_PORT);
@@ -194,6 +202,11 @@ public class Robot extends TimedRobot {
     if (climber != null) {
       climber.robotPeriodic();
     }
+    SmartDashboard.putNumber("ProcessVariable 1", m_encoder1.getPosition());
+    SmartDashboard.putNumber("ProcessVariable 2", m_encoder2.getPosition());
+    SmartDashboard.putNumber("ProcessVariable 3", m_encoder3.getPosition());
+    SmartDashboard.putNumber("ProcessVariable 4", m_encoder4.getPosition());
+
   }
 
   /**
@@ -347,5 +360,16 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during test mode. */
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+    if(drive_control.getBButton() == true) {
+      m_encoder1.setPosition(0);
+      System.out.print("Encoder 1 Reset");
+      m_encoder2.setPosition(0);
+      System.out.print("Encoder 2 Reset");
+      m_encoder3.setPosition(0);
+      System.out.print("Encoder 3 Reset");
+      m_encoder4.setPosition(0);
+      System.out.print("Encoder 4 Reset");
+    }
+  }
 }
