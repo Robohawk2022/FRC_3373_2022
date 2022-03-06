@@ -37,6 +37,7 @@ public class IntakeSubsystem {
     public void robotPeriodic() {
         SmartDashboard.putNumber("Intake Target Speed", targetSpeed);
         SmartDashboard.putBoolean("Intake Spinning?", spinWheel);
+        SmartDashboard.putBoolean("Dropping Intake?", autonomousStart > 0.0);
     }
     
     // called when the robot is put into disabled mode
@@ -55,11 +56,14 @@ public class IntakeSubsystem {
 
     // called 50x per second in autonomous
     public void autonomousPeriodic() {
-        double now = Timer.getFPGATimestamp();
-        if (now - Timer.getFPGATimestamp() < DROP_FRAME_SECONDS) {
-            intakeMotor.set(DROP_FRAME_SPEED);
-        } else {
-            intakeMotor.set(0.0);
+        if (autonomousStart > 0) {
+            double now = Timer.getFPGATimestamp();
+            if (now - Timer.getFPGATimestamp() < DROP_FRAME_SECONDS) {
+                intakeMotor.set(DROP_FRAME_SPEED);
+            } else {
+                intakeMotor.set(0.0);
+                autonomousStart = -1L;
+            }    
         }
     }
 
