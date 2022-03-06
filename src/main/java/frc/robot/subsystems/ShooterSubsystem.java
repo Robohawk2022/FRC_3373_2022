@@ -20,13 +20,13 @@ public class ShooterSubsystem {
     public static final boolean BALL_AVAILABLE_PRESSED = true;
 
     /** Starting speed of the launch wheel */
-    public static final double STARTING_LAUNCH_RPM = 2000;
+    public static final double STARTING_LAUNCH_RPM = -35000;
 
     /** How many rotations does the indexer need to lock in a ball? */
-    public static final double LOCKIN_ROTATIONS = 10;
+    public static final double LOCKIN_ROTATIONS = 25;
 
     /** How many rotations does the indexer need to push out a ball? */
-    public static final double SHOOT_ROTATIONS = 10;
+    public static final double SHOOT_ROTATIONS = 20;
 
     private final XboxController controller;
     private final DigitalInput ballSensor;
@@ -107,12 +107,16 @@ public class ShooterSubsystem {
             }
 
             launchWheel.setRpm(targetLaunchSpeed);
-            launchWheelAtSpeed = Math.abs(3.0 * launchWheel.getRpm() - targetLaunchSpeed) < (LAUNCH_WINDOW * targetLaunchSpeed);
+            launchWheelAtSpeed = isLaunchWheelAtSpeed();
         }
         else {
             launchWheel.coast();
             launchWheelAtSpeed = false;
         }
+    }
+
+    private boolean isLaunchWheelAtSpeed() {
+        return Math.abs(3.0 * launchWheel.getRpm() - targetLaunchSpeed) < Math.abs(LAUNCH_WINDOW * targetLaunchSpeed);
     }
 
     /**
@@ -136,9 +140,11 @@ public class ShooterSubsystem {
         // if someone wants to shoot, and the wheel's at speed and we 
         // have a ball, go for it!
         if (controller.getBButtonPressed()) {
-            if (ballSensor.get() && launchWheelAtSpeed) {
+            if (launchWheelAtSpeed) {
                 Logger.log("shooting!");
                 indexerWheel.rotate(SHOOT_ROTATIONS);    
+            } else {
+                System.err.println("not shooting (not at speed)");
             }
         }
 

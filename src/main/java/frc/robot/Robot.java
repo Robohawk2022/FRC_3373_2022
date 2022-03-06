@@ -225,7 +225,7 @@ public class Robot extends TimedRobot {
     if (climber != null) {
       climber.teleopPeriodic();
     }
-
+    System.out.println("I think this works here");
     if(drive_control.getLeftY() > 0) {
       FLdriveMotor.set((drive_control.getLeftY() * -1) / 4);
       FRdriveMotor.set((drive_control.getLeftY() * -1) / 4);
