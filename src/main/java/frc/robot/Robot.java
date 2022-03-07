@@ -115,6 +115,17 @@ public class Robot extends TimedRobot {
     m_PIDController3 = BRangleMotor.getPIDController();
     m_PIDController4 = BLangleMotor.getPIDController();
 
+    // RESET SPARK MAX
+    FLangleMotor.restoreFactoryDefaults();
+    FRangleMotor.restoreFactoryDefaults();
+    FLdriveMotor.restoreFactoryDefaults();
+    FRdriveMotor.restoreFactoryDefaults();
+    BLangleMotor.restoreFactoryDefaults();
+    FRangleMotor.restoreFactoryDefaults();
+    BLdriveMotor.restoreFactoryDefaults();
+    BRdriveMotor.restoreFactoryDefaults();
+
+
     m_encoder1 = FLangleMotor.getEncoder(SparkMaxRelativeEncoder.Type.kQuadrature, 104);
     m_encoder1.setPosition(0);
     m_encoder1.setInverted(false);
