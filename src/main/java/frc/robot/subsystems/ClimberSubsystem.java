@@ -84,7 +84,7 @@ public class ClimberSubsystem {
 
         if (resetting) {
             extRate = RESET_SPEED;
-            rotRate = RESET_SPEED;
+            rotRate = -RESET_SPEED;
             if (atExtenderLimit() && atRotatorLimit()) {
                 System.err.println("climber: done w/ reset");
                 resetting = false;

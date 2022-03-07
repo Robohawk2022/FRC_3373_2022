@@ -16,10 +16,10 @@ public class IntakeSubsystem {
     public static final double STARTING_RPM = 14000;
 
     /** Speed value for dropping the frame (rotates in reverse) */
-    public static final double DROP_FRAME_SPEED = -0.015;
+    public static final double DROP_FRAME_SPEED = -0.02;
 
     /** Amount of time for dropping the frame */
-    public static final double DROP_FRAME_SECONDS = 3.0;
+    public static final double DROP_FRAME_SECONDS = 10.0;
     
     private final XboxController controller;
     private final VelocityClosedLoopMotor intakeMotor;
@@ -59,8 +59,12 @@ public class IntakeSubsystem {
     public void autonomousPeriodic() {
         if (autonomousStart > 0) {
             double duration = Timer.getFPGATimestamp() - autonomousStart;
-            if (duration < DROP_FRAME_SECONDS) {
+            if (duration < DROP_FRAME_SECONDS / 2.0) {
+                System.err.println("dropping for "+duration+" secs");
                 intakeMotor.set(DROP_FRAME_SPEED);
+            } else if (duration < DROP_FRAME_SECONDS) {
+                System.err.println("dropping at double speed for "+duration+" secs");
+                intakeMotor.set(2 * DROP_FRAME_SPEED);
             } else {
                 System.err.println("intake: done dropping frame");
                 intakeMotor.set(0.0);

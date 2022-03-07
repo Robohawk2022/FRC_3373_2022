@@ -13,8 +13,8 @@ import frc.robot.util.Logger;
  */
 public class ShooterSubsystem {
 
-    /** How close to target speed does the launch wheel need to be in order to shoot? */
-    public static final double LAUNCH_WINDOW = 0.1;
+    /** Minimum speed for the launch wheel to avoid a ball getting stuck */
+    public static final double MINIMUM_LAUNCH_RPM = -2000;
 
     /** Because sometimes DigitalInput switches are reversed */
     public static final boolean BALL_AVAILABLE_PRESSED = true;
@@ -33,7 +33,6 @@ public class ShooterSubsystem {
     private final VelocityClosedLoopMotor launchWheel;
     private final PositionClosedLoopMotor indexerWheel;
     private boolean spinLaunchWheel;
-    private boolean launchWheelAtSpeed;
     private double targetLaunchSpeed;
     private boolean sensorWasTripped;
     private int shotCount;
@@ -57,8 +56,6 @@ public class ShooterSubsystem {
         SmartDashboard.putBoolean("Launch Sensor Tripped?", sensorWasTripped);
         SmartDashboard.putBoolean("Launch Sensor Value", ballSensor.get());
         SmartDashboard.putNumber("Shot Count", shotCount);
-        SmartDashboard.putBoolean("Launch wheel at speed?", launchWheelAtSpeed);
-        SmartDashboard.putNumber("Launch Ratio", targetLaunchSpeed / launchWheel.getRpm());
         SmartDashboard.putNumber("Launch Velocity", launchWheel.getRpm());
     }
 
@@ -110,11 +107,9 @@ public class ShooterSubsystem {
             }
 
             launchWheel.setRpm(targetLaunchSpeed);
-            launchWheelAtSpeed = Math.abs(4.0 * launchWheel.getRpm() - targetLaunchSpeed) < Math.abs(LAUNCH_WINDOW * targetLaunchSpeed);
         }
         else {
             launchWheel.coast();
-            launchWheelAtSpeed = false;
         }
     }
 
@@ -140,8 +135,9 @@ public class ShooterSubsystem {
         // have a ball, go for it!
         if (controller.getBButtonPressed()) {
             boolean haveBall = ballSensor.get();
-            Logger.log("shooter: attempting to shoot: have ball? "+haveBall+"; at speed? "+launchWheelAtSpeed);
-            if (haveBall) {
+            boolean atSpeed = launchWheel.getRpm() < MINIMUM_LAUNCH_RPM; // yes, less than, because speeds are negative
+            Logger.log("shooter: attempting to shoot: have ball? "+haveBall+" and at speed? "+atSpeed);
+            if (haveBall && atSpeed) {
                 Logger.log("shooter: shooting!");
                 indexerWheel.rotate(SHOOT_ROTATIONS);    
             }
