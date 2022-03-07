@@ -42,7 +42,7 @@ public class IntakeSubsystem {
     
     // called when the robot is put into disabled mode
     public void disabledInit() {
-        Logger.log("putting intake system in disabled mode");
+        Logger.log("intake: putting intake system in disabled mode");
         spinWheel = false;
         targetSpeed = STARTING_RPM;
         autonomousStart = -1L;
@@ -60,10 +60,10 @@ public class IntakeSubsystem {
         if (autonomousStart > 0) {
             double duration = Timer.getFPGATimestamp() - autonomousStart;
             if (duration < DROP_FRAME_SECONDS / 2.0) {
-                System.err.println("dropping for "+duration+" secs");
+                System.err.println("intake: dropping for "+duration+" secs");
                 intakeMotor.set(DROP_FRAME_SPEED);
             } else if (duration < DROP_FRAME_SECONDS) {
-                System.err.println("dropping at double speed for "+duration+" secs");
+                System.err.println("intake: dropping at double speed for "+duration+" secs");
                 intakeMotor.set(2 * DROP_FRAME_SPEED);
             } else {
                 System.err.println("intake: done dropping frame");
@@ -79,7 +79,7 @@ public class IntakeSubsystem {
         // back button turns the wheel on and off
         if (controller.getBackButtonPressed()) {
             spinWheel = !spinWheel;
-            Logger.log("toggled intake wheel to ", spinWheel);
+            Logger.log("intake: toggled intake wheel to ", spinWheel);
         }
 
         // if the wheel is spinning, we'll allow speed changes
@@ -88,26 +88,26 @@ public class IntakeSubsystem {
             // hold both bumpers: reset target speed
             if (controller.getLeftBumper() && controller.getRightBumper()) {
                 targetSpeed = STARTING_RPM;
-                Logger.log("reset intake wheel to ", targetSpeed);
+                Logger.log("intake: reset intake wheel to ", targetSpeed);
             }
             // press left bumper: go 10% slower
             else if (controller.getLeftBumperPressed()) {
                 targetSpeed *= 0.9;
-                Logger.log("slowed down intake wheel to ", targetSpeed);
+                Logger.log("intake: slowed down intake wheel to ", targetSpeed);
             }
             // press right bumper: go 10% faster
             else if (controller.getRightBumperPressed()) {
                 targetSpeed *= 1.1;
-                Logger.log("sped up intake wheel to ", targetSpeed);
+                Logger.log("intake: sped up intake wheel to ", targetSpeed);
             }
 
             // hold left trigger: reverse the wheel
             if (controller.getLeftTriggerAxis() > 0.5) {
                 intakeMotor.setRpm(-targetSpeed);
-                Logger.log("reversing intake wheel to ", targetSpeed);
+                Logger.log("intake: reversing intake wheel to ", targetSpeed);
             }
             else {
-                Logger.log("spinning intake wheel at ", targetSpeed);
+                Logger.log("intake: spinning intake wheel at ", targetSpeed);
                 intakeMotor.setRpm(targetSpeed);
             }       
         }
