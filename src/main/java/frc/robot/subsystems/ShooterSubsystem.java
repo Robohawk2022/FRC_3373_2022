@@ -107,7 +107,7 @@ public class ShooterSubsystem {
             }
 
             launchWheel.setRpm(targetLaunchSpeed);
-            launchWheelAtSpeed = Math.abs(3.0 * launchWheel.getRpm() - targetLaunchSpeed) < (LAUNCH_WINDOW * targetLaunchSpeed);
+            launchWheelAtSpeed = Math.abs(3.0 * launchWheel.getRpm() - targetLaunchSpeed) < Math.abs(LAUNCH_WINDOW * targetLaunchSpeed);
         }
         else {
             launchWheel.coast();

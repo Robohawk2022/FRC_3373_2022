@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class ClimberSubsystem {
 
     /** Max speed of the extension motor */
-    public static final double MAX_EXTENSION_OUTPUT = 0.6;
+    public static final double MAX_EXTENSION_OUTPUT = 0.2;
 
     /** Max speed of the extension motor */
     public static final double MAX_ROTATION_OUTPUT = 0.6;
@@ -23,7 +23,7 @@ public class ClimberSubsystem {
     public static final double RESET_SPEED = -0.1;
 
     /** Value of extender switch when pressed */
-    public static final boolean EXTENDER_SWITCH_PRESSED = false;
+    public static final boolean EXTENDER_SWITCH_PRESSED = true;
 
     /** Value of rotator switch when pressed */
     public static final boolean ROTATOR_SWITCH_PRESSED = true;
@@ -105,7 +105,7 @@ public class ClimberSubsystem {
         extenderMotor.set(extRate);
     
         if (rotRate != 0.0) {
-            if (rotRate < 0.0 && atRotatorLimit()) {
+            if (rotRate > 0.0 && atRotatorLimit()) {
                 rotRate = 0.0;
             }
             rotRate *= MAX_ROTATION_OUTPUT;

@@ -16,7 +16,7 @@ public class IntakeSubsystem {
     public static final double STARTING_RPM = 6000;
 
     /** Speed value for dropping the frame (rotates in reverse) */
-    public static final double DROP_FRAME_SPEED = -0.05;
+    public static final double DROP_FRAME_SPEED = -0.015;
 
     /** Amount of time for dropping the frame */
     public static final double DROP_FRAME_SECONDS = 3.0;
