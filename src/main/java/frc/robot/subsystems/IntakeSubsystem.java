@@ -13,7 +13,7 @@ import frc.robot.util.Logger;
 public class IntakeSubsystem {
 
     /** Starting value for the speed of the intake wheel */
-    public static final double STARTING_RPM = 6000;
+    public static final double STARTING_RPM = 14000;
 
     /** Speed value for dropping the frame (rotates in reverse) */
     public static final double DROP_FRAME_SPEED = -0.015;

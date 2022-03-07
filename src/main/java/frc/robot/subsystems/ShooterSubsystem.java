@@ -20,13 +20,13 @@ public class ShooterSubsystem {
     public static final boolean BALL_AVAILABLE_PRESSED = true;
 
     /** Starting speed of the launch wheel */
-    public static final double STARTING_LAUNCH_RPM = -2000;
+    public static final double STARTING_LAUNCH_RPM = -12000;
 
     /** How many rotations does the indexer need to lock in a ball? */
-    public static final double LOCKIN_ROTATIONS = 25;
+    public static final double LOCKIN_ROTATIONS = 35;
 
     /** How many rotations does the indexer need to push out a ball? */
-    public static final double SHOOT_ROTATIONS = 20;
+    public static final double SHOOT_ROTATIONS = 40;
 
     private final XboxController controller;
     private final DigitalInput ballSensor;
@@ -54,9 +54,12 @@ public class ShooterSubsystem {
     public void robotPeriodic() {
         SmartDashboard.putBoolean("Launch Spinning?", spinLaunchWheel);
         SmartDashboard.putNumber("Launch Target Speed", targetLaunchSpeed);
-        SmartDashboard.putBoolean("Sensor Tripped?", sensorWasTripped);
+        SmartDashboard.putBoolean("Launch Sensor Tripped?", sensorWasTripped);
+        SmartDashboard.putBoolean("Launch Sensor Value", ballSensor.get());
         SmartDashboard.putNumber("Shot Count", shotCount);
         SmartDashboard.putBoolean("Launch wheel at speed?", launchWheelAtSpeed);
+        SmartDashboard.putNumber("Launch Ratio", targetLaunchSpeed / launchWheel.getRpm());
+        SmartDashboard.putNumber("Launch Velocity", launchWheel.getRpm());
     }
 
     // called when the robot is put into disabled mode
@@ -107,7 +110,7 @@ public class ShooterSubsystem {
             }
 
             launchWheel.setRpm(targetLaunchSpeed);
-            launchWheelAtSpeed = Math.abs(3.0 * launchWheel.getRpm() - targetLaunchSpeed) < Math.abs(LAUNCH_WINDOW * targetLaunchSpeed);
+            launchWheelAtSpeed = Math.abs(4.0 * launchWheel.getRpm() - targetLaunchSpeed) < Math.abs(LAUNCH_WINDOW * targetLaunchSpeed);
         }
         else {
             launchWheel.coast();
@@ -138,7 +141,7 @@ public class ShooterSubsystem {
         if (controller.getBButtonPressed()) {
             boolean haveBall = ballSensor.get();
             Logger.log("shooter: attempting to shoot: have ball? "+haveBall+"; at speed? "+launchWheelAtSpeed);
-            if (haveBall && launchWheelAtSpeed) {
+            if (haveBall) {
                 Logger.log("shooter: shooting!");
                 indexerWheel.rotate(SHOOT_ROTATIONS);    
             }
