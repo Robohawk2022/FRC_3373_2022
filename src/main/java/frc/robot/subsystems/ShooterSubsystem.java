@@ -84,7 +84,7 @@ public class ShooterSubsystem {
         // start button turns the launch wheel on and off
         if (controller.getStartButtonPressed()) {
             spinLaunchWheel = !spinLaunchWheel;
-            Logger.log("toggled launch wheel to ", spinLaunchWheel);
+            Logger.log("shooter: toggled launch wheel to ", spinLaunchWheel);
         }
 
         // if the launch wheel is spinning, we'll allow speed changes
@@ -93,17 +93,17 @@ public class ShooterSubsystem {
             // A button: reset launch speed
             if (controller.getAButtonPressed()) {
                 targetLaunchSpeed = STARTING_LAUNCH_RPM;
-                Logger.log("reset launch wheel to ", targetLaunchSpeed);
+                Logger.log("shooter: reset launch wheel to ", targetLaunchSpeed);
             }
             // X button: go 10% slower
             else if (controller.getXButtonPressed()) {
                 targetLaunchSpeed *= 0.9;
-                Logger.log("slowed down launch wheel to ", targetLaunchSpeed);
+                Logger.log("shooter: slowed down launch wheel to ", targetLaunchSpeed);
             }
             // Y button: go 10% faster
             else if (controller.getYButtonPressed()) {
                 targetLaunchSpeed *= 1.1;
-                Logger.log("sped up launch wheel to ", targetLaunchSpeed);
+                Logger.log("shooter: sped up launch wheel to ", targetLaunchSpeed);
             }
 
             launchWheel.setRpm(targetLaunchSpeed);
@@ -124,7 +124,7 @@ public class ShooterSubsystem {
         // and there wasn't one last time
         if (ballSensor.get()) {
             if (!sensorWasTripped) {
-                Logger.log("rotating for intake");
+                Logger.log("shooter: rotating for intake");
                 indexerWheel.rotate(LOCKIN_ROTATIONS);
             }
             sensorWasTripped = true;
@@ -137,7 +137,7 @@ public class ShooterSubsystem {
         // have a ball, go for it!
         if (controller.getBButtonPressed()) {
             if (ballSensor.get() && launchWheelAtSpeed) {
-                Logger.log("shooting!");
+                Logger.log("shooter: shooting!");
                 indexerWheel.rotate(SHOOT_ROTATIONS);    
             }
         }

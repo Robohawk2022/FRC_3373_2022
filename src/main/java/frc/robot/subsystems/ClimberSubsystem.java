@@ -75,6 +75,7 @@ public class ClimberSubsystem {
     public void teleopPeriodic() {
 
         if (controller.getBButtonPressed()) {
+            System.err.println("climber: toggling reset mode");
             resetting = !resetting;
         }
 
@@ -85,6 +86,7 @@ public class ClimberSubsystem {
             extRate = RESET_SPEED;
             rotRate = RESET_SPEED;
             if (atExtenderLimit() && atRotatorLimit()) {
+                System.err.println("climber: done w/ reset");
                 resetting = false;
             }
         }
@@ -98,6 +100,7 @@ public class ClimberSubsystem {
                 extRate = 0.0;
             }
             extRate *= MAX_EXTENSION_OUTPUT;
+            System.err.println("climber: extending at "+extRate);
         }
         extenderMotor.set(extRate);
     
@@ -106,6 +109,7 @@ public class ClimberSubsystem {
                 rotRate = 0.0;
             }
             rotRate *= MAX_ROTATION_OUTPUT;
+            System.err.println("climber: rotating at "+rotRate);
         }
         rotatorMotor.set(rotRate);
     }
