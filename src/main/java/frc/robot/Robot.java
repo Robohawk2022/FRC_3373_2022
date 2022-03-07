@@ -139,8 +139,16 @@ public class Robot extends TimedRobot {
     m_encoder4.setInverted(false);
     m_encoder4.setPosition(0);
 
-    kP = 75; 
-    kI = 1e-3;
+    // kP = 75; 
+    // kI = 1e-3;
+    // kD = 1; 
+    // kIz = 0; 
+    // kFF = 0; 
+    // kMaxOutput = 1; 
+    // kMinOutput = -1;
+
+    kP = 0.1; 
+    kI = 1e-4;
     kD = 1; 
     kIz = 0; 
     kFF = 0; 
