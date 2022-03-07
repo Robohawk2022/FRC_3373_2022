@@ -136,7 +136,9 @@ public class ShooterSubsystem {
         // if someone wants to shoot, and the wheel's at speed and we 
         // have a ball, go for it!
         if (controller.getBButtonPressed()) {
-            if (ballSensor.get() && launchWheelAtSpeed) {
+            boolean haveBall = ballSensor.get();
+            Logger.log("shooter: attempting to shoot: have ball? "+haveBall+"; at speed? "+launchWheelAtSpeed);
+            if (haveBall && launchWheelAtSpeed) {
                 Logger.log("shooter: shooting!");
                 indexerWheel.rotate(SHOOT_ROTATIONS);    
             }

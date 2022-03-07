@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.AnalogEncoder;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.motors.MotorFactory;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -198,6 +199,7 @@ public class Robot extends TimedRobot {
     if (climber != null) {
       climber.robotPeriodic();
     }
+    MotorFactory.updateDashboard();
     SmartDashboard.putNumber("ProcessVariable 1", m_encoder1.getPosition());
     SmartDashboard.putNumber("ProcessVariable 2", m_encoder2.getPosition());
     SmartDashboard.putNumber("ProcessVariable 3", m_encoder3.getPosition());
@@ -243,7 +245,6 @@ public class Robot extends TimedRobot {
     if (shooter != null) {
       shooter.teleopPeriodic();      
     }
-    shooter.teleopPeriodic();
     if (climber != null) {
       climber.teleopPeriodic();
     }
