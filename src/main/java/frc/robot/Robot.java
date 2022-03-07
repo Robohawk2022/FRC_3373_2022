@@ -5,15 +5,12 @@
 package frc.robot;
 
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxAnalogSensor;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkMaxRelativeEncoder;
-import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.wpilibj.AnalogEncoder;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -84,11 +81,11 @@ public class Robot extends TimedRobot {
   public void robotInit() {
 
     drive_control = new XboxController(DRIVER_PORT);
+    intake = new IntakeSubsystem(drive_control, INTAKE_PORT);
     
-    climber = new ClimberSubsystem(drive_control, CLIMBER_EXTENDER_PORT, CLIMBER_EXTENDER_SWITCH, CLIMBER_ROTATOR_PORT, CLIMBER_ROTATOR_SWITCH);
     specialops = new XboxController(SPECIAL_OPS_PORT);
-    intake = new IntakeSubsystem(specialops, INTAKE_PORT);
     shooter = new ShooterSubsystem(specialops, SHOOTER_LAUNCH_PORT, SHOOTER_INDEXER_PORT, SHOOTER_SWITCH_PORT);
+    climber = new ClimberSubsystem(specialops, CLIMBER_EXTENDER_PORT, CLIMBER_EXTENDER_SWITCH, CLIMBER_ROTATOR_PORT, CLIMBER_ROTATOR_SWITCH);
 
     FLangleMotor = new CANSparkMax(FLangleID, MotorType.kBrushed);
     FLdriveMotor = new CANSparkMax(FLdriveID, MotorType.kBrushless);
