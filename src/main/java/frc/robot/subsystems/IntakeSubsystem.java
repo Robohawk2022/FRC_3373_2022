@@ -13,10 +13,10 @@ import frc.robot.util.Logger;
 public class IntakeSubsystem {
 
     /** Starting value for the speed of the intake wheel */
-    public static final double STARTING_RPM = 2000;
+    public static final double STARTING_RPM = 6000;
 
-    /** Speed value for dropping the frame */
-    public static final double DROP_FRAME_SPEED = 0.1;
+    /** Speed value for dropping the frame (rotates in reverse) */
+    public static final double DROP_FRAME_SPEED = -0.05;
 
     /** Amount of time for dropping the frame */
     public static final double DROP_FRAME_SECONDS = 3.0;
@@ -52,15 +52,17 @@ public class IntakeSubsystem {
     // called at the beginning of autonomous
     public void autonomousInit() {
         autonomousStart = Timer.getFPGATimestamp();
+        System.err.println("intake: dropping frame at "+DROP_FRAME_SPEED);
     }
 
     // called 50x per second in autonomous
     public void autonomousPeriodic() {
         if (autonomousStart > 0) {
-            double now = Timer.getFPGATimestamp();
-            if (now - Timer.getFPGATimestamp() < DROP_FRAME_SECONDS) {
+            double duration = Timer.getFPGATimestamp() - autonomousStart;
+            if (duration < DROP_FRAME_SECONDS) {
                 intakeMotor.set(DROP_FRAME_SPEED);
             } else {
+                System.err.println("intake: done dropping frame");
                 intakeMotor.set(0.0);
                 autonomousStart = -1L;
             }    
