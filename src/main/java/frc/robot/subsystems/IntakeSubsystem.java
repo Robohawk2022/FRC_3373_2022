@@ -16,7 +16,7 @@ public class IntakeSubsystem {
     public static final double STARTING_RPM = 14000;
 
     /** Speed value for dropping the frame (rotates in reverse) */
-    public static final double DROP_FRAME_SPEED = -0.02;
+    public static final double DROP_FRAME_SPEED = -0.015;
 
     /** Amount of time for dropping the frame */
     public static final double DROP_FRAME_SECONDS = 10.0;
@@ -64,7 +64,7 @@ public class IntakeSubsystem {
                 intakeMotor.set(DROP_FRAME_SPEED);
             } else if (duration < DROP_FRAME_SECONDS) {
                 System.err.println("intake: dropping at double speed for "+duration+" secs");
-                intakeMotor.set(2 * DROP_FRAME_SPEED);
+                intakeMotor.set(3 * DROP_FRAME_SPEED);
             } else {
                 System.err.println("intake: done dropping frame");
                 intakeMotor.set(0.0);
