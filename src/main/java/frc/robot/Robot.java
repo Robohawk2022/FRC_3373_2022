@@ -78,6 +78,7 @@ public class Robot extends TimedRobot {
   private RelativeEncoder m_encoder3;
   private RelativeEncoder m_encoder4;
   private XboxController drive_control;
+  private Timer autotimer;
   public double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput;
 
 
@@ -119,10 +120,12 @@ public class Robot extends TimedRobot {
     FLdriveMotor.restoreFactoryDefaults();
     FRdriveMotor.restoreFactoryDefaults();
     BLangleMotor.restoreFactoryDefaults();
-    FRangleMotor.restoreFactoryDefaults();
+    BRangleMotor.restoreFactoryDefaults();
     BLdriveMotor.restoreFactoryDefaults();
     BRdriveMotor.restoreFactoryDefaults();
 
+    //TIMER
+    autotimer = new Timer();
 
     m_encoder1 = FLangleMotor.getEncoder(SparkMaxRelativeEncoder.Type.kQuadrature, 104);
     m_encoder1.setPosition(0);
@@ -145,7 +148,7 @@ public class Robot extends TimedRobot {
     // kMaxOutput = 1; 
     // kMinOutput = -1;
 
-    kP = 0.1; 
+    kP = 1; 
     kI = 1e-4;
     kD = 1; 
     kIz = 0; 
@@ -165,17 +168,17 @@ public class Robot extends TimedRobot {
 
     m_PIDController1.setI(kI);
     m_PIDController2.setI(kI);
-    m_PIDController3.setI(kI);
+    m_PIDController3.setP(kP);
     m_PIDController4.setI(kI);
 
     m_PIDController1.setD(kD);
     m_PIDController2.setD(kD);
-    m_PIDController3.setD(kD);
+    m_PIDController3.setP(kP);
     m_PIDController4.setD(kD);
 
     m_PIDController1.setIZone(kIz);
     m_PIDController2.setIZone(kIz);
-    m_PIDController3.setIZone(kIz);
+    m_PIDController3.setP(kP);
     m_PIDController4.setIZone(kIz);
 
     m_PIDController1.setFF(kFF);
@@ -241,6 +244,8 @@ public class Robot extends TimedRobot {
     if (intake != null) {
       intake.autonomousInit();
     }
+    autotimer.stop();
+    autotimer.reset();
   }
 
   /** This function is called periodically during autonomous. */
@@ -249,11 +254,46 @@ public class Robot extends TimedRobot {
     if (intake != null) {
       intake.autonomousPeriodic();
     }
+    autotimer.start();
+    while(autotimer.get() > 0) {
+      if (autotimer.get() < 4) {
+        FLdriveMotor.set(.10);
+        FRdriveMotor.set(.10);
+        BLdriveMotor.set(.10);
+        BRdriveMotor.set(.10);
+        m_PIDController1.setReference(0, CANSparkMax.ControlType.kPosition);
+        m_PIDController2.setReference(0, CANSparkMax.ControlType.kPosition);
+        m_PIDController3.setReference(0, CANSparkMax.ControlType.kPosition);
+        m_PIDController4.setReference(0, CANSparkMax.ControlType.kPosition);  
+  
+      }
+      else {
+        FLdriveMotor.set(0);
+        FRdriveMotor.set(0);
+        BLdriveMotor.set(0);
+        BRdriveMotor.set(0);  
+      }
+   }
+
+    
   }
 
   /** This function is called once when teleop is enabled. */
   @Override
-  public void teleopInit() {}
+  public void teleopInit() {
+    m_encoder1.setPosition(0);
+    m_encoder2.setPosition(0);
+    m_encoder3.setPosition(0);
+    m_encoder4.setPosition(0);
+    m_PIDController3.setP(kP);
+    m_PIDController3.setP(kP);
+    m_PIDController3.setP(kP);
+    m_PIDController3.setP(kP);
+    m_PIDController3.setFF(kFF);
+    m_PIDController3.setOutputRange(kMinOutput, kMaxOutput);
+
+
+  }
 
   @Override
   public void teleopPeriodic() {
@@ -267,12 +307,12 @@ public class Robot extends TimedRobot {
     if (climber != null) {
       climber.teleopPeriodic();
     }
-
+    // Aim Bot, Squared and limtied, Snake drive, turbo enable, strafe to sensative and porportional and cubed, adjust squaring 
     if(drive_control.getLeftY() > 0) {
-      FLdriveMotor.set((drive_control.getLeftY()) / -1 * DefaultLimit);
-      FRdriveMotor.set((drive_control.getLeftY()) / -1 * DefaultLimit);
-      BRdriveMotor.set(drive_control.getLeftY() / -1 * DefaultLimit);
-      BLdriveMotor.set(drive_control.getLeftY() / -1 * DefaultLimit);
+      FLdriveMotor.set((drive_control.getLeftY()) / (-1 * DefaultLimit));
+      FRdriveMotor.set((drive_control.getLeftY()) / (-1 * DefaultLimit));
+      BRdriveMotor.set((drive_control.getLeftY()) / (-1 * DefaultLimit));
+      BLdriveMotor.set((drive_control.getLeftY()) / (-1 * DefaultLimit));
 
       m_PIDController1.setReference(((drive_control.getRawAxis(0) * -10) / -2), CANSparkMax.ControlType.kPosition);
       m_PIDController2.setReference(((drive_control.getRawAxis(0) * -10) / -2), CANSparkMax.ControlType.kPosition);
@@ -280,45 +320,45 @@ public class Robot extends TimedRobot {
       m_PIDController4.setReference(((drive_control.getRawAxis(0) * -10) / -2), CANSparkMax.ControlType.kPosition);            
     }
     if(drive_control.getLeftY() < 0) {
-      FLdriveMotor.set((drive_control.getLeftY()) / -1 * DefaultLimit);
-      FRdriveMotor.set((drive_control.getLeftY()) / -1 * DefaultLimit);
-      BRdriveMotor.set(drive_control.getLeftY() / -1 * DefaultLimit);
-      BLdriveMotor.set(drive_control.getLeftY() / -1 * DefaultLimit);
+      FLdriveMotor.set((drive_control.getLeftY()) / (-1 * DefaultLimit));
+      FRdriveMotor.set((drive_control.getLeftY()) / (-1 * DefaultLimit));
+      BRdriveMotor.set((drive_control.getLeftY()) / (-1 * DefaultLimit));
+      BLdriveMotor.set((drive_control.getLeftY()) / (-1 * DefaultLimit));
 
       m_PIDController1.setReference(((drive_control.getRawAxis(0) * -10) / 2), CANSparkMax.ControlType.kPosition);
       m_PIDController2.setReference(((drive_control.getRawAxis(0) * -10) / 2), CANSparkMax.ControlType.kPosition);
       m_PIDController3.setReference(((drive_control.getRawAxis(0) * -10) / 2), CANSparkMax.ControlType.kPosition);
       m_PIDController4.setReference(((drive_control.getRawAxis(0) * -10) / 2), CANSparkMax.ControlType.kPosition);   
-
     }
-    if(drive_control.getRightX() > .0) {
+    // rotation
+    if(drive_control.getRightX() > 0) {
       m_PIDController1.setReference(-2,  CANSparkMax.ControlType.kPosition);
-      FLdriveMotor.set(RotationLimit);
+      FLdriveMotor.set(drive_control.getRightX() / 2);
       m_PIDController2.setReference(2,  CANSparkMax.ControlType.kPosition);
-      FRdriveMotor.set(-1 * RotationLimit);
+      FRdriveMotor.set(drive_control.getRightX() / -2);
       m_PIDController3.setReference(-2,  CANSparkMax.ControlType.kPosition);
-      BLdriveMotor.set(-1 * RotationLimit);
+      BLdriveMotor.set(drive_control.getRightX() / 2);
       m_PIDController4.setReference(2,  CANSparkMax.ControlType.kPosition);
-      BRdriveMotor.set(RotationLimit);
+      BRdriveMotor.set(drive_control.getRightX() / -2);
     }
       // Rotation
     if(drive_control.getRightX() < 0) {
-      m_PIDController1.setReference(-1 * 2,  CANSparkMax.ControlType.kPosition);
-      FLdriveMotor.set(-1 * RotationLimit);
+      m_PIDController1.setReference(-2,  CANSparkMax.ControlType.kPosition);
+      FLdriveMotor.set(drive_control.getRightX() / 2);
       m_PIDController2.setReference(2,  CANSparkMax.ControlType.kPosition);
-      FRdriveMotor.set(RotationLimit);
-      m_PIDController3.setReference(-1 * 2,  CANSparkMax.ControlType.kPosition);
-      BLdriveMotor.set(RotationLimit);
+      FRdriveMotor.set(drive_control.getRightX() / -2);
+      m_PIDController3.setReference(-2,  CANSparkMax.ControlType.kPosition);
+      BLdriveMotor.set(drive_control.getRightX() / 2);
       m_PIDController4.setReference(2,  CANSparkMax.ControlType.kPosition);
-      BRdriveMotor.set(-1 * RotationLimit);    
+      BRdriveMotor.set(drive_control.getRightX() / -2);  
     }
 
     AimBot();
-    StrafeSwerve();
-    ChangeLimited();
+    // StrafeSwerve();
+    // ChangeLimited();
   }
   public void StrafeSwerve() {
-    if(drive_control.getRawAxis(0) == 1) {
+    if(drive_control.getRawAxis(0) > .5) {
       m_PIDController1.setReference(4,  CANSparkMax.ControlType.kPosition);
       FLdriveMotor.set(- StrafeLimit);
       m_PIDController2.setReference(4,  CANSparkMax.ControlType.kPosition);
@@ -328,7 +368,7 @@ public class Robot extends TimedRobot {
       m_PIDController4.setReference(4,  CANSparkMax.ControlType.kPosition);
       BRdriveMotor.set(StrafeLimit);
     }
-    if(drive_control.getRawAxis(0) == -1) {
+    if(drive_control.getRawAxis(0) < .5) {
       m_PIDController1.setReference(4,  CANSparkMax.ControlType.kPosition);
       FLdriveMotor.set(StrafeLimit);
       m_PIDController2.setReference(4,  CANSparkMax.ControlType.kPosition);
@@ -343,13 +383,13 @@ public class Robot extends TimedRobot {
   public void AimBot() {
     if(drive_control.getLeftBumper() == true) {
       m_PIDController1.setReference(-2,  CANSparkMax.ControlType.kPosition);
+      FLdriveMotor.set(drive_control.getRightX() / 8);
       m_PIDController2.setReference(2,  CANSparkMax.ControlType.kPosition);
+      FRdriveMotor.set(drive_control.getRightX() / -8);
       m_PIDController3.setReference(-2,  CANSparkMax.ControlType.kPosition);
+      BLdriveMotor.set(drive_control.getRightX() / 8);
       m_PIDController4.setReference(2,  CANSparkMax.ControlType.kPosition);
-      FLdriveMotor.set(drive_control.getRightX() / 15);
-      FRdriveMotor.set((drive_control.getRightX() * -1) / 15);
-      BRdriveMotor.set(drive_control.getRightX() / 15);
-      BLdriveMotor.set((drive_control.getRightX() * -1) / 15);
+      BRdriveMotor.set(drive_control.getRightX() / -8);  
     }
   }
   public void ChangeLimited() {
@@ -364,9 +404,8 @@ public class Robot extends TimedRobot {
       StrafeLimit = .25; 
     }
   }
-
   
-  /** This function is called once when the robot is disabled. */
+  // /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {
     if (intake != null) {
