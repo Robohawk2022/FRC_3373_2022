@@ -86,17 +86,17 @@ public class IntakeSubsystem {
         if (spinWheel) {
 
             // hold both bumpers: reset target speed
-            if (controller.getLeftBumper() && controller.getRightBumper()) {
+            if (controller.getAButtonPressed()) {
                 targetSpeed = STARTING_RPM;
                 Logger.log("intake: reset intake wheel to ", targetSpeed);
             }
             // press left bumper: go 10% slower
-            else if (controller.getLeftBumperPressed()) {
+            else if (controller.getXButtonPressed()) {
                 targetSpeed *= 0.9;
                 Logger.log("intake: slowed down intake wheel to ", targetSpeed);
             }
             // press right bumper: go 10% faster
-            else if (controller.getRightBumperPressed()) {
+            else if (controller.getYButton()) {
                 targetSpeed *= 1.1;
                 Logger.log("intake: sped up intake wheel to ", targetSpeed);
             }
@@ -104,11 +104,9 @@ public class IntakeSubsystem {
             // hold left trigger: reverse the wheel
             if (controller.getLeftTriggerAxis() > 0.5) {
                 intakeMotor.setRpm(-targetSpeed);
-                Logger.log("intake: reversing intake wheel to ", targetSpeed);
             }
             else {
                 Logger.log("intake: spinning intake wheel at ", targetSpeed);
-                intakeMotor.setRpm(targetSpeed);
             }       
         }
         else {

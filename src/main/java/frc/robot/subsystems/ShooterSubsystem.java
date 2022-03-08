@@ -49,6 +49,21 @@ public class ShooterSubsystem {
         disabledInit();
     }
 
+    public void setLaunchWheelEnabled(boolean enabled) {
+        Logger.log("shooter: setting launch wheel to enabled=", enabled);
+        spinLaunchWheel = enabled;
+    }
+
+    public void shoot() {
+        boolean haveBall = ballSensor.get();
+        boolean atSpeed = launchWheel.getRpm() < MINIMUM_LAUNCH_RPM; // yes, less than, because speeds are negative
+        Logger.log("shooter: attempting to shoot: have ball? "+haveBall+" and at speed? "+atSpeed);
+        if (haveBall && atSpeed) {
+            Logger.log("shooter: shooting!");
+            indexerWheel.rotate(SHOOT_ROTATIONS);    
+        }
+    }
+
     // called 50x per second, no matter what mode we're in
     public void robotPeriodic() {
         SmartDashboard.putBoolean("Launch Spinning?", spinLaunchWheel);
@@ -81,10 +96,9 @@ public class ShooterSubsystem {
      */
     protected void updateLaunchWheel() {
 
-        // start button turns the launch wheel on and off
+        // start button toggles the launch wheel on and off
         if (controller.getStartButtonPressed()) {
-            spinLaunchWheel = !spinLaunchWheel;
-            Logger.log("shooter: toggled launch wheel to ", spinLaunchWheel);
+            setLaunchWheelEnabled(!spinLaunchWheel);
         }
 
         // if the launch wheel is spinning, we'll allow speed changes
@@ -134,13 +148,7 @@ public class ShooterSubsystem {
         // if someone wants to shoot, and the wheel's at speed and we 
         // have a ball, go for it!
         if (controller.getBButtonPressed()) {
-            boolean haveBall = ballSensor.get();
-            boolean atSpeed = launchWheel.getRpm() < MINIMUM_LAUNCH_RPM; // yes, less than, because speeds are negative
-            Logger.log("shooter: attempting to shoot: have ball? "+haveBall+" and at speed? "+atSpeed);
-            if (haveBall && atSpeed) {
-                Logger.log("shooter: shooting!");
-                indexerWheel.rotate(SHOOT_ROTATIONS);    
-            }
+            shoot();
         }
 
         indexerWheel.updateSpeed();
