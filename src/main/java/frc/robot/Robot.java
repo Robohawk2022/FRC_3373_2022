@@ -22,6 +22,8 @@ import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 
+import edu.wpi.first.wpilibj.Timer;
+
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
  * each mode, as described in the TimedRobot documentation. If you change the name of this class or
@@ -44,6 +46,11 @@ public class Robot extends TimedRobot {
   public static final boolean USE_CAMERAS = false;
   public static final int FRONT_CAMERA_PORT = 0;
   public static final int BACK_CAMERA_PORT = 1;
+
+  // SWERVE CONSTANTS
+  public static int DefaultLimit = 4;
+  public static double RotationLimit = .25;
+  public static double StrafeLimit = .25;
 
   private XboxController specialops;
   private IntakeSubsystem intake;
@@ -76,13 +83,18 @@ public class Robot extends TimedRobot {
   private XboxController drive_control;
   public double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput;
 
+
+
+
+  public Timer autoTimer;
+
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
    */
   @Override
   public void robotInit() {
-
+    SmartDashboard.putString("MotorTesting: ", "None");
     drive_control = new XboxController(DRIVER_PORT);
     
     climber = new ClimberSubsystem(drive_control, CLIMBER_EXTENDER_PORT, CLIMBER_EXTENDER_SWITCH, CLIMBER_ROTATOR_PORT, CLIMBER_ROTATOR_SWITCH);
@@ -104,6 +116,17 @@ public class Robot extends TimedRobot {
     m_PIDController3 = BRangleMotor.getPIDController();
     m_PIDController4 = BLangleMotor.getPIDController();
 
+    // RESET SPARK MAX
+    FLangleMotor.restoreFactoryDefaults();
+    FRangleMotor.restoreFactoryDefaults();
+    FLdriveMotor.restoreFactoryDefaults();
+    FRdriveMotor.restoreFactoryDefaults();
+    BLangleMotor.restoreFactoryDefaults();
+    FRangleMotor.restoreFactoryDefaults();
+    BLdriveMotor.restoreFactoryDefaults();
+    BRdriveMotor.restoreFactoryDefaults();
+
+
     m_encoder1 = FLangleMotor.getEncoder(SparkMaxRelativeEncoder.Type.kQuadrature, 104);
     m_encoder1.setPosition(0);
     m_encoder1.setInverted(false);
@@ -117,8 +140,16 @@ public class Robot extends TimedRobot {
     m_encoder4.setInverted(false);
     m_encoder4.setPosition(0);
 
-    kP = 75; 
-    kI = 1e-3;
+    // kP = 75; 
+    // kI = 1e-3;
+    // kD = 1; 
+    // kIz = 0; 
+    // kFF = 0; 
+    // kMaxOutput = 1; 
+    // kMinOutput = -1;
+
+    kP = 0.1; 
+    kI = 1e-4;
     kD = 1; 
     kIz = 0; 
     kFF = 0; 
@@ -160,15 +191,6 @@ public class Robot extends TimedRobot {
     m_PIDController3.setOutputRange(kMinOutput, kMaxOutput);
     m_PIDController4.setOutputRange(kMinOutput, kMaxOutput);
 
-    SmartDashboard.putNumber("P Gain", kP);
-    SmartDashboard.putNumber("I Gain", kI);
-    SmartDashboard.putNumber("D Gain", kD);
-    SmartDashboard.putNumber("I Zone", kIz);
-    SmartDashboard.putNumber("Feed Forward", kFF);
-    SmartDashboard.putNumber("Max Output", kMaxOutput);
-    SmartDashboard.putNumber("Min Output", kMinOutput);
-    SmartDashboard.putNumber("Set Rotations", 0);
-    SmartDashboard.putNumber("Run Speed Motor?", 0);
     
     FLangleMotor.setInverted(true);
     FRangleMotor.setInverted(true);
@@ -248,90 +270,117 @@ public class Robot extends TimedRobot {
     if (climber != null) {
       climber.teleopPeriodic();
     }
+    if(drive_control.getRightTriggerAxis() > .05) {
 
-  //   if(drive_control.getLeftY() > 0) {
-  //     FLdriveMotor.set((drive_control.getLeftY() * -1) / 4);
-  //     FRdriveMotor.set((drive_control.getLeftY() * -1) / 4);
-  //     BRdriveMotor.set(drive_control.getLeftY() / 4);
-  //     BLdriveMotor.set(drive_control.getLeftY() / 4);
+      if(drive_control.getLeftY() > 0) {
+        FLdriveMotor.set((drive_control.getLeftY() * -1) / DefaultLimit);
+        FRdriveMotor.set((drive_control.getLeftY() * -1) / DefaultLimit);
+        BRdriveMotor.set(drive_control.getLeftY() / DefaultLimit);
+        BLdriveMotor.set(drive_control.getLeftY() / DefaultLimit);
 
-  //     m_PIDController1.setReference(((drive_control.getRawAxis(0) * -10) / -2), CANSparkMax.ControlType.kPosition);
-  //     m_PIDController2.setReference(((drive_control.getRawAxis(0) * -10) / -2), CANSparkMax.ControlType.kPosition);
-  //     m_PIDController3.setReference(((drive_control.getRawAxis(0) * -10) / -2), CANSparkMax.ControlType.kPosition);
-  //     m_PIDController4.setReference(((drive_control.getRawAxis(0) * -10) / -2), CANSparkMax.ControlType.kPosition);            
-  //   }
-  //   if(drive_control.getLeftY() < 0) {
-  //     FLdriveMotor.set((drive_control.getLeftY() * -1) / 4);
-  //     FRdriveMotor.set((drive_control.getLeftY() * -1) / 4);
-  //     BRdriveMotor.set(drive_control.getLeftY() / 4);
-  //     BLdriveMotor.set(drive_control.getLeftY() / 4);
+        m_PIDController1.setReference(((drive_control.getRawAxis(0) * -10) / -2), CANSparkMax.ControlType.kPosition);
+        m_PIDController2.setReference(((drive_control.getRawAxis(0) * -10) / -2), CANSparkMax.ControlType.kPosition);
+        m_PIDController3.setReference(((drive_control.getRawAxis(0) * -10) / -2), CANSparkMax.ControlType.kPosition);
+        m_PIDController4.setReference(((drive_control.getRawAxis(0) * -10) / -2), CANSparkMax.ControlType.kPosition);            
+      }
+      if(drive_control.getLeftY() < 0) {
+        FLdriveMotor.set((drive_control.getLeftY() * 1) / DefaultLimit);
+        FRdriveMotor.set((drive_control.getLeftY() * 1) / DefaultLimit);
+        BRdriveMotor.set(drive_control.getLeftY() / DefaultLimit);
+        BLdriveMotor.set(drive_control.getLeftY() / DefaultLimit);
 
-  //     m_PIDController1.setReference(((drive_control.getRawAxis(0) * -10) / 2), CANSparkMax.ControlType.kPosition);
-  //     m_PIDController2.setReference(((drive_control.getRawAxis(0) * -10) / 2), CANSparkMax.ControlType.kPosition);
-  //     m_PIDController3.setReference(((drive_control.getRawAxis(0) * -10) / 2), CANSparkMax.ControlType.kPosition);
-  //     m_PIDController4.setReference(((drive_control.getRawAxis(0) * -10) / 2), CANSparkMax.ControlType.kPosition);   
+        m_PIDController1.setReference(((drive_control.getRawAxis(0) * -10) / 2), CANSparkMax.ControlType.kPosition);
+        m_PIDController2.setReference(((drive_control.getRawAxis(0) * -10) / 2), CANSparkMax.ControlType.kPosition);
+        m_PIDController3.setReference(((drive_control.getRawAxis(0) * -10) / 2), CANSparkMax.ControlType.kPosition);
+        m_PIDController4.setReference(((drive_control.getRawAxis(0) * -10) / 2), CANSparkMax.ControlType.kPosition);   
 
-  //   }
-  //   if(drive_control.getRightX() > .0) {
-  //     m_PIDController1.setReference(-2,  CANSparkMax.ControlType.kPosition);
-  //     FLdriveMotor.set(.25);
-  //     m_PIDController2.setReference(2,  CANSparkMax.ControlType.kPosition);
-  //     FRdriveMotor.set(-1 * .25);
-  //     m_PIDController3.setReference(-2,  CANSparkMax.ControlType.kPosition);
-  //     BLdriveMotor.set(-1 * .25);
-  //     m_PIDController4.setReference(2,  CANSparkMax.ControlType.kPosition);
-  //     BRdriveMotor.set(.25);
-  //   }
-  //     // Rotation
-  //   if(drive_control.getRightX() < 0) {
-  //     m_PIDController1.setReference(-1 * 2,  CANSparkMax.ControlType.kPosition);
-  //     FLdriveMotor.set(-1 * .25);
-  //     m_PIDController2.setReference(2,  CANSparkMax.ControlType.kPosition);
-  //     FRdriveMotor.set(.25);
-  //     m_PIDController3.setReference(-1 * 2,  CANSparkMax.ControlType.kPosition);
-  //     BLdriveMotor.set(.25);
-  //     m_PIDController4.setReference(2,  CANSparkMax.ControlType.kPosition);
-  //     BRdriveMotor.set(-1 * .25);    
-  //   }
+      }
+      if(drive_control.getRightX() > .0) {
+        m_PIDController1.setReference(-2,  CANSparkMax.ControlType.kPosition);
+        FLdriveMotor.set(RotationLimit);
+        m_PIDController2.setReference(2,  CANSparkMax.ControlType.kPosition);
+        FRdriveMotor.set(-1 * RotationLimit);
+        m_PIDController3.setReference(-2,  CANSparkMax.ControlType.kPosition);
+        BLdriveMotor.set(-1 * RotationLimit);
+        m_PIDController4.setReference(2,  CANSparkMax.ControlType.kPosition);
+        BRdriveMotor.set(RotationLimit);
+      }
+        // Rotation
+      if(drive_control.getRightX() < 0) {
+        m_PIDController1.setReference(-1 * 2,  CANSparkMax.ControlType.kPosition);
+        FLdriveMotor.set(-1 * RotationLimit);
+        m_PIDController2.setReference(2,  CANSparkMax.ControlType.kPosition);
+        FRdriveMotor.set(RotationLimit);
+        m_PIDController3.setReference(-1 * 2,  CANSparkMax.ControlType.kPosition);
+        BLdriveMotor.set(RotationLimit);
+        m_PIDController4.setReference(2,  CANSparkMax.ControlType.kPosition);
+        BRdriveMotor.set(-1 * RotationLimit);    
+      }
 
-  //   AimBot();
-  //   StrafeSwerve();
+      AimBot();
+      StrafeSwerve();
+      ChangeLimited();
+    }  
   }
-  // public void StrafeSwerve() {
-  //   if(drive_control.getRawAxis(0) == 1) {
-  //     m_PIDController1.setReference(4,  CANSparkMax.ControlType.kPosition);
-  //     FLdriveMotor.set(- .25);
-  //     m_PIDController2.setReference(4,  CANSparkMax.ControlType.kPosition);
-  //     FRdriveMotor.set(- .25);
-  //     m_PIDController3.setReference(4,  CANSparkMax.ControlType.kPosition);
-  //     BLdriveMotor.set(.25);
-  //     m_PIDController4.setReference(4,  CANSparkMax.ControlType.kPosition);
-  //     BRdriveMotor.set(.25);
-  //   }
-  //   if(drive_control.getRawAxis(0) == -1) {
-  //     m_PIDController1.setReference(4,  CANSparkMax.ControlType.kPosition);
-  //     FLdriveMotor.set(.25);
-  //     m_PIDController2.setReference(4,  CANSparkMax.ControlType.kPosition);
-  //     FRdriveMotor.set(.25);
-  //     m_PIDController3.setReference(4,  CANSparkMax.ControlType.kPosition);
-  //     BLdriveMotor.set(- .25);
-  //     m_PIDController4.setReference(4,  CANSparkMax.ControlType.kPosition);
-  //     BRdriveMotor.set(- .25);
-  //   }    
-  // }
+  public void StrafeSwerve() {
+    if(drive_control.getRawAxis(0) == 1) {
+      m_PIDController1.setReference(4,  CANSparkMax.ControlType.kPosition);
+      FLdriveMotor.set(- StrafeLimit);
+      m_PIDController2.setReference(4,  CANSparkMax.ControlType.kPosition);
+      FRdriveMotor.set(- StrafeLimit);
+      m_PIDController3.setReference(4,  CANSparkMax.ControlType.kPosition);
+      BLdriveMotor.set(StrafeLimit);
+      m_PIDController4.setReference(4,  CANSparkMax.ControlType.kPosition);
+      BRdriveMotor.set(StrafeLimit);
+    }
+    if(drive_control.getRawAxis(0) == -1) {
+      m_PIDController1.setReference(4,  CANSparkMax.ControlType.kPosition);
+      FLdriveMotor.set(StrafeLimit);
+      m_PIDController2.setReference(4,  CANSparkMax.ControlType.kPosition);
+      FRdriveMotor.set(StrafeLimit);
+      m_PIDController3.setReference(4,  CANSparkMax.ControlType.kPosition);
+      BLdriveMotor.set(- StrafeLimit);
+      m_PIDController4.setReference(4,  CANSparkMax.ControlType.kPosition);
+      BRdriveMotor.set(- StrafeLimit);
+    }    
+  }
 
-  // public void AimBot() {
-  //   if(drive_control.getLeftBumper() == true) {
-  //     m_PIDController1.setReference(-2,  CANSparkMax.ControlType.kPosition);
-  //     m_PIDController2.setReference(2,  CANSparkMax.ControlType.kPosition);
-  //     m_PIDController3.setReference(-2,  CANSparkMax.ControlType.kPosition);
-  //     m_PIDController4.setReference(2,  CANSparkMax.ControlType.kPosition);
-  //     FLdriveMotor.set(drive_control.getRightX() / 15);
-  //     FRdriveMotor.set((drive_control.getRightX() * -1) / 15);
-  //     BRdriveMotor.set(drive_control.getRightX() / 15);
-  //     BLdriveMotor.set((drive_control.getRightX() * -1) / 15);
-  //   }
-  // }
+  public void AimBot() {
+    if(drive_control.getLeftBumper() == true) {
+      m_PIDController1.setReference(-2,  CANSparkMax.ControlType.kPosition);
+      m_PIDController2.setReference(2,  CANSparkMax.ControlType.kPosition);
+      m_PIDController3.setReference(-2,  CANSparkMax.ControlType.kPosition);
+      m_PIDController4.setReference(2,  CANSparkMax.ControlType.kPosition);
+      FLdriveMotor.set(drive_control.getRightX() / 15);
+      FRdriveMotor.set((drive_control.getRightX() * -1) / 15);
+      BRdriveMotor.set(drive_control.getRightX() / 15);
+      BLdriveMotor.set((drive_control.getRightX() * -1) / 15);
+    }
+  }
+  public void ChangeLimited() {
+    if(drive_control.getRightBumper() == true) {
+      DefaultLimit = 2;
+      RotationLimit = .50;
+      StrafeLimit = .50;
+    }
+    else {
+      DefaultLimit = 4;
+      RotationLimit = .25;
+      StrafeLimit = .25; 
+    }
+  }
+  public void Auto() {
+    autoTimer = new Timer();
+
+    autoTimer.start();
+
+    if(autoTimer.get() < 2.5) {
+      FLdriveMotor.set(-.25);
+      FRdriveMotor.set(-.25);
+      BLdriveMotor.set(-.25);
+      BRdriveMotor.set(-.25);
+    }
+  }
   
   /** This function is called once when the robot is disabled. */
   @Override
@@ -353,11 +402,23 @@ public class Robot extends TimedRobot {
 
   /** This function is called once when test mode is enabled. */
   @Override
-  public void testInit() {}
+  public void testInit() {
+    SmartDashboard.putNumber("P Gain", kP);
+    SmartDashboard.putNumber("I Gain", kI);
+    SmartDashboard.putNumber("D Gain", kD);
+    SmartDashboard.putNumber("I Zone", kIz);
+    SmartDashboard.putNumber("Feed Forward", kFF);
+    SmartDashboard.putNumber("Max Output", kMaxOutput);
+    SmartDashboard.putNumber("Min Output", kMinOutput);
+    SmartDashboard.putNumber("Set Rotations", 0);
+
+
+  }
 
   /** This function is called periodically during test mode. */
   @Override
   public void testPeriodic() {
+    SmartDashboard.putString("MotorTesting: ", "None");
     if(drive_control.getBButton() == true) {
       m_encoder1.setPosition(0);
       System.out.print("Encoder 1 Reset");
@@ -368,5 +429,76 @@ public class Robot extends TimedRobot {
       m_encoder4.setPosition(0);
       System.out.print("Encoder 4 Reset");
     }
+    double p = SmartDashboard.getNumber("P Gain", 0);
+    double i = SmartDashboard.getNumber("I Gain", 0);
+    double d = SmartDashboard.getNumber("D Gain", 0);
+    double iz = SmartDashboard.getNumber("I Zone", 0);
+    double ff = SmartDashboard.getNumber("Feed Forward", 0);
+    double max = SmartDashboard.getNumber("Max Output", 0);
+    double min = SmartDashboard.getNumber("Min Output", 0);
+    double rotations = SmartDashboard.getNumber("Set Rotations", 0);
+    if((p != kP)) { m_PIDController1.setP(p); kP = p; }
+    if((i != kI)) { m_PIDController1.setI(i); kI = i; }
+    if((d != kD)) { m_PIDController1.setD(d); kD = d; }
+    if((iz != kIz)) { m_PIDController1.setIZone(iz); kIz = iz; }
+    if((ff != kFF)) { m_PIDController1.setFF(ff); kFF = ff; }
+    if((max != kMaxOutput) || (min != kMinOutput)) { 
+      m_PIDController1.setOutputRange(min, max); 
+      kMinOutput = min; kMaxOutput = max; 
+    }
+    if((p != kP)) { m_PIDController2.setP(p); kP = p; }
+    if((i != kI)) { m_PIDController2.setI(i); kI = i; }
+    if((d != kD)) { m_PIDController2.setD(d); kD = d; }
+    if((iz != kIz)) { m_PIDController2.setIZone(iz); kIz = iz; }
+    if((ff != kFF)) { m_PIDController2.setFF(ff); kFF = ff; }
+    if((max != kMaxOutput) || (min != kMinOutput)) { 
+      m_PIDController2.setOutputRange(min, max); 
+      kMinOutput = min; kMaxOutput = max; 
+    }
+    if((p != kP)) { m_PIDController3.setP(p); kP = p; }
+    if((i != kI)) { m_PIDController3.setI(i); kI = i; }
+    if((d != kD)) { m_PIDController3.setD(d); kD = d; }
+    if((iz != kIz)) { m_PIDController3.setIZone(iz); kIz = iz; }
+    if((ff != kFF)) { m_PIDController3.setFF(ff); kFF = ff; }
+    if((max != kMaxOutput) || (min != kMinOutput)) { 
+      m_PIDController3.setOutputRange(min, max); 
+      kMinOutput = min; kMaxOutput = max; 
+    }
+    if((p != kP)) { m_PIDController4.setP(p); kP = p; }
+    if((i != kI)) { m_PIDController4.setI(i); kI = i; }
+    if((d != kD)) { m_PIDController4.setD(d); kD = d; }
+    if((iz != kIz)) { m_PIDController4.setIZone(iz); kIz = iz; }
+    if((ff != kFF)) { m_PIDController4.setFF(ff); kFF = ff; }
+    if((max != kMaxOutput) || (min != kMinOutput)) { 
+      m_PIDController4.setOutputRange(min, max); 
+      kMinOutput = min; kMaxOutput = max; 
+    }
+
+
+
+    // MOTOR TEST CONTROLS
+
+
+    while(drive_control.getAButton() == true) {
+      SmartDashboard.putString("MotorTesting: ", "Front Left");
+      FLdriveMotor.set(drive_control.getLeftY());
+      FLangleMotor.set(drive_control.getRightY());
+    }
+    while(drive_control.getBButton() == true) {
+      SmartDashboard.putString("MotorTesting: ", "Front Right");
+      FRdriveMotor.set(drive_control.getLeftY());
+      FRangleMotor.set(drive_control.getRightY());
+    }
+    while(drive_control.getXButton() == true) {   
+       SmartDashboard.putString("MotorTesting: ", "Back Left");
+      BLdriveMotor.set(drive_control.getLeftY());
+      BLangleMotor.set(drive_control.getRightY());
+    }
+    while(drive_control.getYButton() == true) {
+      SmartDashboard.putString("MotorTesting: ", "Back Right");
+      BRdriveMotor.set(drive_control.getLeftY());
+      BRangleMotor.set(drive_control.getRightY());
+    }
+
   }
 }
