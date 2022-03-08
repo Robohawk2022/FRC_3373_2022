@@ -284,7 +284,7 @@ public class Robot extends TimedRobot {
     if(drive_control.getLeftY() < 0) {
       FLdriveMotor.set((drive_control.getLeftY()) / -1 * DefaultLimit);
       FRdriveMotor.set((drive_control.getLeftY()) / -1 * DefaultLimit);
-      BRdriveMotor.set(drive_control.getLeftY() / De-1 * DefaultLimitfaultLimit);
+      BRdriveMotor.set(drive_control.getLeftY() / -1 * DefaultLimit);
       BLdriveMotor.set(drive_control.getLeftY() / -1 * DefaultLimit);
 
       m_PIDController1.setReference(((drive_control.getRawAxis(0) * -10) / 2), CANSparkMax.ControlType.kPosition);
