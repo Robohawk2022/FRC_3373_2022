@@ -267,57 +267,55 @@ public class Robot extends TimedRobot {
     if (climber != null) {
       climber.teleopPeriodic();
     }
-    if(drive_control.getRightTriggerAxis() > .05) {
 
-      if(drive_control.getLeftY() > 0) {
-        FLdriveMotor.set((drive_control.getLeftY() * -1) / DefaultLimit);
-        FRdriveMotor.set((drive_control.getLeftY() * -1) / DefaultLimit);
-        BRdriveMotor.set(drive_control.getLeftY() / DefaultLimit);
-        BLdriveMotor.set(drive_control.getLeftY() / DefaultLimit);
+    if(drive_control.getLeftY() > 0) {
+      FLdriveMotor.set((drive_control.getLeftY()) / -1 * DefaultLimit);
+      FRdriveMotor.set((drive_control.getLeftY()) / -1 * DefaultLimit);
+      BRdriveMotor.set(drive_control.getLeftY() / -1 * DefaultLimit);
+      BLdriveMotor.set(drive_control.getLeftY() / -1 * DefaultLimit);
 
-        m_PIDController1.setReference(((drive_control.getRawAxis(0) * -10) / -2), CANSparkMax.ControlType.kPosition);
-        m_PIDController2.setReference(((drive_control.getRawAxis(0) * -10) / -2), CANSparkMax.ControlType.kPosition);
-        m_PIDController3.setReference(((drive_control.getRawAxis(0) * -10) / -2), CANSparkMax.ControlType.kPosition);
-        m_PIDController4.setReference(((drive_control.getRawAxis(0) * -10) / -2), CANSparkMax.ControlType.kPosition);            
-      }
-      if(drive_control.getLeftY() < 0) {
-        FLdriveMotor.set((drive_control.getLeftY() * 1) / DefaultLimit);
-        FRdriveMotor.set((drive_control.getLeftY() * 1) / DefaultLimit);
-        BRdriveMotor.set(drive_control.getLeftY() / DefaultLimit);
-        BLdriveMotor.set(drive_control.getLeftY() / DefaultLimit);
+      m_PIDController1.setReference(((drive_control.getRawAxis(0) * -10) / -2), CANSparkMax.ControlType.kPosition);
+      m_PIDController2.setReference(((drive_control.getRawAxis(0) * -10) / -2), CANSparkMax.ControlType.kPosition);
+      m_PIDController3.setReference(((drive_control.getRawAxis(0) * -10) / -2), CANSparkMax.ControlType.kPosition);
+      m_PIDController4.setReference(((drive_control.getRawAxis(0) * -10) / -2), CANSparkMax.ControlType.kPosition);            
+    }
+    if(drive_control.getLeftY() < 0) {
+      FLdriveMotor.set((drive_control.getLeftY()) / -1 * DefaultLimit);
+      FRdriveMotor.set((drive_control.getLeftY()) / -1 * DefaultLimit);
+      BRdriveMotor.set(drive_control.getLeftY() / -1 * DefaultLimit);
+      BLdriveMotor.set(drive_control.getLeftY() / -1 * DefaultLimit);
 
-        m_PIDController1.setReference(((drive_control.getRawAxis(0) * -10) / 2), CANSparkMax.ControlType.kPosition);
-        m_PIDController2.setReference(((drive_control.getRawAxis(0) * -10) / 2), CANSparkMax.ControlType.kPosition);
-        m_PIDController3.setReference(((drive_control.getRawAxis(0) * -10) / 2), CANSparkMax.ControlType.kPosition);
-        m_PIDController4.setReference(((drive_control.getRawAxis(0) * -10) / 2), CANSparkMax.ControlType.kPosition);   
+      m_PIDController1.setReference(((drive_control.getRawAxis(0) * -10) / 2), CANSparkMax.ControlType.kPosition);
+      m_PIDController2.setReference(((drive_control.getRawAxis(0) * -10) / 2), CANSparkMax.ControlType.kPosition);
+      m_PIDController3.setReference(((drive_control.getRawAxis(0) * -10) / 2), CANSparkMax.ControlType.kPosition);
+      m_PIDController4.setReference(((drive_control.getRawAxis(0) * -10) / 2), CANSparkMax.ControlType.kPosition);   
 
-      }
-      if(drive_control.getRightX() > .0) {
-        m_PIDController1.setReference(-2,  CANSparkMax.ControlType.kPosition);
-        FLdriveMotor.set(RotationLimit);
-        m_PIDController2.setReference(2,  CANSparkMax.ControlType.kPosition);
-        FRdriveMotor.set(-1 * RotationLimit);
-        m_PIDController3.setReference(-2,  CANSparkMax.ControlType.kPosition);
-        BLdriveMotor.set(-1 * RotationLimit);
-        m_PIDController4.setReference(2,  CANSparkMax.ControlType.kPosition);
-        BRdriveMotor.set(RotationLimit);
-      }
-        // Rotation
-      if(drive_control.getRightX() < 0) {
-        m_PIDController1.setReference(-1 * 2,  CANSparkMax.ControlType.kPosition);
-        FLdriveMotor.set(-1 * RotationLimit);
-        m_PIDController2.setReference(2,  CANSparkMax.ControlType.kPosition);
-        FRdriveMotor.set(RotationLimit);
-        m_PIDController3.setReference(-1 * 2,  CANSparkMax.ControlType.kPosition);
-        BLdriveMotor.set(RotationLimit);
-        m_PIDController4.setReference(2,  CANSparkMax.ControlType.kPosition);
-        BRdriveMotor.set(-1 * RotationLimit);    
-      }
+    }
+    if(drive_control.getRightX() > .0) {
+      m_PIDController1.setReference(-2,  CANSparkMax.ControlType.kPosition);
+      FLdriveMotor.set(RotationLimit);
+      m_PIDController2.setReference(2,  CANSparkMax.ControlType.kPosition);
+      FRdriveMotor.set(-1 * RotationLimit);
+      m_PIDController3.setReference(-2,  CANSparkMax.ControlType.kPosition);
+      BLdriveMotor.set(-1 * RotationLimit);
+      m_PIDController4.setReference(2,  CANSparkMax.ControlType.kPosition);
+      BRdriveMotor.set(RotationLimit);
+    }
+      // Rotation
+    if(drive_control.getRightX() < 0) {
+      m_PIDController1.setReference(-1 * 2,  CANSparkMax.ControlType.kPosition);
+      FLdriveMotor.set(-1 * RotationLimit);
+      m_PIDController2.setReference(2,  CANSparkMax.ControlType.kPosition);
+      FRdriveMotor.set(RotationLimit);
+      m_PIDController3.setReference(-1 * 2,  CANSparkMax.ControlType.kPosition);
+      BLdriveMotor.set(RotationLimit);
+      m_PIDController4.setReference(2,  CANSparkMax.ControlType.kPosition);
+      BRdriveMotor.set(-1 * RotationLimit);    
+    }
 
-      AimBot();
-      StrafeSwerve();
-      ChangeLimited();
-    }  
+    AimBot();
+    StrafeSwerve();
+    ChangeLimited();
   }
   public void StrafeSwerve() {
     if(drive_control.getRawAxis(0) == 1) {
@@ -366,18 +364,7 @@ public class Robot extends TimedRobot {
       StrafeLimit = .25; 
     }
   }
-  public void Auto() {
-    autoTimer = new Timer();
 
-    autoTimer.start();
-
-    if(autoTimer.get() < 2.5) {
-      FLdriveMotor.set(-.25);
-      FRdriveMotor.set(-.25);
-      BLdriveMotor.set(-.25);
-      BRdriveMotor.set(-.25);
-    }
-  }
   
   /** This function is called once when the robot is disabled. */
   @Override
