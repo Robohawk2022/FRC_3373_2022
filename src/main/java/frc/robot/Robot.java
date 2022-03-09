@@ -148,6 +148,16 @@ public class Robot extends TimedRobot {
     // kFF = 0; 
     // kMaxOutput = 1; 
     // kMinOutput = -1;
+    // m_encoder1.setPosition(0);
+    // m_encoder2.setPosition(0);
+    // m_encoder3.setPosition(0);
+    // m_encoder4.setPosition(0);
+    // m_PIDController3.setP(kP);
+    // m_PIDController3.setP(kP);
+    // m_PIDController3.setP(kP);
+    // m_PIDController3.setP(kP);
+    // m_PIDController3.setFF(kFF);
+    // m_PIDController3.setOutputRange(kMinOutput, kMaxOutput);
 
     kP = 1; 
     kI = 1e-4;
@@ -281,20 +291,7 @@ public class Robot extends TimedRobot {
 
   /** This function is called once when teleop is enabled. */
   @Override
-  public void teleopInit() {
-    m_encoder1.setPosition(0);
-    m_encoder2.setPosition(0);
-    m_encoder3.setPosition(0);
-    m_encoder4.setPosition(0);
-    m_PIDController3.setP(kP);
-    m_PIDController3.setP(kP);
-    m_PIDController3.setP(kP);
-    m_PIDController3.setP(kP);
-    m_PIDController3.setFF(kFF);
-    m_PIDController3.setOutputRange(kMinOutput, kMaxOutput);
-
-
-  }
+  public void teleopInit() {}
 
   @Override
   public void teleopPeriodic() {
@@ -473,7 +470,7 @@ public class Robot extends TimedRobot {
   @Override
   public void testPeriodic() {
     SmartDashboard.putString("MotorTesting: ", "None");
-    if(drive_control.getBButton() == true) {
+    if(drive_control.getStartButton() == true) {
       m_encoder1.setPosition(0);
       System.out.print("Encoder 1 Reset");
       m_encoder2.setPosition(0);
