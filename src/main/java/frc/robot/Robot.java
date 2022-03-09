@@ -8,6 +8,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkMaxRelativeEncoder;
+import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.cameraserver.CameraServer;
@@ -333,36 +334,46 @@ public class Robot extends TimedRobot {
     // rotation
     if(drive_control.getRightX() > 0) {
       m_PIDController1.setReference(-2,  CANSparkMax.ControlType.kPosition);
-      FLdriveMotor.set(drive_control.getRightX() / 2);
+      // FLdriveMotor.set(drive_control.getRightX() / 2);
+      FLdriveMotor.set(Math.sqrt(drive_control.getRightX()));
       m_PIDController2.setReference(2,  CANSparkMax.ControlType.kPosition);
-      FRdriveMotor.set(drive_control.getRightX() / -2);
+      // FRdriveMotor.set(drive_control.getRightX() / -2);
+      FRdriveMotor.set(-1 * (Math.sqrt(drive_control.getRightX())));
       m_PIDController3.setReference(-2,  CANSparkMax.ControlType.kPosition);
-      BLdriveMotor.set(drive_control.getRightX() / 2);
+      // BLdriveMotor.set(drive_control.getRightX() / 2);
+      BLdriveMotor.set(Math.sqrt(drive_control.getRightX()));
       m_PIDController4.setReference(2,  CANSparkMax.ControlType.kPosition);
-      BRdriveMotor.set(drive_control.getRightX() / -2);
+      // BRdriveMotor.set(drive_control.getRightX() / -2);
+      BRdriveMotor.set(-1 * (Math.sqrt(drive_control.getRightX())));
+
     }
       // Rotation
     if(drive_control.getRightX() < 0) {
       m_PIDController1.setReference(-2,  CANSparkMax.ControlType.kPosition);
-      FLdriveMotor.set(drive_control.getRightX() / 2);
+      // FLdriveMotor.set(drive_control.getRightX() / 2);
+      FLdriveMotor.set(Math.sqrt(drive_control.getRightX()));
       m_PIDController2.setReference(2,  CANSparkMax.ControlType.kPosition);
-      FRdriveMotor.set(drive_control.getRightX() / -2);
+      // FRdriveMotor.set(drive_control.getRightX() / -2);
+      FRdriveMotor.set(-1 * (Math.sqrt(drive_control.getRightX())));
       m_PIDController3.setReference(-2,  CANSparkMax.ControlType.kPosition);
-      BLdriveMotor.set(drive_control.getRightX() / 2);
+      // BLdriveMotor.set(drive_control.getRightX() / 2);
+      BLdriveMotor.set(Math.sqrt(drive_control.getRightX()));
       m_PIDController4.setReference(2,  CANSparkMax.ControlType.kPosition);
-      BRdriveMotor.set(drive_control.getRightX() / -2);  
+      // BRdriveMotor.set(drive_control.getRightX() / -2);
+      BRdriveMotor.set(-1 * (Math.sqrt(drive_control.getRightX()))); 
     }
 
     AimBot();
+    SnakeDrive();
     // StrafeSwerve();
     // ChangeLimited();
   }
   public void StrafeSwerve() {
     if(drive_control.getRawAxis(0) > .5) {
       m_PIDController1.setReference(4,  CANSparkMax.ControlType.kPosition);
-      FLdriveMotor.set(- StrafeLimit);
+      FLdriveMotor.set(StrafeLimit);
       m_PIDController2.setReference(4,  CANSparkMax.ControlType.kPosition);
-      FRdriveMotor.set(- StrafeLimit);
+      FRdriveMotor.set(StrafeLimit);
       m_PIDController3.setReference(4,  CANSparkMax.ControlType.kPosition);
       BLdriveMotor.set(StrafeLimit);
       m_PIDController4.setReference(4,  CANSparkMax.ControlType.kPosition);
@@ -370,13 +381,13 @@ public class Robot extends TimedRobot {
     }
     if(drive_control.getRawAxis(0) < .5) {
       m_PIDController1.setReference(4,  CANSparkMax.ControlType.kPosition);
-      FLdriveMotor.set(StrafeLimit);
+      FLdriveMotor.set(-StrafeLimit);
       m_PIDController2.setReference(4,  CANSparkMax.ControlType.kPosition);
-      FRdriveMotor.set(StrafeLimit);
+      FRdriveMotor.set(-StrafeLimit);
       m_PIDController3.setReference(4,  CANSparkMax.ControlType.kPosition);
-      BLdriveMotor.set(- StrafeLimit);
+      BLdriveMotor.set(-StrafeLimit);
       m_PIDController4.setReference(4,  CANSparkMax.ControlType.kPosition);
-      BRdriveMotor.set(- StrafeLimit);
+      BRdriveMotor.set(-StrafeLimit);
     }    
   }
 
@@ -403,6 +414,26 @@ public class Robot extends TimedRobot {
       RotationLimit = .25;
       StrafeLimit = .25; 
     }
+  }
+  
+  public void SnakeDrive() {
+    if(drive_control.getRightTriggerAxis() > .05) {
+      m_PIDController1.setReference(2, ControlType.kPosition);
+      FLdriveMotor.set(Math.sqrt(drive_control.getLeftY()));
+      FRdriveMotor.set(Math.sqrt(drive_control.getLeftY()));
+      BLdriveMotor.set(Math.sqrt(drive_control.getLeftY()));
+      BRdriveMotor.set(Math.sqrt(drive_control.getLeftY()));
+      m_PIDController2.setReference(2, ControlType.kPosition);
+    }
+      if(drive_control.getLeftTriggerAxis() > .05) {
+        m_PIDController1.setReference(-2, ControlType.kPosition);
+        FLdriveMotor.set(Math.sqrt(drive_control.getLeftY()));
+        FRdriveMotor.set(Math.sqrt(drive_control.getLeftY()));
+        BLdriveMotor.set(Math.sqrt(drive_control.getLeftY()));
+        BRdriveMotor.set(Math.sqrt(drive_control.getLeftY()));
+        m_PIDController2.setReference(-2, ControlType.kPosition);
+    }
+
   }
   
   // /** This function is called once when the robot is disabled. */
