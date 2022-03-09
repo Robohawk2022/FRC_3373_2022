@@ -106,7 +106,7 @@ public class IntakeSubsystem {
                 intakeMotor.setRpm(-targetSpeed);
             }
             else {
-                Logger.log("intake: spinning intake wheel at ", targetSpeed);
+                intakeMotor.setRpm(targetSpeed);
             }       
         }
         else {

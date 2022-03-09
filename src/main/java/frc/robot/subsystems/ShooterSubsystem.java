@@ -139,7 +139,7 @@ public class ShooterSubsystem {
 
         // trigger indexing IF there is a ball in front of the sensor now,
         // and there wasn't one last time
-        if (ballSensor.get()) {
+        if (ballSensor.get() == false) {
             Logger.log("shooter: rotating for intake");
             indexerWheel.rotate(LOCKIN_ROTATIONS);
         }
