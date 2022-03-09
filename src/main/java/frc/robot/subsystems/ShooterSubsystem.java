@@ -132,17 +132,16 @@ public class ShooterSubsystem {
      */
     public void updateIndexerWheel() {
 
+        // if someone hits the left bumper, we'll reset position loop control
+        if (controller.getLeftBumperPressed()) {
+            indexerWheel.resetClosedLoopControl();
+        }
+
         // trigger indexing IF there is a ball in front of the sensor now,
         // and there wasn't one last time
         if (ballSensor.get()) {
-            if (!sensorWasTripped) {
-                Logger.log("shooter: rotating for intake");
-                indexerWheel.rotate(LOCKIN_ROTATIONS);
-            }
-            sensorWasTripped = true;
-        }
-        else {
-            sensorWasTripped = false;
+            Logger.log("shooter: rotating for intake");
+            indexerWheel.rotate(LOCKIN_ROTATIONS);
         }
 
         // if someone wants to shoot, and the wheel's at speed and we 
