@@ -65,6 +65,8 @@ public class ClimberSubsystem {
         SmartDashboard.putBoolean("Rotator Limit?", atRotatorLimit());
         SmartDashboard.putNumber("Rotator Zero", rotatorZero);
         SmartDashboard.putNumber("Extender Zero", extenderZero);
+        extenderMotor.updateDashboard();
+        rotatorMotor.updateDashboard();
     }
 
     // called when the robot is put into disabled mode
