@@ -13,13 +13,24 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */ 
 public class ClimberSubsystem {
 
+    /*
+     * SOMEWHAT IMPORTANT
+     * 
+     *   - For the extender
+     *     - Setting the motor to positive motion will LOWER the arm
+     *     - The limit switch is at the bottom (maximum positive position value)
+     */
+
+    /** Rotations per inch for the extension motor */
+    public static final double EXTENDER_ROTATIONS_PER_INCH = 4.45813;
+
     /** Max speed of the extension motor */
     public static final double MAX_EXTENSION_OUTPUT = 0.2;
 
     /** Max speed of the extension motor */
     public static final double MAX_ROTATION_OUTPUT = 0.6;
 
-    /** Max speed of the extension motor */
+    /** Reset speed (negative for backwards) */
     public static final double RESET_SPEED = -0.1;
 
     /** Value of extender switch when pressed */
@@ -36,7 +47,7 @@ public class ClimberSubsystem {
     private final NamedMotor rotatorMotor;
     private final DigitalInput extenderSwitch;
     private final DigitalInput rotatorSwitch;
-    private double extenderZero;
+    private double extenderMax;
     private double rotatorZero;
     private boolean resetting;
 
@@ -61,10 +72,10 @@ public class ClimberSubsystem {
 
     // called 50x per second, no matter what mode we're in
     public void robotPeriodic() {
-        SmartDashboard.putBoolean("Extender Limit?", atExtenderLimit());
+        SmartDashboard.putBoolean("Extender At Max?", atExtenderLimit());
         SmartDashboard.putBoolean("Rotator Limit?", atRotatorLimit());
         SmartDashboard.putNumber("Rotator Zero", rotatorZero);
-        SmartDashboard.putNumber("Extender Zero", extenderZero);
+        SmartDashboard.putNumber("Extender Max", extenderMax);
         extenderMotor.updateDashboard();
         rotatorMotor.updateDashboard();
     }
@@ -99,9 +110,11 @@ public class ClimberSubsystem {
 
         boolean done = true;
 
+        // if the extender hits his switch, he's at the lowest possible point,
+        // which is the maximum positive value of motor position
         if (atExtenderLimit()) {
             extenderMotor.set(0.0);
-            extenderZero = extenderMotor.getPosition();
+            extenderMax = extenderMotor.getPosition();
         } else {
             extenderMotor.set(RESET_SPEED);
             done = false;
@@ -116,7 +129,7 @@ public class ClimberSubsystem {
         }
 
         if (done) {
-            Logger.log("done resetting; extenderZero=", extenderZero, ", rotatorZero=", rotatorZero);
+            Logger.log("done resetting; extenderMax=", extenderMax, ", rotatorZero=", rotatorZero);
             resetting = false;
         }
     }
@@ -125,24 +138,23 @@ public class ClimberSubsystem {
     // until they hit their limit switch;
     private void periodicForJoysticks() {
 
+        // for the extender:
+        //   - forward on the joystick means a negative rate, which sends the arm higher
+        //   - backward on the joystick means a positive rate, which sends the arm lower
+        //   - we don't want to go backwards past the limit
         double extRate = clean(controller.getLeftY());
-        double rotRate = clean(controller.getRightX());
-/*
-15.714274406433105 26 1/32 0.03125
-11.000 19 15/16
-40.023 13 9/16
-70.359 6 11/16
-
-*/
         if (extRate != 0.0) {
-            // if (extRate < 0.0 && atExtenderLimit()) {
-            //     extRate = 0.0;
-            // }
-            extRate *= MAX_EXTENSION_OUTPUT;
-            Logger.log("climber: extending at ", extRate);
+            if (extRate > 0.0 && atExtenderLimit()) {
+                extRate = 0.0;
+                Logger.log("extender at limit, not going further");
+            } else {
+                extRate *= MAX_EXTENSION_OUTPUT;
+                Logger.log("climber: extending at ", extRate);    
+            }
         }
         extenderMotor.set(extRate);
-    
+
+        double rotRate = clean(controller.getRightX());
         if (rotRate != 0.0) {
             if (rotRate > 0.0 && atRotatorLimit()) {
                 rotRate = 0.0;
