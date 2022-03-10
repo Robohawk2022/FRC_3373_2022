@@ -22,6 +22,9 @@ public class ShooterSubsystem {
     /** Starting speed of the launch wheel */
     public static final double STARTING_LAUNCH_RPM = -12000;
 
+    /** Maximum speed at which to rotate the indexer */
+    public static final double INDEXER_MAX_SPEED = 0.5;
+
     /** How many rotations does the indexer need to lock in a ball? */
     public static final double LOCKIN_ROTATIONS = 20;
 
@@ -46,6 +49,7 @@ public class ShooterSubsystem {
         this.ballSensor = new DigitalInput(ballAvailableSwitchPort);
         this.launchWheel = MotorFactory.makeVelocityClosedLoopMotor("Launch", launchMotorPort);
         this.indexerWheel = MotorFactory.makePositionClosedLoopMotor("Indexer", indexerMotorPort);
+        indexerWheel.setMaxSpeed(INDEXER_MAX_SPEED);
         disabledInit();
     }
 

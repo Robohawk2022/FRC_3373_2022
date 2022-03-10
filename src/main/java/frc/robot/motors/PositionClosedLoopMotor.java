@@ -14,15 +14,27 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class PositionClosedLoopMotor extends NamedMotor {
 
-    private static final double MAX_SPEED = 0.5;
-    private static final double THRESHOLD = 0.0005;
+    private static final double DEFAULT_MAX_SPEED = 0.5;
+    private static final double DEFAULT_THRESHOLD = 0.0005;
   
+    private double maxSpeed;
+    private double threshold;
     private double targetPosition;
     private double totalDelta;
 
     public PositionClosedLoopMotor(String name, int port) {
         super(name, port);
         getMotor().setIdleMode(IdleMode.kBrake);
+        this.maxSpeed = DEFAULT_MAX_SPEED;
+        this.threshold = DEFAULT_THRESHOLD;
+    }
+
+    public void setMaxSpeed(double newMax) {
+      maxSpeed = newMax;
+    }
+
+    public void setThreshold(double newThresh) {
+      threshold = newThresh;
     }
 
     /**
@@ -57,8 +69,8 @@ public class PositionClosedLoopMotor extends NamedMotor {
       double currentPosition = getPosition();
       double currentDelta = targetPosition - currentPosition;
 
-      if (Math.abs(currentDelta) > THRESHOLD) {
-        double proportionalSpeed = Math.abs(currentDelta/totalDelta)*MAX_SPEED;
+      if (Math.abs(currentDelta) > threshold) {
+        double proportionalSpeed = Math.abs(currentDelta/totalDelta) * maxSpeed;
         if (currentDelta < 0) {
           set(-proportionalSpeed);
         }
