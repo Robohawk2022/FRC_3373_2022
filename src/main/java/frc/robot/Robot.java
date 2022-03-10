@@ -244,6 +244,8 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     if (intake != null) {
       intake.autonomousInit();
+    }
+    if (climber != null) {
       climber.autonomousInit();
     }
     autotimer.stop();
@@ -256,6 +258,8 @@ public class Robot extends TimedRobot {
 
     if (intake != null) {
       intake.autonomousPeriodic();
+    }
+    if (climber != null) {
       climber.autonomousPeriodic();
     }
     autotimer.start();

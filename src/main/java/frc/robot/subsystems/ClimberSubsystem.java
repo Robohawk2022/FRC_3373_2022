@@ -66,6 +66,7 @@ public class ClimberSubsystem {
         this.extenderSwitch = new DigitalInput(extenderSwitchPort);
         this.rotatorMotor = new NamedMotor("Rotator", rotatorMotorPort);
         this.rotatorSwitch = new DigitalInput(rotatorSwitchPort);
+        this.extenderMax = Double.NEGATIVE_INFINITY;
         disabledInit();
     }
 
@@ -89,60 +90,48 @@ public class ClimberSubsystem {
 
     // called when the robot is put into disabled mode
     public void disabledInit() {
-        Logger.log("putting climbing system in disabled mode");
+        Logger.log("climber: putting climbing system in disabled mode");
         extenderMotor.set(0.0);
         rotatorMotor.set(0.0);
         resetting = false;
     }
+
     public void autonomousInit() {
-        resetting = true;
+        Logger.log("*****************************************************");
+        Logger.log("*****************************************************");
+        Logger.log("*****************************************************");
+        Logger.log("*****************************************************");
+        Logger.log("*****************************************************");
+        Logger.log("*****************************************************");
+        Logger.log("*****************************************************");
+        Logger.log("*****************************************************");
+        Logger.log("in init, switch="+extenderSwitch.get());
     }
 
     // updates motor speed for the reset routine. both motors move slowly towards their
     // reset limit. once they hit their switch, they're done and we capture their position
     // as the "zero point". when both are done, we're done resetting.
     public void autonomousPeriodic() {
-     
-        if (extenderMax != 0.0) {
-            return;
-        }
-     
+
+        Logger.log("switch="+extenderSwitch.get());
+
         boolean done = true;
 
-        // double extRate = -RESET_SPEED;
-        // if (extRate != 0.0) {
-        //     if (extRate > 0.0 && atExtenderLimit()) {
-        //         extRate = 0.0;
-        //         extenderMax = extenderMotor.getPosition();
-        //         Logger.log("extender at THE BOTTOM!, not going further");
-        //     } 
-        //     else if(extRate < 0.0 && extenderMotor.getPosition() == (extenderMax - 40) ) {
-        //         extRate = 0.0;
-        //         Logger.log("extender at THE TOP!, not going further");
-        //     }
-        //     else {
-        //         extRate *= MAX_EXTENSION_OUTPUT;
-        //         Logger.log("climber: extending at ", extRate);    
-        //     }
-        // }
-        if (atExtenderLimit()) {
-            extenderMotor.set(0.0);
-            extenderMax = extenderMotor.getPosition();
-        } else {
-            extenderMotor.set(-RESET_SPEED);
-            done = false;
-        }
-
-        // if (atRotatorLimit()) {
-        //     rotatorMotor.set(0.0);
-        //     rotatorZero = rotatorMotor.getPosition();
-        // } else {
-        //     rotatorMotor.set(-RESET_SPEED); // rotator is backwards
-        //     done = false;
-        // }
+        // if we haven't captured a max value yet, we check the extender
+        if (extenderMax == Double.NEGATIVE_INFINITY) {
+            if (atExtenderLimit()) {
+                extenderMax = extenderMotor.getPosition();
+                extenderMotor.set(0.0);
+                Logger.log("climber: finished resetting extender; max=", extenderMax);
+            } else {
+                Logger.log("climber: no extender max yet, resetting");
+                extenderMotor.set(-RESET_SPEED);
+                done = false;
+            }
+        }        
 
         if (done) {
-            Logger.log("done resetting; extenderMax=", extenderMax, ", rotatorZero=", rotatorZero);
+            Logger.log("climber: done resetting; extenderMax=", extenderMax, ", rotatorZero=", rotatorZero);
             resetting = false;
         }
     }
