@@ -168,17 +168,17 @@ public class Robot extends TimedRobot {
 
     m_PIDController1.setI(kI);
     m_PIDController2.setI(kI);
-    m_PIDController3.setP(kP);
+    m_PIDController3.setP(kI);
     m_PIDController4.setI(kI);
 
     m_PIDController1.setD(kD);
     m_PIDController2.setD(kD);
-    m_PIDController3.setP(kP);
+    m_PIDController3.setP(kD);
     m_PIDController4.setD(kD);
 
     m_PIDController1.setIZone(kIz);
     m_PIDController2.setIZone(kIz);
-    m_PIDController3.setP(kP);
+    m_PIDController3.setP(kIz);
     m_PIDController4.setIZone(kIz);
 
     m_PIDController1.setFF(kFF);
@@ -281,16 +281,16 @@ public class Robot extends TimedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
-    m_encoder1.setPosition(0);
-    m_encoder2.setPosition(0);
-    m_encoder3.setPosition(0);
-    m_encoder4.setPosition(0);
-    m_PIDController3.setP(kP);
-    m_PIDController3.setP(kP);
-    m_PIDController3.setP(kP);
-    m_PIDController3.setP(kP);
-    m_PIDController3.setFF(kFF);
-    m_PIDController3.setOutputRange(kMinOutput, kMaxOutput);
+    // m_encoder1.setPosition(0);
+    // m_encoder2.setPosition(0);
+    // m_encoder3.setPosition(0);
+    // m_encoder4.setPosition(0);
+    // m_PIDController3.setP(kP);
+    // m_PIDController3.setP(kP);
+    // m_PIDController3.setP(kP);
+    // m_PIDController3.setP(kP);
+    // m_PIDController3.setFF(kFF);
+    // m_PIDController3.setOutputRange(kMinOutput, kMaxOutput);
 
 
   }
