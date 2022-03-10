@@ -31,7 +31,7 @@ public class ClimberSubsystem {
     public static final double MAX_ROTATION_OUTPUT = 0.6;
 
     /** Reset speed (negative for backwards) */
-    public static final double RESET_SPEED = -0.1;
+    public static final double RESET_SPEED = -0.05;
 
     /** Value of extender switch when pressed */
     public static final boolean EXTENDER_SWITCH_PRESSED = true;
@@ -98,6 +98,54 @@ public class ClimberSubsystem {
         resetting = true;
     }
 
+    // updates motor speed for the reset routine. both motors move slowly towards their
+    // reset limit. once they hit their switch, they're done and we capture their position
+    // as the "zero point". when both are done, we're done resetting.
+    public void autonomousPeriodic() {
+     
+        if (extenderMax != 0.0) {
+            return;
+        }
+     
+        boolean done = true;
+
+        // double extRate = -RESET_SPEED;
+        // if (extRate != 0.0) {
+        //     if (extRate > 0.0 && atExtenderLimit()) {
+        //         extRate = 0.0;
+        //         extenderMax = extenderMotor.getPosition();
+        //         Logger.log("extender at THE BOTTOM!, not going further");
+        //     } 
+        //     else if(extRate < 0.0 && extenderMotor.getPosition() == (extenderMax - 40) ) {
+        //         extRate = 0.0;
+        //         Logger.log("extender at THE TOP!, not going further");
+        //     }
+        //     else {
+        //         extRate *= MAX_EXTENSION_OUTPUT;
+        //         Logger.log("climber: extending at ", extRate);    
+        //     }
+        // }
+        if (atExtenderLimit()) {
+            extenderMotor.set(0.0);
+            extenderMax = extenderMotor.getPosition();
+        } else {
+            extenderMotor.set(-RESET_SPEED);
+            done = false;
+        }
+
+        // if (atRotatorLimit()) {
+        //     rotatorMotor.set(0.0);
+        //     rotatorZero = rotatorMotor.getPosition();
+        // } else {
+        //     rotatorMotor.set(-RESET_SPEED); // rotator is backwards
+        //     done = false;
+        // }
+
+        if (done) {
+            Logger.log("done resetting; extenderMax=", extenderMax, ", rotatorZero=", rotatorZero);
+            resetting = false;
+        }
+    }
     // called 50x per second in teleop mode
     public void teleopPeriodic() {
 
@@ -105,7 +153,6 @@ public class ClimberSubsystem {
             System.err.println("climber: toggling reset mode");
             resetting = !resetting;
         }
-
 
         // for the extender:
         //   - forward on the joystick means a negative rate, which sends the arm higher
@@ -117,7 +164,7 @@ public class ClimberSubsystem {
                 extRate = 0.0;
                 Logger.log("extender at THE BOTTOM!, not going further");
             } 
-            else if(extRate < 0 && extenderMotor.getPosition() == (extenderMax - 40) ) {
+            else if(extRate < 0.0 && extenderMotor.getPosition() == (extenderMax - 40) ) {
                 extRate = 0.0;
                 Logger.log("extender at THE TOP!, not going further");
             }
@@ -142,38 +189,6 @@ public class ClimberSubsystem {
 
     }
 
-    // updates motor speed for the reset routine. both motors move slowly towards their
-    // reset limit. once they hit their switch, they're done and we capture their position
-    // as the "zero point". when both are done, we're done resetting.
-    private void autonomousPeriodic() {
-        if (!resetting) {
-            return;
-        }
-        boolean done = true;
-
-        // if the extender hits his switch, he's at the lowest possible point,
-        // which is the maximum positive value of motor position
-        if (atExtenderLimit()) {
-            extenderMotor.set(0.0);
-            extenderMax = extenderMotor.getPosition();
-        } else {
-            extenderMotor.set(RESET_SPEED);
-            done = false;
-        }
-
-        if (atRotatorLimit()) {
-            rotatorMotor.set(0.0);
-            rotatorZero = rotatorMotor.getPosition();
-        } else {
-            rotatorMotor.set(-RESET_SPEED); // rotator is backwards
-            done = false;
-        }
-
-        if (done) {
-            Logger.log("done resetting; extenderMax=", extenderMax, ", rotatorZero=", rotatorZero);
-            resetting = false;
-        }
-    }
 
 
 

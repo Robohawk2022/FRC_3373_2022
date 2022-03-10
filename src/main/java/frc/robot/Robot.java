@@ -38,8 +38,8 @@ public class Robot extends TimedRobot {
   public static final int SHOOTER_SWITCH_PORT = 1;
   public static final int CLIMBER_EXTENDER_PORT = 12;
   public static final int CLIMBER_ROTATOR_PORT = 13;
-  public static final int CLIMBER_EXTENDER_SWITCH = 2;
-  public static final int CLIMBER_ROTATOR_SWITCH = 3;
+  public static final int CLIMBER_EXTENDER_SWITCH = 3;
+  public static final int CLIMBER_ROTATOR_SWITCH = 4;
 
   public static final boolean USE_CAMERAS = false;
   public static final int FRONT_CAMERA_PORT = 0;
@@ -244,6 +244,7 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     if (intake != null) {
       intake.autonomousInit();
+      climber.autonomousInit();
     }
     autotimer.stop();
     autotimer.reset();
@@ -252,8 +253,10 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
+
     if (intake != null) {
       intake.autonomousPeriodic();
+      climber.autonomousPeriodic();
     }
     autotimer.start();
     while(autotimer.get() > 0) {
