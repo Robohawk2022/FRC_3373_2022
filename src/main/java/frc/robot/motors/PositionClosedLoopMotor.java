@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class PositionClosedLoopMotor extends NamedMotor {
 
-    private static final double MAX_SPEED = 0.7;
+    private static final double MAX_SPEED = 0.5;
     private static final double THRESHOLD = 0.0005;
   
     private double targetPosition;

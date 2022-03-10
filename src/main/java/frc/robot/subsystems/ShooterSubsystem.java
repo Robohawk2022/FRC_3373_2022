@@ -23,7 +23,7 @@ public class ShooterSubsystem {
     public static final double STARTING_LAUNCH_RPM = -12000;
 
     /** How many rotations does the indexer need to lock in a ball? */
-    public static final double LOCKIN_ROTATIONS = 35;
+    public static final double LOCKIN_ROTATIONS = 20;
 
     /** How many rotations does the indexer need to push out a ball? */
     public static final double SHOOT_ROTATIONS = 40;
@@ -139,7 +139,7 @@ public class ShooterSubsystem {
 
         // trigger indexing IF there is a ball in front of the sensor now,
         // and there wasn't one last time
-        if (ballSensor.get() == false) {
+        if (ballSensor.get()) {
             Logger.log("shooter: rotating for intake");
             indexerWheel.rotate(LOCKIN_ROTATIONS);
         }
