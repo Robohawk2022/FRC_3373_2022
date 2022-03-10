@@ -305,54 +305,63 @@ public class Robot extends TimedRobot {
     if (climber != null) {
       climber.teleopPeriodic();
     }
+
+    double leftX = drive_control.getLeftX();
+    double leftY = drive_control.getLeftY();
+    double rightX = drive_control.getRightX();
+    double moveSpeed = Math.sqrt(leftX * leftX + leftY * leftY) / DefaultLimit;
+    double turnAngle = leftX * 5;
+
     // Aim Bot, Squared and limtied, Snake drive, turbo enable, strafe to sensative and porportional and cubed, adjust squaring 
     if(drive_control.getLeftY() > 0) {
-      FLdriveMotor.set((drive_control.getLeftY()) / (1 * DefaultLimit));
-      FRdriveMotor.set((drive_control.getLeftY()) / (-1 * DefaultLimit));
-      BRdriveMotor.set((drive_control.getLeftY()) / (1 * DefaultLimit));
-      BLdriveMotor.set((drive_control.getLeftY()) / (1 * DefaultLimit));
-
-      m_PIDController1.setReference(((drive_control.getRawAxis(0) * -10) / -2), CANSparkMax.ControlType.kPosition);
-      m_PIDController2.setReference(((drive_control.getRawAxis(0) * -10) / -2), CANSparkMax.ControlType.kPosition);
-      m_PIDController3.setReference(((drive_control.getRawAxis(0) * -10) / -2), CANSparkMax.ControlType.kPosition);
-      m_PIDController4.setReference(((drive_control.getRawAxis(0) * -10) / -2), CANSparkMax.ControlType.kPosition);            
+      FLdriveMotor.set(moveSpeed);
+      FRdriveMotor.set(-moveSpeed);
+      BRdriveMotor.set(-moveSpeed);
+      BLdriveMotor.set(moveSpeed);
+      m_PIDController1.setReference(turnAngle, CANSparkMax.ControlType.kPosition);
+      m_PIDController2.setReference(turnAngle, CANSparkMax.ControlType.kPosition);
+      m_PIDController3.setReference(turnAngle, CANSparkMax.ControlType.kPosition);
+      m_PIDController4.setReference(turnAngle, CANSparkMax.ControlType.kPosition);            
     }
     if(drive_control.getLeftY() < 0) {
-      FLdriveMotor.set((drive_control.getLeftY()) / (1 * DefaultLimit));
-      FRdriveMotor.set((drive_control.getLeftY()) / (-1 * DefaultLimit));
-      BRdriveMotor.set((drive_control.getLeftY()) / (1 * DefaultLimit));
-      BLdriveMotor.set((drive_control.getLeftY()) / (1 * DefaultLimit));
-
-      m_PIDController1.setReference(((drive_control.getRawAxis(0) * -10) / 2), CANSparkMax.ControlType.kPosition);
-      m_PIDController2.setReference(((drive_control.getRawAxis(0) * -10) / 2), CANSparkMax.ControlType.kPosition);
-      m_PIDController3.setReference(((drive_control.getRawAxis(0) * -10) / 2), CANSparkMax.ControlType.kPosition);
-      m_PIDController4.setReference(((drive_control.getRawAxis(0) * -10) / 2), CANSparkMax.ControlType.kPosition);   
+      FLdriveMotor.set(-moveSpeed);
+      FRdriveMotor.set(moveSpeed);
+      BRdriveMotor.set(moveSpeed);
+      BLdriveMotor.set(-moveSpeed);
+      m_PIDController1.setReference(-turnAngle, CANSparkMax.ControlType.kPosition);
+      m_PIDController2.setReference(-turnAngle, CANSparkMax.ControlType.kPosition);
+      m_PIDController3.setReference(-turnAngle, CANSparkMax.ControlType.kPosition);
+      m_PIDController4.setReference(-turnAngle, CANSparkMax.ControlType.kPosition);            
     }
+
+    double magicRotateAngle = 2.72;
+    double rotateSpeed = -rightX / 4;
+
     // rotation
-    if(drive_control.getRightX() > 0) {
-      m_PIDController1.setReference(-2.72,  CANSparkMax.ControlType.kPosition);
-      FLdriveMotor.set(drive_control.getRightX() / 4);
-      m_PIDController2.setReference(2.72,  CANSparkMax.ControlType.kPosition);
-      FRdriveMotor.set(drive_control.getRightX() / 4);
-      m_PIDController3.setReference(-2.72,  CANSparkMax.ControlType.kPosition);
-      BLdriveMotor.set(drive_control.getRightX() / 4);
-      m_PIDController4.setReference(2.72,  CANSparkMax.ControlType.kPosition);
-      BRdriveMotor.set(drive_control.getRightX() / -4);
+    if(rightX > 0) {
+      FLdriveMotor.set(rotateSpeed);
+      FRdriveMotor.set(rotateSpeed);
+      BLdriveMotor.set(rotateSpeed);
+      BRdriveMotor.set(rotateSpeed);
+      m_PIDController1.setReference(-magicRotateAngle,  CANSparkMax.ControlType.kPosition);
+      m_PIDController2.setReference(magicRotateAngle,  CANSparkMax.ControlType.kPosition);
+      m_PIDController3.setReference(-magicRotateAngle,  CANSparkMax.ControlType.kPosition);
+      m_PIDController4.setReference(magicRotateAngle,  CANSparkMax.ControlType.kPosition);
     }
       // Rotation
-      // CHANGE TO 2.72!!!!
-    if(drive_control.getRightX() < 0) {
-      m_PIDController1.setReference(-2.72,  CANSparkMax.ControlType.kPosition);
-      FLdriveMotor.set(drive_control.getRightX() / 4);
-      m_PIDController2.setReference(2.72,  CANSparkMax.ControlType.kPosition);
-      FRdriveMotor.set(drive_control.getRightX() / 4);
-      m_PIDController3.setReference(-2.72,  CANSparkMax.ControlType.kPosition);
-      BLdriveMotor.set(drive_control.getRightX() / 4);
-      m_PIDController4.setReference(2.72,  CANSparkMax.ControlType.kPosition);
-      BRdriveMotor.set(drive_control.getRightX() / -4);  
+      // CHANGE TO magicRotateAngle!!!!
+    if(rightX < 0) {
+      FLdriveMotor.set(rotateSpeed);
+      FRdriveMotor.set(rotateSpeed);
+      BLdriveMotor.set(rotateSpeed);
+      BRdriveMotor.set(rotateSpeed);  
+      m_PIDController1.setReference(-magicRotateAngle,  CANSparkMax.ControlType.kPosition);
+      m_PIDController2.setReference(magicRotateAngle,  CANSparkMax.ControlType.kPosition);
+      m_PIDController3.setReference(-magicRotateAngle,  CANSparkMax.ControlType.kPosition);
+      m_PIDController4.setReference(magicRotateAngle,  CANSparkMax.ControlType.kPosition);
     }
 
-    AimBot();
+    AimBot(rightX, magicRotateAngle);
     // StrafeSwerve();
     // ChangeLimited();
   }
@@ -379,16 +388,16 @@ public class Robot extends TimedRobot {
     }    
   }
 
-  public void AimBot() {
+  public void AimBot(double rightX, double magicRotateAngle) {
     if(drive_control.getLeftBumper() == true) {
-      m_PIDController1.setReference(-2.72,  CANSparkMax.ControlType.kPosition);
-      FLdriveMotor.set(drive_control.getRightX() / 8);
-      m_PIDController2.setReference(2.72,  CANSparkMax.ControlType.kPosition);
-      FRdriveMotor.set(drive_control.getRightX() / -8);
-      m_PIDController3.setReference(-2.72,  CANSparkMax.ControlType.kPosition);
-      BLdriveMotor.set(drive_control.getRightX() / 8);
-      m_PIDController4.setReference(2.72,  CANSparkMax.ControlType.kPosition);
-      BRdriveMotor.set(drive_control.getRightX() / -8);  
+      m_PIDController1.setReference(-magicRotateAngle,  CANSparkMax.ControlType.kPosition);
+      FLdriveMotor.set(rightX / 8);
+      m_PIDController2.setReference(magicRotateAngle,  CANSparkMax.ControlType.kPosition);
+      FRdriveMotor.set(rightX / -8);
+      m_PIDController3.setReference(-magicRotateAngle,  CANSparkMax.ControlType.kPosition);
+      BLdriveMotor.set(rightX / 8);
+      m_PIDController4.setReference(magicRotateAngle,  CANSparkMax.ControlType.kPosition);
+      BRdriveMotor.set(rightX / -8);  
     }
   }
   public void ChangeLimited() {
