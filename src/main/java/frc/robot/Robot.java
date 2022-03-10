@@ -8,6 +8,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkMaxRelativeEncoder;
+import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.cameraserver.CameraServer;
@@ -364,6 +365,7 @@ public class Robot extends TimedRobot {
     AimBot(rightX, magicRotateAngle);
     // StrafeSwerve();
     // ChangeLimited();
+    SnakeDrive();
   }
   public void StrafeSwerve() {
     if(drive_control.getRawAxis(0) > .5) {
@@ -398,6 +400,20 @@ public class Robot extends TimedRobot {
       BLdriveMotor.set(rightX / 8);
       m_PIDController4.setReference(magicRotateAngle,  CANSparkMax.ControlType.kPosition);
       BRdriveMotor.set(rightX / -8);  
+    }
+  }
+  public void SnakeDrive() {
+    if(drive_control.getRightTriggerAxis() > 0.05) {
+      m_PIDController1.setReference(2, ControlType.kPosition);
+      m_PIDController2.setReference(2, ControlType.kPosition);
+    }
+    if(drive_control.getLeftTriggerAxis() > 0.05) {
+      m_PIDController1.setReference(-2, ControlType.kPosition);
+      m_PIDController2.setReference(-2, ControlType.kPosition);
+    }
+    else {
+      m_PIDController1.setReference(0, ControlType.kPosition);
+      m_PIDController2.setReference(0, ControlType.kPosition);
     }
   }
   public void ChangeLimited() {
