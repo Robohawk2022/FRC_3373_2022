@@ -127,11 +127,17 @@ public class ClimberSubsystem {
 
         double extRate = clean(controller.getLeftY());
         double rotRate = clean(controller.getRightX());
+/*
+15.714274406433105 26 1/32 0.03125
+11.000 19 15/16
+40.023 13 9/16
+70.359 6 11/16
 
+*/
         if (extRate != 0.0) {
-            if (extRate < 0.0 && atExtenderLimit()) {
-                extRate = 0.0;
-            }
+            // if (extRate < 0.0 && atExtenderLimit()) {
+            //     extRate = 0.0;
+            // }
             extRate *= MAX_EXTENSION_OUTPUT;
             Logger.log("climber: extending at ", extRate);
         }
