@@ -35,11 +35,11 @@ public class Robot extends TimedRobot {
   public static final int INTAKE_PORT = 9;
   public static final int SHOOTER_LAUNCH_PORT = 10;
   public static final int SHOOTER_INDEXER_PORT = 11;
-  public static final int SHOOTER_SWITCH_PORT = 3;
+  public static final int SHOOTER_SWITCH_PORT = 1;
   public static final int CLIMBER_EXTENDER_PORT = 12;
   public static final int CLIMBER_ROTATOR_PORT = 13;
-  public static final int CLIMBER_EXTENDER_SWITCH = 1;
-  public static final int CLIMBER_ROTATOR_SWITCH = 2;
+  public static final int CLIMBER_EXTENDER_SWITCH = 2;
+  public static final int CLIMBER_ROTATOR_SWITCH = 3;
 
   public static final boolean USE_CAMERAS = false;
   public static final int FRONT_CAMERA_PORT = 0;
