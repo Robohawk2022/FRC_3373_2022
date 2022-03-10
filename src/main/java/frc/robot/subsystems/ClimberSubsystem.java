@@ -42,6 +42,13 @@ public class ClimberSubsystem {
     /** Deadband around center of joystick to ignore */
     public static final double DEADBAND = 0.1;
 
+    /**Total Length in Inches of Extender Arm and Math */
+    public static final double TOTALLENGTH = 0; 
+    public static double ExtHeight = (TOTALLENGTH * EXTENDER_ROTATIONS_PER_INCH);
+    /**Extender Arm Limited */
+    public static final double MAXHEIGHT = ExtHeight;
+    
+
     private final XboxController controller;
     private final NamedMotor extenderMotor;
     private final NamedMotor rotatorMotor;
@@ -87,6 +94,9 @@ public class ClimberSubsystem {
         rotatorMotor.set(0.0);
         resetting = false;
     }
+    public void autonomousInit() {
+        resetting = true;
+    }
 
     // called 50x per second in teleop mode
     public void teleopPeriodic() {
@@ -96,18 +106,49 @@ public class ClimberSubsystem {
             resetting = !resetting;
         }
 
-        if (resetting) {
-            periodicForReset();
-        } else {
-            periodicForJoysticks();
+
+        // for the extender:
+        //   - forward on the joystick means a negative rate, which sends the arm higher
+        //   - backward on the joystick means a positive rate, which sends the arm lower
+        //   - we don't want to go backwards past the limit
+        double extRate = clean(controller.getLeftY());
+        if (extRate != 0.0) {
+            if (extRate > 0.0 && atExtenderLimit()) {
+                extRate = 0.0;
+                Logger.log("extender at THE BOTTOM!, not going further");
+            } 
+            else if(extRate < 0 && extenderMotor.getPosition() == (extenderMax - 40) ) {
+                extRate = 0.0;
+                Logger.log("extender at THE TOP!, not going further");
+            }
+            else {
+                extRate *= MAX_EXTENSION_OUTPUT;
+                Logger.log("climber: extending at ", extRate);    
+            }
         }
+        extenderMotor.set(extRate);
+
+        double rotRate = clean(controller.getRightX());
+        if (rotRate != 0.0) {
+            if (rotRate > 0.0 && atRotatorLimit()) {
+                rotRate = 0.0;
+            }
+            rotRate *= MAX_ROTATION_OUTPUT;
+            Logger.log("climber: rotating at ", rotRate);
+        }
+        rotatorMotor.set(rotRate);
+
+
+
     }
 
     // updates motor speed for the reset routine. both motors move slowly towards their
     // reset limit. once they hit their switch, they're done and we capture their position
     // as the "zero point". when both are done, we're done resetting.
-    private void periodicForReset() {
-
+    private void autonomousPeriodic() {
+        if (!resetting) {
+            return;
+        }
         boolean done = true;
 
         // if the extender hits his switch, he's at the lowest possible point,
@@ -134,36 +175,8 @@ public class ClimberSubsystem {
         }
     }
 
-    // updates motor speed for normal joystick controls. both motors can travel freely
-    // until they hit their limit switch;
-    private void periodicForJoysticks() {
 
-        // for the extender:
-        //   - forward on the joystick means a negative rate, which sends the arm higher
-        //   - backward on the joystick means a positive rate, which sends the arm lower
-        //   - we don't want to go backwards past the limit
-        double extRate = clean(controller.getLeftY());
-        if (extRate != 0.0) {
-            if (extRate > 0.0 && atExtenderLimit()) {
-                extRate = 0.0;
-                Logger.log("extender at limit, not going further");
-            } else {
-                extRate *= MAX_EXTENSION_OUTPUT;
-                Logger.log("climber: extending at ", extRate);    
-            }
-        }
-        extenderMotor.set(extRate);
 
-        double rotRate = clean(controller.getRightX());
-        if (rotRate != 0.0) {
-            if (rotRate > 0.0 && atRotatorLimit()) {
-                rotRate = 0.0;
-            }
-            rotRate *= MAX_ROTATION_OUTPUT;
-            Logger.log("climber: rotating at ", rotRate);
-        }
-        rotatorMotor.set(rotRate);
-    }
 
     private double clean(double stickValue) {
         double absValue = Math.abs(stickValue);
