@@ -309,10 +309,10 @@ public class Robot extends TimedRobot {
     }
     // Aim Bot, Squared and limtied, Snake drive, turbo enable, strafe to sensative and porportional and cubed, adjust squaring 
     if(drive_control.getLeftY() > 0) {
-      FLdriveMotor.set((drive_control.getLeftY()) / (-1 * DefaultLimit));
+      FLdriveMotor.set((drive_control.getLeftY()) / (1 * DefaultLimit));
       FRdriveMotor.set((drive_control.getLeftY()) / (-1 * DefaultLimit));
-      BRdriveMotor.set((drive_control.getLeftY()) / (-1 * DefaultLimit));
-      BLdriveMotor.set((drive_control.getLeftY()) / (-1 * DefaultLimit));
+      BRdriveMotor.set((drive_control.getLeftY()) / (1 * DefaultLimit));
+      BLdriveMotor.set((drive_control.getLeftY()) / (1 * DefaultLimit));
 
       m_PIDController1.setReference(((drive_control.getRawAxis(0) * -10) / -2), CANSparkMax.ControlType.kPosition);
       m_PIDController2.setReference(((drive_control.getRawAxis(0) * -10) / -2), CANSparkMax.ControlType.kPosition);
@@ -320,10 +320,10 @@ public class Robot extends TimedRobot {
       m_PIDController4.setReference(((drive_control.getRawAxis(0) * -10) / -2), CANSparkMax.ControlType.kPosition);            
     }
     if(drive_control.getLeftY() < 0) {
-      FLdriveMotor.set((drive_control.getLeftY()) / (-1 * DefaultLimit));
+      FLdriveMotor.set((drive_control.getLeftY()) / (1 * DefaultLimit));
       FRdriveMotor.set((drive_control.getLeftY()) / (-1 * DefaultLimit));
-      BRdriveMotor.set((drive_control.getLeftY()) / (-1 * DefaultLimit));
-      BLdriveMotor.set((drive_control.getLeftY()) / (-1 * DefaultLimit));
+      BRdriveMotor.set((drive_control.getLeftY()) / (1 * DefaultLimit));
+      BLdriveMotor.set((drive_control.getLeftY()) / (1 * DefaultLimit));
 
       m_PIDController1.setReference(((drive_control.getRawAxis(0) * -10) / 2), CANSparkMax.ControlType.kPosition);
       m_PIDController2.setReference(((drive_control.getRawAxis(0) * -10) / 2), CANSparkMax.ControlType.kPosition);
@@ -335,18 +335,19 @@ public class Robot extends TimedRobot {
       m_PIDController1.setReference(-2,  CANSparkMax.ControlType.kPosition);
       FLdriveMotor.set(drive_control.getRightX() / 2);
       m_PIDController2.setReference(2,  CANSparkMax.ControlType.kPosition);
-      FRdriveMotor.set(drive_control.getRightX() / -2);
+      FRdriveMotor.set(drive_control.getRightX() / 2);
       m_PIDController3.setReference(-2,  CANSparkMax.ControlType.kPosition);
       BLdriveMotor.set(drive_control.getRightX() / 2);
       m_PIDController4.setReference(2,  CANSparkMax.ControlType.kPosition);
       BRdriveMotor.set(drive_control.getRightX() / -2);
     }
       // Rotation
+      // CHANGE TO 2.72!!!!
     if(drive_control.getRightX() < 0) {
       m_PIDController1.setReference(-2,  CANSparkMax.ControlType.kPosition);
       FLdriveMotor.set(drive_control.getRightX() / 2);
       m_PIDController2.setReference(2,  CANSparkMax.ControlType.kPosition);
-      FRdriveMotor.set(drive_control.getRightX() / -2);
+      FRdriveMotor.set(drive_control.getRightX() / 2);
       m_PIDController3.setReference(-2,  CANSparkMax.ControlType.kPosition);
       BLdriveMotor.set(drive_control.getRightX() / 2);
       m_PIDController4.setReference(2,  CANSparkMax.ControlType.kPosition);
