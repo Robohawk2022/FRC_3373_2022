@@ -55,12 +55,12 @@ public class ShooterSubsystem {
     }
 
     public void shoot() {
-        boolean haveBall = ballSensor.get();
         boolean atSpeed = launchWheel.getRpm() < MINIMUM_LAUNCH_RPM; // yes, less than, because speeds are negative
-        Logger.log("shooter: attempting to shoot: have ball? "+haveBall+" and at speed? "+atSpeed);
-        if (haveBall && atSpeed) {
+        if (atSpeed) {
             Logger.log("shooter: shooting!");
             indexerWheel.rotate(SHOOT_ROTATIONS);    
+        } else {
+            Logger.log("shooter: refusing to shoot; not at speed");
         }
     }
 
@@ -147,6 +147,13 @@ public class ShooterSubsystem {
         // if someone wants to shoot, and the wheel's at speed and we 
         // have a ball, go for it!
         if (controller.getBButtonPressed()) {
+            System.err.println("**************************************");
+            System.err.println("**************************************");
+            System.err.println("**************************************");
+            System.err.println("**************************************");
+            System.err.println("**************************************");
+            System.err.println("**************************************");
+            System.err.println("**************************************");
             shoot();
         }
 
