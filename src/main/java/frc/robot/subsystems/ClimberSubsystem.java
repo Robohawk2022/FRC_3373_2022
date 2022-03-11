@@ -133,6 +133,8 @@ public class ClimberSubsystem {
             done = false;
         }
 
+/* UNCOMMENT & TEST ME
+
         // check the rotator for hitting its limit switch
         if (atRotatorLimit()) {
             rotatorMax = rotatorMotor.getPosition();
@@ -143,6 +145,8 @@ public class ClimberSubsystem {
             rotatorMotor.set(RESET_SPEED);
             done = false;
         }
+
+*/
 
         // if both of those previous guys are done, we're done resetting
         if (done) {
@@ -172,6 +176,7 @@ public class ClimberSubsystem {
         boolean rotatorAtMax = rotatorMotor.getPosition() >= rotatorMax || atRotatorLimit();
         boolean rotatorAtMin = rotatorMotor.getPosition() <= rotatorMin;
         double rotRate = clean(controller.getRightX());
+/* UNCOMMENT & TEST ME
         if (rotRate > 0.0 && rotatorAtMax) {
             Logger.log("climber: rotator won't go too high ...");
             rotatorMotor.set(0.0);
@@ -180,9 +185,10 @@ public class ClimberSubsystem {
             Logger.log("climber: rotator won't go too low ...");
             rotatorMotor.set(0.0);
         } else {
+*/
             rotRate *= MAX_ROTATION_OUTPUT;
             rotatorMotor.set(rotRate);
-        }
+        // }
     }
 
     private double clean(double stickValue) {
