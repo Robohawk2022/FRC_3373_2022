@@ -47,6 +47,8 @@ public class ClimberSubsystem {
     public static double ExtHeight = (TOTALLENGTH * EXTENDER_ROTATIONS_PER_INCH);
     /**Extender Arm Limited */
     public static final double MAXHEIGHT = ExtHeight;
+
+    public static final double MAX_EXTENSION = 85;
     
 
     private final XboxController controller;
@@ -55,6 +57,7 @@ public class ClimberSubsystem {
     private final DigitalInput extenderSwitch;
     private final DigitalInput rotatorSwitch;
     private double extenderMax;
+    private double extenderMin;
     private double rotatorZero;
     private boolean resetting;
 
@@ -80,7 +83,8 @@ public class ClimberSubsystem {
 
     // called 50x per second, no matter what mode we're in
     public void robotPeriodic() {
-        SmartDashboard.putBoolean("Extender At Max?", atExtenderLimit());
+        SmartDashboard.putBoolean("Extender Max?", atExtenderLimit());
+        SmartDashboard.putNumber("Extender Min", extenderMin);
         SmartDashboard.putBoolean("Rotator Limit?", atRotatorLimit());
         SmartDashboard.putNumber("Rotator Zero", rotatorZero);
         SmartDashboard.putNumber("Extender Max", extenderMax);
@@ -115,6 +119,7 @@ public class ClimberSubsystem {
         // if we haven't captured a max value yet, we check the extender
         if (atExtenderLimit()) {
             extenderMax = extenderMotor.getPosition();
+            extenderMin = extenderMax - MAX_EXTENSION;
             extenderMotor.set(0.0);
             Logger.log("climber: finished resetting extender; max=", extenderMax);
         } else {
@@ -131,41 +136,38 @@ public class ClimberSubsystem {
     // called 50x per second in teleop mode
     public void teleopPeriodic() {
 
-        if (controller.getBackButtonPressed()) {
-            System.err.println("climber: toggling reset mode");
-            resetting = !resetting;
-        }
-
         // for the extender:
         //   - forward on the joystick means a negative rate, which sends the arm higher
         //   - backward on the joystick means a positive rate, which sends the arm lower
         //   - we don't want to go backwards past the limit
-        double extRate = clean(controller.getLeftY());
-        if (extRate != 0.0) {
-            if (extRate > 0.0 && atExtenderLimit()) {
-                extRate = 0.0;
-                Logger.log("extender at THE BOTTOM!, not going further");
-            } 
-            else if(extRate < 0.0 && extenderMotor.getPosition() == (extenderMax - 40) ) {
-                extRate = 0.0;
-                Logger.log("extender at THE TOP!, not going further");
-            }
-            else {
-                extRate *= MAX_EXTENSION_OUTPUT;
-                Logger.log("climber: extending at ", extRate);    
-            }
-        }
-        extenderMotor.set(extRate);
 
-        double rotRate = clean(controller.getRightX());
-        if (rotRate != 0.0) {
-            if (rotRate > 0.0 && atRotatorLimit()) {
-                rotRate = 0.0;
-            }
-            rotRate *= MAX_ROTATION_OUTPUT;
-            Logger.log("climber: rotating at ", rotRate);
+        boolean extenderAtMax = extenderMotor.getPosition() >= extenderMax || atExtenderLimit();
+        boolean extenderAtMin = extenderMotor.getPosition() <= extenderMin;
+        Logger.log("checking extender; atMax=", extenderAtMax, ", atMin=", extenderAtMin);
+
+        double extRate = clean(controller.getLeftY());
+        if (extRate > 0.0 && extenderAtMax) {
+            Logger.log("climber: extender won't go too low ...");
+            extenderMotor.set(0.0);
         }
-        rotatorMotor.set(rotRate);
+        else if (extRate < 0.0 && extenderAtMin) {
+            Logger.log("climber: extender won't go too high ...");
+            extenderMotor.set(0.0);
+        } else {
+            extRate *= MAX_EXTENSION_OUTPUT;
+            Logger.log("climber: extending at ", extRate);    
+            extenderMotor.set(extRate);
+        }
+
+        // double rotRate = clean(controller.getRightX());
+        // if (rotRate != 0.0) {
+        //     if (rotRate > 0.0 && atRotatorLimit()) {
+        //         rotRate = 0.0;
+        //     }
+        //     rotRate *= MAX_ROTATION_OUTPUT;
+        //     Logger.log("climber: rotating at ", rotRate);
+        // }
+        // rotatorMotor.set(rotRate);
 
 
 
