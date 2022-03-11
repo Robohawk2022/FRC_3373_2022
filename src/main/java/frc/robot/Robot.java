@@ -366,7 +366,7 @@ public class Robot extends TimedRobot {
   public void macDrive(double leftX, double leftY, double rightX) {
 
     double moveSpeed = Math.sqrt(leftX * leftX + leftY * leftY) * MaxSpeed * turboFactor * reverseFactor;
-    double turnAngle = leftX * leftX * leftX * MaxRotation;    
+    double turnAngle = leftX * leftX * leftX * MaxRotation * reverseFactor;    
 
     if (drive_control.getLeftY() > 0) {
       frontLeftDriveMotor.set(moveSpeed);
@@ -399,7 +399,7 @@ public class Robot extends TimedRobot {
   public void driveDrive(double leftX, double leftY, double rightX) {
 
     double moveSpeed = Math.sqrt(leftX * leftX + leftY * leftY) * MaxSpeed * turboFactor * reverseFactor;
-    double turnAngle = rightX * rightX * rightX * MaxRotation;   
+    double turnAngle = rightX * rightX * rightX * MaxRotation * reverseFactor;   
     if (turnAngle > RotationLimit) {
       turnAngle = RotationLimit;
     }
