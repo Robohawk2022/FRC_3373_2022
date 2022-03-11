@@ -40,6 +40,14 @@ public class Robot extends TimedRobot {
   public static final int CLIMBER_ROTATOR_PORT = 13;
   public static final int CLIMBER_EXTENDER_SWITCH = 3;
   public static final int CLIMBER_ROTATOR_SWITCH = 4;
+  public static final int FRONT_LEFT_ANGLE_ID = 8;
+  public static final int FRONT_LEFT_DRIVE_ID = 7;
+  public static final int FRONT_RIGHT_ANGLE_ID = 6;
+  public static final int FRONT_RIGHT_DRIVE_ID = 5;
+  public static final int BACK_RIGHT_ANGLE_ID = 4;
+  public static final int BACK_RIGHT_DRIVE_ID = 3;
+  public static final int BACK_LEFT_ANGLE_ID = 2;
+  public static final int BACK_LEFT_DRIVE_ID = 1;
 
   public static final boolean USE_CAMERAS = false;
   public static final int FRONT_CAMERA_PORT = 0;
@@ -56,14 +64,6 @@ public class Robot extends TimedRobot {
   private IntakeSubsystem intake;
   private ShooterSubsystem shooter;
   private ClimberSubsystem climber;
-  private static final int  FLangleID = 8;
-  private static final int FLdriveID = 7;
-  private static final int  FRangleID = 6;
-  private static final int FRdriveID = 5;
-  private static final int  BRangleID = 4;
-  private static final int BRdriveID = 3;
-  private static final int  BLangleID = 2;
-  private static final int BLdriveID = 1;
   private CANSparkMax frontLeftAngleMotor;
   private CANSparkMax frontLeftDriveMotor;
   private CANSparkMax frontRightDriveMotor;
@@ -83,12 +83,8 @@ public class Robot extends TimedRobot {
   private XboxController drive_control;
   private Timer autotimer;
   private double turboFactor;
-  public double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput;
-
-
-
-
-  public Timer autoTimer;
+  private double reverseFactor;
+  private double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -104,14 +100,14 @@ public class Robot extends TimedRobot {
     shooter = new ShooterSubsystem(specialops, SHOOTER_LAUNCH_PORT, SHOOTER_INDEXER_PORT, SHOOTER_SWITCH_PORT);
     climber = new ClimberSubsystem(specialops, CLIMBER_EXTENDER_PORT, CLIMBER_EXTENDER_SWITCH, CLIMBER_ROTATOR_PORT, CLIMBER_ROTATOR_SWITCH);
 
-    frontLeftAngleMotor = new CANSparkMax(FLangleID, MotorType.kBrushed);
-    frontLeftDriveMotor = new CANSparkMax(FLdriveID, MotorType.kBrushless);
-    frontRightAngleMotor = new CANSparkMax(FRangleID, MotorType.kBrushed);
-    frontRightDriveMotor = new CANSparkMax(FRdriveID, MotorType.kBrushless);
-    backRightAngleMotor = new CANSparkMax(BRangleID, MotorType.kBrushed);
-    backRightDriveMotor = new CANSparkMax(BRdriveID, MotorType.kBrushless);
-    backLeftDriveMotor = new CANSparkMax(BLdriveID, MotorType.kBrushless);
-    backLeftAngleMotor = new CANSparkMax(BLangleID, MotorType.kBrushed);
+    frontLeftAngleMotor = new CANSparkMax(FRONT_LEFT_ANGLE_ID, MotorType.kBrushed);
+    frontLeftDriveMotor = new CANSparkMax(FRONT_LEFT_DRIVE_ID, MotorType.kBrushless);
+    frontRightAngleMotor = new CANSparkMax(FRONT_RIGHT_ANGLE_ID, MotorType.kBrushed);
+    frontRightDriveMotor = new CANSparkMax(FRONT_RIGHT_DRIVE_ID, MotorType.kBrushless);
+    backRightAngleMotor = new CANSparkMax(BACK_RIGHT_ANGLE_ID, MotorType.kBrushed);
+    backRightDriveMotor = new CANSparkMax(BACK_RIGHT_DRIVE_ID, MotorType.kBrushless);
+    backLeftDriveMotor = new CANSparkMax(BACK_LEFT_DRIVE_ID, MotorType.kBrushless);
+    backLeftAngleMotor = new CANSparkMax(BACK_LEFT_ANGLE_ID, MotorType.kBrushed);
 
     frontLeftPidController = frontLeftAngleMotor.getPIDController();
     frontRightPidController = frontRightAngleMotor.getPIDController();
@@ -153,6 +149,7 @@ public class Robot extends TimedRobot {
     backLeftAngleEncoder.setPosition(0);
 
     turboFactor = 1.0;
+    reverseFactor = 1.0;
 
     // kP = 75; 
     // kI = 1e-3;
@@ -236,11 +233,11 @@ public class Robot extends TimedRobot {
       climber.robotPeriodic();
     }
     MotorFactory.updateDashboard();
-    SmartDashboard.putNumber("ProcessVariable 1", frontLeftAngleEncoder.getPosition());
-    SmartDashboard.putNumber("ProcessVariable 2", frontRightAngleEncoder.getPosition());
-    SmartDashboard.putNumber("ProcessVariable 3", backRightAngleEncoder.getPosition());
-    SmartDashboard.putNumber("ProcessVariable 4", backLeftAngleEncoder.getPosition());
-
+    SmartDashboard.putNumber("FL Angle Position", frontLeftAngleEncoder.getPosition());
+    SmartDashboard.putNumber("FR Angle Position", frontRightAngleEncoder.getPosition());
+    SmartDashboard.putNumber("BR Angle Position", backRightAngleEncoder.getPosition());
+    SmartDashboard.putNumber("BL Angle Position", backLeftAngleEncoder.getPosition());
+    SmartDashboard.putBoolean("Drive Reversed?", reverseFactor < -1.0);
   }
 
   /**
@@ -263,6 +260,7 @@ public class Robot extends TimedRobot {
     }
     autotimer.stop();
     autotimer.reset();
+    autotimer.start();
   }
 
   /** This function is called periodically during autonomous. */
@@ -275,31 +273,25 @@ public class Robot extends TimedRobot {
     if (climber != null) {
       climber.autonomousPeriodic();
     }
-    autotimer.start();
-    /*
-
-    MAAACCCCC!!!!!! You used a while loop! Noooooooooo!
-
-    while(autotimer.get() > 0) {
+    
+    if (autotimer.get() > 0) {
       if (autotimer.get() < 4) {
-        FLdriveMotor.set(.10);
-        FRdriveMotor.set(.10);
-        BLdriveMotor.set(.10);
-        BRdriveMotor.set(.10);
-        m_PIDController1.setReference(0, CANSparkMax.ControlType.kPosition);
-        m_PIDController2.setReference(0, CANSparkMax.ControlType.kPosition);
-        m_PIDController3.setReference(0, CANSparkMax.ControlType.kPosition);
-        m_PIDController4.setReference(0, CANSparkMax.ControlType.kPosition);  
-  
+        frontLeftDriveMotor.set(.10);
+        frontRightDriveMotor.set(.10);
+        backLeftDriveMotor.set(.10);
+        backRightDriveMotor.set(.10);
+        frontLeftPidController.setReference(0, CANSparkMax.ControlType.kPosition);
+        frontRightPidController.setReference(0, CANSparkMax.ControlType.kPosition);
+        backRightPidController.setReference(0, CANSparkMax.ControlType.kPosition);
+        backLeftPidController.setReference(0, CANSparkMax.ControlType.kPosition);  
       }
       else {
-        FLdriveMotor.set(0);
-        FRdriveMotor.set(0);
-        BLdriveMotor.set(0);
-        BRdriveMotor.set(0);  
+        frontLeftDriveMotor.set(0);
+        frontRightDriveMotor.set(0);
+        backRightDriveMotor.set(0);  
+        backLeftDriveMotor.set(0);
       }
-   }
-   */
+    }
   }
 
   /** This function is called once when teleop is enabled. */
@@ -326,6 +318,12 @@ public class Robot extends TimedRobot {
     double leftX = drive_control.getLeftX();
     double leftY = drive_control.getLeftY();
 
+    // if someone hits start, we'll invert the "front" of the vehicle for driving
+    if (drive_control.getStartButtonPressed()) {
+      reverseFactor = reverseFactor * -1.0;
+    }
+
+    // if someone is holding the right trigger, we'll double speed
     if (drive_control.getRightTriggerAxis() > 0.5) {
       turboFactor = 2.0;
     } else {
@@ -355,9 +353,19 @@ public class Robot extends TimedRobot {
     //SnakeDrive();
   }
 
+  /**
+   * This is a "strafey" mode: the robot will move in the direction of the left stick,
+   * without changing its heading. Two notes:
+   * 
+   *  - There's a discontinuity at full left and full right where the wheels will flip
+   *  around.
+   * 
+   *  - Velocity is based on the distance of the joystick from the center, NOT just
+   *  the forward angle of it.
+   */
   public void macDrive(double leftX, double leftY, double rightX) {
 
-    double moveSpeed = Math.sqrt(leftX * leftX + leftY * leftY) * MaxSpeed * turboFactor;
+    double moveSpeed = Math.sqrt(leftX * leftX + leftY * leftY) * MaxSpeed * turboFactor * reverseFactor;
     double turnAngle = leftX * leftX * leftX * MaxRotation;    
 
     if (drive_control.getLeftY() > 0) {
@@ -383,9 +391,14 @@ public class Robot extends TimedRobot {
     }
   }
 
+  /**
+   * This is a "drivey" mode. The left stick controls forward/reverse speed, while
+   * the right stick will turn you left or right like a car. There's a maximum
+   * turn angle, to prevent the wheels from sticking.
+   */
   public void driveDrive(double leftX, double leftY, double rightX) {
 
-    double moveSpeed = Math.sqrt(leftX * leftX + leftY * leftY) * MaxSpeed * turboFactor;
+    double moveSpeed = Math.sqrt(leftX * leftX + leftY * leftY) * MaxSpeed * turboFactor * reverseFactor;
     double turnAngle = rightX * rightX * rightX * MaxRotation;   
     if (turnAngle > RotationLimit) {
       turnAngle = RotationLimit;
