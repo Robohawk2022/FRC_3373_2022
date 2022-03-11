@@ -124,10 +124,10 @@ public class Robot extends TimedRobot {
     backLeftDriveMotor.restoreFactoryDefaults();
     backRightDriveMotor.restoreFactoryDefaults();
 
-    frontRightDriveMotor.setClosedLoopRampRate(2.0);
-    frontLeftDriveMotor.setClosedLoopRampRate(2.0);
-    backRightDriveMotor.setClosedLoopRampRate(2.0);
-    backLeftDriveMotor.setClosedLoopRampRate(2.0);
+    frontRightDriveMotor.setOpenLoopRampRate(1.0);
+    frontLeftDriveMotor.setOpenLoopRampRate(1.0);
+    backRightDriveMotor.setOpenLoopRampRate(1.0);
+    backLeftDriveMotor.setOpenLoopRampRate(1.0);
 
     //TIMER
     autotimer = new Timer();
