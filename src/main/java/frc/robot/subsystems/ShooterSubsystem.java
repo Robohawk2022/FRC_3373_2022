@@ -26,7 +26,7 @@ public class ShooterSubsystem {
     public static final double INDEXER_MAX_SPEED = 0.5;
 
     /** How many rotations does the indexer need to lock in a ball? */
-    public static final double LOCKIN_ROTATIONS = 20;
+    public static final double LOCKIN_ROTATIONS = 15;
 
     /** How many rotations does the indexer need to push out a ball? */
     public static final double SHOOT_ROTATIONS = 40;
