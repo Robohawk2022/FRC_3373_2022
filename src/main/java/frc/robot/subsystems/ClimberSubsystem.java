@@ -97,15 +97,7 @@ public class ClimberSubsystem {
     }
 
     public void autonomousInit() {
-        Logger.log("*****************************************************");
-        Logger.log("*****************************************************");
-        Logger.log("*****************************************************");
-        Logger.log("*****************************************************");
-        Logger.log("*****************************************************");
-        Logger.log("*****************************************************");
-        Logger.log("*****************************************************");
-        Logger.log("*****************************************************");
-        Logger.log("in init, switch="+extenderSwitch.get());
+        resetting = true;
     }
 
     // updates motor speed for the reset routine. both motors move slowly towards their
@@ -113,22 +105,23 @@ public class ClimberSubsystem {
     // as the "zero point". when both are done, we're done resetting.
     public void autonomousPeriodic() {
 
-        Logger.log("switch="+extenderSwitch.get());
+        // if we're done resetting, bail out
+        if (!resetting) {
+            return;
+        }
 
         boolean done = true;
 
         // if we haven't captured a max value yet, we check the extender
-        if (extenderMax == Double.NEGATIVE_INFINITY) {
-            if (atExtenderLimit()) {
-                extenderMax = extenderMotor.getPosition();
-                extenderMotor.set(0.0);
-                Logger.log("climber: finished resetting extender; max=", extenderMax);
-            } else {
-                Logger.log("climber: no extender max yet, resetting");
-                extenderMotor.set(-RESET_SPEED);
-                done = false;
-            }
-        }        
+        if (atExtenderLimit()) {
+            extenderMax = extenderMotor.getPosition();
+            extenderMotor.set(0.0);
+            Logger.log("climber: finished resetting extender; max=", extenderMax);
+        } else {
+            Logger.log("climber: no extender max yet, resetting");
+            extenderMotor.set(-RESET_SPEED);
+            done = false;
+        }
 
         if (done) {
             Logger.log("climber: done resetting; extenderMax=", extenderMax, ", rotatorZero=", rotatorZero);

@@ -263,6 +263,10 @@ public class Robot extends TimedRobot {
       climber.autonomousPeriodic();
     }
     autotimer.start();
+    /*
+
+    MAAACCCCC!!!!!! You used a while loop! Noooooooooo!
+
     while(autotimer.get() > 0) {
       if (autotimer.get() < 4) {
         FLdriveMotor.set(.10);
@@ -282,8 +286,7 @@ public class Robot extends TimedRobot {
         BRdriveMotor.set(0);  
       }
    }
-
-    
+   */
   }
 
   /** This function is called once when teleop is enabled. */
