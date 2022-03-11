@@ -49,6 +49,7 @@ public class Robot extends TimedRobot {
   public static int DefaultLimit = 4;
   public static double RotationLimit = .25;
   public static double StrafeLimit = .25;
+  public static double MagicRotateAngle = 2.72;
 
   private XboxController specialops;
   private IntakeSubsystem intake;
@@ -124,6 +125,11 @@ public class Robot extends TimedRobot {
     BRangleMotor.restoreFactoryDefaults();
     BLdriveMotor.restoreFactoryDefaults();
     BRdriveMotor.restoreFactoryDefaults();
+
+    FRdriveMotor.setClosedLoopRampRate(2.0);
+    FLdriveMotor.setClosedLoopRampRate(2.0);
+    BRdriveMotor.setClosedLoopRampRate(2.0);
+    BLdriveMotor.setClosedLoopRampRate(2.0);
 
     //TIMER
     autotimer = new Timer();
@@ -292,21 +298,13 @@ public class Robot extends TimedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
-    // m_encoder1.setPosition(0);
-    // m_encoder2.setPosition(0);
-    // m_encoder3.setPosition(0);
-    // m_encoder4.setPosition(0);
-    // m_PIDController3.setP(kP);
-    // m_PIDController3.setP(kP);
-    // m_PIDController3.setP(kP);
-    // m_PIDController3.setP(kP);
-    // m_PIDController3.setFF(kFF);
-    // m_PIDController3.setOutputRange(kMinOutput, kMaxOutput);
   }
 
   @Override
   public void teleopPeriodic() {
+
     SmartDashboard.updateValues();
+
     if (intake != null) {
       intake.telopPeriodic();
     }
@@ -317,11 +315,22 @@ public class Robot extends TimedRobot {
       climber.teleopPeriodic();
     }
 
+    double rightX = drive_control.getRightX();
+
+    if (drive_control.getLeftBumper()) {
+      AimBot(rightX);
+      return;
+    }
+    
+    else if (Math.abs(rightX) > 0.05) {
+      Rotate(rightX);
+      return;
+    }
+    
     double leftX = drive_control.getLeftX();
     double leftY = drive_control.getLeftY();
-    double rightX = drive_control.getRightX();
     double moveSpeed = Math.sqrt(leftX * leftX + leftY * leftY) / DefaultLimit;
-    double turnAngle = leftX * 5;
+    double turnAngle = leftX * leftX * leftX * 5;    
 
     // Aim Bot, Squared and limtied, Snake drive, turbo enable, strafe to sensative and porportional and cubed, adjust squaring 
     if(drive_control.getLeftY() > 0) {
@@ -345,7 +354,15 @@ public class Robot extends TimedRobot {
       m_PIDController4.setReference(-turnAngle, CANSparkMax.ControlType.kPosition);            
     }
 
-    double magicRotateAngle = 2.72;
+
+    
+      SnakeDrive();
+    // StrafeSwerve();
+    // ChangeLimited();
+    //SnakeDrive();
+  }
+
+  public void Rotate(double rightX) {
     double rotateSpeed = -rightX / 4;
 
     // rotation
@@ -354,28 +371,22 @@ public class Robot extends TimedRobot {
       FRdriveMotor.set(rotateSpeed);
       BLdriveMotor.set(rotateSpeed);
       BRdriveMotor.set(rotateSpeed);
-      m_PIDController1.setReference(-magicRotateAngle,  CANSparkMax.ControlType.kPosition);
-      m_PIDController2.setReference(magicRotateAngle,  CANSparkMax.ControlType.kPosition);
-      m_PIDController3.setReference(-magicRotateAngle,  CANSparkMax.ControlType.kPosition);
-      m_PIDController4.setReference(magicRotateAngle,  CANSparkMax.ControlType.kPosition);
+      m_PIDController1.setReference(-MagicRotateAngle,  CANSparkMax.ControlType.kPosition);
+      m_PIDController2.setReference(MagicRotateAngle,  CANSparkMax.ControlType.kPosition);
+      m_PIDController3.setReference(-MagicRotateAngle,  CANSparkMax.ControlType.kPosition);
+      m_PIDController4.setReference(MagicRotateAngle,  CANSparkMax.ControlType.kPosition);
     }
       // Rotation
-      // CHANGE TO magicRotateAngle!!!!
     if(rightX < 0) {
       FLdriveMotor.set(rotateSpeed);
       FRdriveMotor.set(rotateSpeed);
       BLdriveMotor.set(rotateSpeed);
       BRdriveMotor.set(rotateSpeed);  
-      m_PIDController1.setReference(-magicRotateAngle,  CANSparkMax.ControlType.kPosition);
-      m_PIDController2.setReference(magicRotateAngle,  CANSparkMax.ControlType.kPosition);
-      m_PIDController3.setReference(-magicRotateAngle,  CANSparkMax.ControlType.kPosition);
-      m_PIDController4.setReference(magicRotateAngle,  CANSparkMax.ControlType.kPosition);
+      m_PIDController1.setReference(-MagicRotateAngle,  CANSparkMax.ControlType.kPosition);
+      m_PIDController2.setReference(MagicRotateAngle,  CANSparkMax.ControlType.kPosition);
+      m_PIDController3.setReference(-MagicRotateAngle,  CANSparkMax.ControlType.kPosition);
+      m_PIDController4.setReference(MagicRotateAngle,  CANSparkMax.ControlType.kPosition);
     }
-
-    AimBot(rightX, magicRotateAngle);
-    // StrafeSwerve();
-    // ChangeLimited();
-    SnakeDrive();
   }
   public void StrafeSwerve() {
     if(drive_control.getRawAxis(0) > .5) {
@@ -400,28 +411,30 @@ public class Robot extends TimedRobot {
     }    
   }
 
-  public void AimBot(double rightX, double magicRotateAngle) {
-    if(drive_control.getLeftBumper() == true) {
-      m_PIDController1.setReference(-magicRotateAngle,  CANSparkMax.ControlType.kPosition);
-      FLdriveMotor.set(rightX / 8);
-      m_PIDController2.setReference(magicRotateAngle,  CANSparkMax.ControlType.kPosition);
-      FRdriveMotor.set(rightX / -8);
-      m_PIDController3.setReference(-magicRotateAngle,  CANSparkMax.ControlType.kPosition);
-      BLdriveMotor.set(rightX / 8);
-      m_PIDController4.setReference(magicRotateAngle,  CANSparkMax.ControlType.kPosition);
-      BRdriveMotor.set(rightX / -8);  
-    }
+  public void AimBot(double rightX) {
+    double rotateSpeed = -rightX / 8.0;
+    FLdriveMotor.set(rotateSpeed);
+    FRdriveMotor.set(rotateSpeed);
+    BLdriveMotor.set(rotateSpeed);
+    BRdriveMotor.set(rotateSpeed);  
+    m_PIDController1.setReference(-MagicRotateAngle,  CANSparkMax.ControlType.kPosition);
+    m_PIDController2.setReference(MagicRotateAngle,  CANSparkMax.ControlType.kPosition);
+    m_PIDController3.setReference(-MagicRotateAngle,  CANSparkMax.ControlType.kPosition);
+    m_PIDController4.setReference(MagicRotateAngle,  CANSparkMax.ControlType.kPosition);
   }
+
   public void SnakeDrive() {
-    if(drive_control.getRightTriggerAxis() > 0.05) {
+    boolean rt = drive_control.getRightTriggerAxis() > 0.05;
+    boolean lt = drive_control.getLeftTriggerAxis() > 0.05;
+    if(rt) {
       m_PIDController1.setReference(2, ControlType.kPosition);
       m_PIDController2.setReference(2, ControlType.kPosition);
     }
-    if(drive_control.getLeftTriggerAxis() > 0.05) {
+    if(lt) {
       m_PIDController1.setReference(-2, ControlType.kPosition);
       m_PIDController2.setReference(-2, ControlType.kPosition);
     }
-    else {
+    if (rt && lt) {
       m_PIDController1.setReference(0, ControlType.kPosition);
       m_PIDController2.setReference(0, ControlType.kPosition);
     }

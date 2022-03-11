@@ -115,12 +115,12 @@ public class ShooterSubsystem {
             }
             // X button: go 10% slower
             else if (controller.getXButtonPressed()) {
-                targetLaunchSpeed *= 0.9;
+                targetLaunchSpeed *= 0.95;
                 Logger.log("shooter: slowed down launch wheel to ", targetLaunchSpeed);
             }
             // Y button: go 10% faster
             else if (controller.getYButtonPressed()) {
-                targetLaunchSpeed *= 1.1;
+                targetLaunchSpeed *= 1.05;
                 Logger.log("shooter: sped up launch wheel to ", targetLaunchSpeed);
             }
 
