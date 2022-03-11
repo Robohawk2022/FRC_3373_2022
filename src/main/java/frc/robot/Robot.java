@@ -46,8 +46,9 @@ public class Robot extends TimedRobot {
   public static final int BACK_CAMERA_PORT = 1;
 
   // SWERVE CONSTANTS
-  public static int DefaultLimit = 4;
-  public static double RotationLimit = .25;
+  public static double MaxSpeed = 0.3;
+  public static double MaxRotation = 5;
+  public static double RotationLimit = 3;
   public static double StrafeLimit = .25;
   public static double MagicRotateAngle = 2.72;
 
@@ -81,6 +82,7 @@ public class Robot extends TimedRobot {
   private RelativeEncoder backLeftAngleEncoder;
   private XboxController drive_control;
   private Timer autotimer;
+  private double turboFactor;
   public double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput;
 
 
@@ -149,6 +151,8 @@ public class Robot extends TimedRobot {
     backLeftAngleEncoder = backLeftAngleMotor.getEncoder(SparkMaxRelativeEncoder.Type.kQuadrature, 104);
     backLeftAngleEncoder.setInverted(false);
     backLeftAngleEncoder.setPosition(0);
+
+    turboFactor = 1.0;
 
     // kP = 75; 
     // kI = 1e-3;
@@ -322,6 +326,12 @@ public class Robot extends TimedRobot {
     double leftX = drive_control.getLeftX();
     double leftY = drive_control.getLeftY();
 
+    if (drive_control.getRightTriggerAxis() > 0.5) {
+      turboFactor = 2.0;
+    } else {
+      turboFactor = 1.0;
+    }
+
     if (drive_control.getRightBumper()) {
       AimBot(rightX);
       return;
@@ -347,8 +357,8 @@ public class Robot extends TimedRobot {
 
   public void macDrive(double leftX, double leftY, double rightX) {
 
-    double moveSpeed = Math.sqrt(leftX * leftX + leftY * leftY) / DefaultLimit;
-    double turnAngle = leftX * leftX * leftX * 5;    
+    double moveSpeed = Math.sqrt(leftX * leftX + leftY * leftY) * MaxSpeed * turboFactor;
+    double turnAngle = leftX * leftX * leftX * MaxRotation;    
 
     if (drive_control.getLeftY() > 0) {
       frontLeftDriveMotor.set(moveSpeed);
@@ -366,17 +376,20 @@ public class Robot extends TimedRobot {
       frontRightDriveMotor.set(moveSpeed);
       backRightDriveMotor.set(moveSpeed);
       backLeftDriveMotor.set(-moveSpeed);
-      frontLeftPidController.setReference(-turnAngle, CANSparkMax.ControlType.kPosition);
-      frontRightPidController.setReference(-turnAngle, CANSparkMax.ControlType.kPosition);
-      backRightPidController.setReference(-turnAngle, CANSparkMax.ControlType.kPosition);
-      backLeftPidController.setReference(-turnAngle, CANSparkMax.ControlType.kPosition);            
+      frontLeftPidController.setReference(turnAngle, CANSparkMax.ControlType.kPosition);
+      frontRightPidController.setReference(turnAngle, CANSparkMax.ControlType.kPosition);
+      backRightPidController.setReference(turnAngle, CANSparkMax.ControlType.kPosition);
+      backLeftPidController.setReference(turnAngle, CANSparkMax.ControlType.kPosition);            
     }
   }
 
   public void driveDrive(double leftX, double leftY, double rightX) {
 
-    double moveSpeed = Math.sqrt(leftX * leftX + leftY * leftY) / DefaultLimit;
-    double turnAngle = rightX * rightX * rightX * 5;    
+    double moveSpeed = Math.sqrt(leftX * leftX + leftY * leftY) * MaxSpeed * turboFactor;
+    double turnAngle = rightX * rightX * rightX * MaxRotation;   
+    if (turnAngle > RotationLimit) {
+      turnAngle = RotationLimit;
+    }
 
     if (drive_control.getLeftY() > 0) {
       frontLeftDriveMotor.set(moveSpeed);
@@ -451,7 +464,7 @@ public class Robot extends TimedRobot {
   }
 
   public void AimBot(double rightX) {
-    double rotateSpeed = -rightX / 8.0;
+    double rotateSpeed = -rightX / 8.0 * turboFactor;
     frontLeftDriveMotor.set(rotateSpeed);
     frontRightDriveMotor.set(rotateSpeed);
     backLeftDriveMotor.set(rotateSpeed);
@@ -478,6 +491,7 @@ public class Robot extends TimedRobot {
       frontRightPidController.setReference(0, ControlType.kPosition);
     }
   }
+  /*
   public void ChangeLimited() {
     if(drive_control.getRightBumper() == true) {
       DefaultLimit = 2;
@@ -490,6 +504,7 @@ public class Robot extends TimedRobot {
       StrafeLimit = .25; 
     }
   }
+  */
   
   // /** This function is called once when the robot is disabled. */
   @Override
