@@ -25,7 +25,7 @@ public class ClimberSubsystem {
     public static final double EXTENDER_ROTATIONS_PER_INCH = 4.45813;
 
     /** Max speed of the extension motor */
-    public static final double MAX_EXTENSION_OUTPUT = 0.2;
+    public static final double MAX_EXTENSION_OUTPUT = 0.3;
 
     /** Max speed of the extension motor */
     public static final double MAX_ROTATION_OUTPUT = 0.6;
@@ -48,7 +48,7 @@ public class ClimberSubsystem {
     /**Extender Arm Limited */
     public static final double MAXHEIGHT = ExtHeight;
 
-    public static final double MAX_EXTENSION = 85;
+    public static final double MAX_EXTENSION = 95;
     
 
     private final XboxController controller;
@@ -123,7 +123,6 @@ public class ClimberSubsystem {
             extenderMotor.set(0.0);
             Logger.log("climber: finished resetting extender; max=", extenderMax);
         } else {
-            Logger.log("climber: no extender max yet, resetting");
             extenderMotor.set(-RESET_SPEED);
             done = false;
         }
@@ -155,7 +154,6 @@ public class ClimberSubsystem {
             extenderMotor.set(0.0);
         } else {
             extRate *= MAX_EXTENSION_OUTPUT;
-            Logger.log("climber: extending at ", extRate);    
             extenderMotor.set(extRate);
         }
 
