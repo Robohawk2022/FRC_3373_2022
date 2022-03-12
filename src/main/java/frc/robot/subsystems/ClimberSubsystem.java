@@ -57,10 +57,11 @@ public class ClimberSubsystem {
     private double rotatorMin;
     private double rotatorMax;
     private boolean resetting;
+    private Runnable disabler;
 
     public ClimberSubsystem(XboxController controller, 
         int extenderMotorPort, int extenderSwitchPort,
-        int rotatorMotorPort,  int rotatorSwitchPort) {
+        int rotatorMotorPort,  int rotatorSwitchPort, Runnable disabler) {
         this.controller = controller;
         this.extenderMotor = new NamedMotor("Extender", extenderMotorPort);
         this.extenderSwitch = new DigitalInput(extenderSwitchPort);
@@ -72,6 +73,7 @@ public class ClimberSubsystem {
         this.extenderMin = Double.NEGATIVE_INFINITY;
         this.rotatorMax = Double.POSITIVE_INFINITY;
         this.rotatorMin = Double.NEGATIVE_INFINITY;
+        this.disabler = disabler;
 
         disabledInit();
     }
@@ -182,6 +184,10 @@ public class ClimberSubsystem {
             rotatorMotor.set(0.0);
         } else {
             rotRate *= MAX_ROTATION_OUTPUT;
+            if (rotRate > 0 && disabler != null) {
+                disabler.run();
+                disabler = null;
+            }
             rotatorMotor.set(rotRate);
         }
     }

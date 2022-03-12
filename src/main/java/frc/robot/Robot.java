@@ -104,7 +104,10 @@ public class Robot extends TimedRobot {
     
     specialops = new XboxController(SPECIAL_OPS_PORT);
     shooter = new ShooterSubsystem(specialops, SHOOTER_LAUNCH_PORT, SHOOTER_INDEXER_PORT, SHOOTER_SWITCH_PORT);
-    climber = new ClimberSubsystem(specialops, CLIMBER_EXTENDER_PORT, CLIMBER_EXTENDER_SWITCH, CLIMBER_ROTATOR_PORT, CLIMBER_ROTATOR_SWITCH);
+    climber = new ClimberSubsystem(specialops, CLIMBER_EXTENDER_PORT, CLIMBER_EXTENDER_SWITCH, CLIMBER_ROTATOR_PORT, CLIMBER_ROTATOR_SWITCH, () -> {
+      shooter.disabledInit();
+      intake.disabledInit();
+    });
 
     frontLeftAngleMotor = new CANSparkMax(FRONT_LEFT_ANGLE_ID, MotorType.kBrushed);
     frontLeftDriveMotor = new CANSparkMax(FRONT_LEFT_DRIVE_ID, MotorType.kBrushless);
@@ -324,9 +327,9 @@ public class Robot extends TimedRobot {
     } else if (seconds < 6.2) {  // wait in place for intake to drop
       forwardBy(0.0, 0.0);
     } else if (seconds < 9.0) {   // go get a ball
-      forwardBy(0.1, -0.5);
+      forwardBy(0.1, 0.0);
     } else if (seconds < 9.3) {   // reorient slightly to shoot
-      forwardBy(0.1, 0.7);
+      forwardBy(0.1, 0.0);
     } else {
       forwardBy(0.0, 0.0);
     }

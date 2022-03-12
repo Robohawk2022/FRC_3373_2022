@@ -201,7 +201,7 @@ public class ShooterSubsystem {
         // backwards a skoche. disabled closed loop control and do it. this is
         // the only thing we'll do.
         if (controller.getLeftBumper()) {
-            indexerWheel.set(-INDEXER_MAX_SPEED);
+            indexerWheel.set(-INDEXER_MAX_SPEED / 2.0);
             wasResettingIndexer = true;
             return;
         }
