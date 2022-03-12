@@ -85,6 +85,7 @@ public class Robot extends TimedRobot {
   private double turboFactor;
   private double reverseFactor;
   private double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput;
+  private double autonomousStart;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -212,6 +213,8 @@ public class Robot extends TimedRobot {
       CameraServer.startAutomaticCapture("Front", FRONT_CAMERA_PORT);
       CameraServer.startAutomaticCapture("Back", BACK_CAMERA_PORT);  
     }
+
+    autonomousStart = 0.0;
   }
 
   /**
@@ -255,12 +258,13 @@ public class Robot extends TimedRobot {
     if (intake != null) {
       intake.autonomousInit();
     }
+    if (shooter != null) {
+      shooter.autonomousInit();
+    }
     if (climber != null) {
       climber.autonomousInit();
     }
-    autotimer.stop();
-    autotimer.reset();
-    autotimer.start();
+    autonomousStart = Timer.getFPGATimestamp();
   }
 
   /** This function is called periodically during autonomous. */
@@ -270,28 +274,64 @@ public class Robot extends TimedRobot {
     if (intake != null) {
       intake.autonomousPeriodic();
     }
+    if (shooter != null) {
+     shooter.autonomousPeriodic();
+    }
     if (climber != null) {
       climber.autonomousPeriodic();
     }
-    
-    if (autotimer.get() > 0) {
-      if (autotimer.get() < 4) {
-        frontLeftDriveMotor.set(.10);
-        frontRightDriveMotor.set(.10);
-        backLeftDriveMotor.set(.10);
-        backRightDriveMotor.set(.10);
+
+    double seconds = Timer.getFPGATimestamp() - autonomousStart;
+    if (seconds < 0.3) {   // let the intake wheel wind up a bit
+      forwardBy(0.0, 0.0);
+    } else if (seconds < 0.5) {   // ooch forward (picks up speed)
+      forwardBy(1.0, 0.0);
+    } else if (seconds < 1.0) {   // ooch backwards (drops intake frame)
+      forwardBy(-1.0, 0.0);
+    } else if (seconds < 6.2) {  // wait in place for intake to drop
+      forwardBy(0.0, 0.0);
+    } else if (seconds < 9.0) {   // go get a ball
+      forwardBy(0.1, -0.5);
+    } else if (seconds < 9.3) {   // go get a ball
+      forwardBy(0.1, 0.7);
+    } else {
+      forwardBy(0.0, 0.0);
+    }
+
+    /*
+    if (autonomousStart > 0.0) {
+      double seconds = Timer.getFPGATimestamp() - autonomousStart;
+      if (seconds < 4) {
+        double speed = 0.1;
+        frontLeftDriveMotor.set(-speed);
+        System.out.println("Running autorun at" + (frontLeftDriveMotor.get()));
+        frontRightDriveMotor.set(speed);
+        backLeftDriveMotor.set(-speed);
+        backRightDriveMotor.set(speed);
         frontLeftPidController.setReference(0, CANSparkMax.ControlType.kPosition);
         frontRightPidController.setReference(0, CANSparkMax.ControlType.kPosition);
         backRightPidController.setReference(0, CANSparkMax.ControlType.kPosition);
         backLeftPidController.setReference(0, CANSparkMax.ControlType.kPosition);  
-      }
-      else {
+      } else {
         frontLeftDriveMotor.set(0);
         frontRightDriveMotor.set(0);
         backRightDriveMotor.set(0);  
         backLeftDriveMotor.set(0);
+        autonomousStart = 0.0;
       }
     }
+    */
+  }
+
+  private void forwardBy(double speed, double angle) {
+    frontLeftPidController.setReference(0, CANSparkMax.ControlType.kPosition);
+    frontRightPidController.setReference(0, CANSparkMax.ControlType.kPosition);
+    backRightPidController.setReference(angle, CANSparkMax.ControlType.kPosition);
+    backLeftPidController.setReference(angle, CANSparkMax.ControlType.kPosition);  
+    frontLeftDriveMotor.set(-speed);
+    frontRightDriveMotor.set(speed);
+    backLeftDriveMotor.set(-speed);
+    backRightDriveMotor.set(speed);
   }
 
   /** This function is called once when teleop is enabled. */

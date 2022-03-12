@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.motors.MotorFactory;
@@ -39,6 +40,8 @@ public class ShooterSubsystem {
     private double targetLaunchSpeed;
     private boolean sensorWasTripped;
     private int shotCount;
+    private double autonomousStart;
+    private int autoShotsPending;
 
     public ShooterSubsystem(XboxController controller, 
             int launchMotorPort, 
@@ -50,6 +53,8 @@ public class ShooterSubsystem {
         this.launchWheel = MotorFactory.makeVelocityClosedLoopMotor("Launch", launchMotorPort);
         this.indexerWheel = MotorFactory.makePositionClosedLoopMotor("Indexer", indexerMotorPort);
         indexerWheel.setMaxSpeed(INDEXER_MAX_SPEED);
+        autonomousStart = 0.0;
+        autoShotsPending = 2;
         disabledInit();
     }
 
@@ -86,6 +91,38 @@ public class ShooterSubsystem {
         shotCount = 0;
         launchWheel.halt();
         indexerWheel.resetClosedLoopControl();
+    }
+
+    public void autonomousInit() {
+        autonomousStart = Timer.getFPGATimestamp();
+        autoShotsPending = 2;
+    }
+
+    public void autonomousPeriodic() {
+        double seconds = Timer.getFPGATimestamp() - autonomousStart;
+        if (seconds > 2.0) {
+
+            if (!spinLaunchWheel) {
+                setLaunchWheelEnabled(true);
+            }
+
+            if (seconds > 10.5 && autoShotsPending > 1) {
+                shoot();
+                autoShotsPending--;
+            }
+
+            if (seconds > 12.5 && autoShotsPending > 0) {
+                shoot();
+                autoShotsPending--;
+            }
+
+            if (seconds > 14) {
+                setLaunchWheelEnabled(false);
+            }
+         
+        }
+        updateLaunchWheel();
+        updateIndexerWheel();
     }
 
     // called 50x per second in teleop mode
