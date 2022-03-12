@@ -35,7 +35,7 @@ public class RobotClimberOnly extends TimedRobot {
   @Override
   public void robotInit() {
     specialOpsController = new XboxController(CONTROLLER_PORT);
-    climber = new ClimberSubsystem(specialOpsController, EXTENDER_PORT, EXTENDER_SWITCH, ROTATOR_PORT, ROTATOR_SWITCH);
+    climber = new ClimberSubsystem(specialOpsController, EXTENDER_PORT, EXTENDER_SWITCH, ROTATOR_PORT, ROTATOR_SWITCH, null);
   }
 
   /** This function is called periodically in all modes */
