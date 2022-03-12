@@ -8,7 +8,6 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkMaxRelativeEncoder;
-import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.cameraserver.CameraServer;
@@ -53,7 +52,6 @@ public class Robot extends TimedRobot {
   public static final int FRONT_CAMERA_PORT = 0;
   public static final int BACK_CAMERA_PORT = 1;
 
-  // SWERVE CONSTANTS
   public static double MaxSpeed = 0.3;
   public static double MaxRotation = 5;
   public static double RotationLimit = 3;
@@ -87,10 +85,16 @@ public class Robot extends TimedRobot {
   private double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput;
   private double autonomousStart;
 
-  /**
-   * This function is run when the robot is first started up and should be used for any
-   * initialization code.
-   */
+/* ==============================================================================
+  _____   ____  ____   ____ _______ 
+ |  __ \ / __ \|  _ \ / __ \__   __|
+ | |__) | |  | | |_) | |  | | | |   
+ |  _  /| |  | |  _ <| |  | | | |   
+ | | \ \| |__| | |_) | |__| | | |   
+ |_|  \_\\____/|____/ \____/  |_|   
+                                                                      
+============================================================================== */
+
   @Override
   public void robotInit() {
     SmartDashboard.putString("MotorTesting: ", "None");
@@ -243,16 +247,16 @@ public class Robot extends TimedRobot {
     SmartDashboard.putBoolean("Drive Reversed?", reverseFactor < -1.0);
   }
 
-  /**
-   * This autonomous (along with the chooser code above) shows how to select between different
-   * autonomous modes using the dashboard. The sendable chooser code works with the Java
-   * SmartDashboard. If you prefer the LabVIEW Dashboard, remove all of the chooser code and
-   * uncomment the getString line to get the auto name from the text box below the Gyro
-   *
-   * <p>You can add additional auto modes by adding additional comparisons to the switch structure
-   * below with additional strings. If using the SendableChooser make sure to add them to the
-   * chooser code above as well.
-   */
+/* ==============================================================================
+          _    _ _______ ____  _   _  ____  __  __  ____  _    _  _____ 
+     /\  | |  | |__   __/ __ \| \ | |/ __ \|  \/  |/ __ \| |  | |/ ____|
+    /  \ | |  | |  | | | |  | |  \| | |  | | \  / | |  | | |  | | (___  
+   / /\ \| |  | |  | | | |  | | . ` | |  | | |\/| | |  | | |  | |\___ \ 
+  / ____ \ |__| |  | | | |__| | |\  | |__| | |  | | |__| | |__| |____) |
+ /_/    \_\____/   |_|  \____/|_| \_|\____/|_|  |_|\____/ \____/|_____/ 
+                                                                                                                                              
+============================================================================== */
+
   @Override
   public void autonomousInit() {
     if (intake != null) {
@@ -336,10 +340,15 @@ public class Robot extends TimedRobot {
     backRightDriveMotor.set(speed);
   }
 
-  /** This function is called once when teleop is enabled. */
-  @Override
-  public void teleopInit() {
-  }
+/* ==============================================================================
+  _______ ______ _      ______ ____  _____  
+ |__   __|  ____| |    |  ____/ __ \|  __ \ 
+    | |  | |__  | |    | |__ | |  | | |__) |
+    | |  |  __| | |    |  __|| |  | |  ___/ 
+    | |  | |____| |____| |___| |__| | |     
+    |_|  |______|______|______\____/|_|     
+                                                                                      
+============================================================================== */
 
   @Override
   public void teleopPeriodic() {
@@ -382,29 +391,16 @@ public class Robot extends TimedRobot {
       return;
     }
     
-    // else if (Math.abs(rightX) > 0.05) {
-    //   Rotate(rightX);
-    //   return;
-    // }
-    
     driveDrive(leftX, leftY, rightX);
-
-    // SnakeDrive();
-    // StrafeSwerve();
-    // ChangeLimited();
-    //SnakeDrive();
   }
 
-  /**
-   * This is a "strafey" mode: the robot will move in the direction of the left stick,
-   * without changing its heading. Two notes:
-   * 
-   *  - There's a discontinuity at full left and full right where the wheels will flip
-   *  around.
-   * 
-   *  - Velocity is based on the distance of the joystick from the center, NOT just
-   *  the forward angle of it.
-   */
+  /* --------------------------------------------------
+     Mac Drive turns like this (strafing):
+         \---\
+         |   |
+         \---\
+    -------------------------------------------------- */
+
   public void macDrive(double leftX, double leftY, double rightX) {
 
     double moveSpeed = Math.sqrt(leftX * leftX + leftY * leftY) * MaxSpeed * turboFactor * reverseFactor;
@@ -433,11 +429,13 @@ public class Robot extends TimedRobot {
     }
   }
 
-  /**
-   * This is a "drivey" mode. The left stick controls forward/reverse speed, while
-   * the right stick will turn you left or right like a car. There's a maximum
-   * turn angle, to prevent the wheels from sticking.
-   */
+  /* --------------------------------------------------
+     Drive Drive turns like this (car steering):
+         /---/
+         |   |
+         \---\
+    -------------------------------------------------- */
+
   public void driveDrive(double leftX, double leftY, double rightX) {
 
     double moveSpeed = Math.sqrt(leftX * leftX + leftY * leftY) * MaxSpeed * turboFactor * reverseFactor;
@@ -469,54 +467,12 @@ public class Robot extends TimedRobot {
     }
   }
 
-  public void Rotate(double rightX) {
-    double rotateSpeed = -rightX / 4;
-
-    // rotation
-    if (rightX > 0) {
-      frontLeftDriveMotor.set(rotateSpeed);
-      frontRightDriveMotor.set(rotateSpeed);
-      backLeftDriveMotor.set(rotateSpeed);
-      backRightDriveMotor.set(rotateSpeed);
-      frontLeftPidController.setReference(-MagicRotateAngle,  CANSparkMax.ControlType.kPosition);
-      frontRightPidController.setReference(MagicRotateAngle,  CANSparkMax.ControlType.kPosition);
-      backRightPidController.setReference(-MagicRotateAngle,  CANSparkMax.ControlType.kPosition);
-      backLeftPidController.setReference(MagicRotateAngle,  CANSparkMax.ControlType.kPosition);
-    }
-      // Rotation
-    if (rightX < 0) {
-      frontLeftDriveMotor.set(rotateSpeed);
-      frontRightDriveMotor.set(rotateSpeed);
-      backLeftDriveMotor.set(rotateSpeed);
-      backRightDriveMotor.set(rotateSpeed);  
-      frontLeftPidController.setReference(-MagicRotateAngle,  CANSparkMax.ControlType.kPosition);
-      frontRightPidController.setReference(MagicRotateAngle,  CANSparkMax.ControlType.kPosition);
-      backRightPidController.setReference(-MagicRotateAngle,  CANSparkMax.ControlType.kPosition);
-      backLeftPidController.setReference(MagicRotateAngle,  CANSparkMax.ControlType.kPosition);
-    }
-  }
-  public void StrafeSwerve() {
-    if (drive_control.getRawAxis(0) > .5) {
-      frontLeftPidController.setReference(4,  CANSparkMax.ControlType.kPosition);
-      frontLeftDriveMotor.set(- StrafeLimit);
-      frontRightPidController.setReference(4,  CANSparkMax.ControlType.kPosition);
-      frontRightDriveMotor.set(- StrafeLimit);
-      backRightPidController.setReference(4,  CANSparkMax.ControlType.kPosition);
-      backLeftDriveMotor.set(StrafeLimit);
-      backLeftPidController.setReference(4,  CANSparkMax.ControlType.kPosition);
-      backRightDriveMotor.set(StrafeLimit);
-    }
-    if (drive_control.getRawAxis(0) < .5) {
-      frontLeftPidController.setReference(4,  CANSparkMax.ControlType.kPosition);
-      frontLeftDriveMotor.set(StrafeLimit);
-      frontRightPidController.setReference(4,  CANSparkMax.ControlType.kPosition);
-      frontRightDriveMotor.set(StrafeLimit);
-      backRightPidController.setReference(4,  CANSparkMax.ControlType.kPosition);
-      backLeftDriveMotor.set(- StrafeLimit);
-      backLeftPidController.setReference(4,  CANSparkMax.ControlType.kPosition);
-      backRightDriveMotor.set(- StrafeLimit);
-    }    
-  }
+  /* --------------------------------------------------
+     AimBot turns like this (rotation):
+         /---\
+         |   |
+         \---/
+    -------------------------------------------------- */
 
   public void AimBot(double rightX) {
     double rotateSpeed = -rightX / 8.0 * turboFactor;
@@ -530,38 +486,16 @@ public class Robot extends TimedRobot {
     backLeftPidController.setReference(MagicRotateAngle,  CANSparkMax.ControlType.kPosition);
   }
 
-  public void SnakeDrive() {
-    boolean rt = drive_control.getRightTriggerAxis() > 0.05;
-    boolean lt = drive_control.getLeftTriggerAxis() > 0.05;
-    if(rt) {
-      frontLeftPidController.setReference(2, ControlType.kPosition);
-      frontRightPidController.setReference(2, ControlType.kPosition);
-    }
-    if(lt) {
-      frontLeftPidController.setReference(-2, ControlType.kPosition);
-      frontRightPidController.setReference(-2, ControlType.kPosition);
-    }
-    if (rt && lt) {
-      frontLeftPidController.setReference(0, ControlType.kPosition);
-      frontRightPidController.setReference(0, ControlType.kPosition);
-    }
-  }
-  /*
-  public void ChangeLimited() {
-    if(drive_control.getRightBumper() == true) {
-      DefaultLimit = 2;
-      RotationLimit = .50;
-      StrafeLimit = .50;
-    }
-    else {
-      DefaultLimit = 4;
-      RotationLimit = .25;
-      StrafeLimit = .25; 
-    }
-  }
-  */
-  
-  // /** This function is called once when the robot is disabled. */
+/* ==============================================================================
+  _____ _____  _____         ____  _      ______ _____  
+ |  __ \_   _|/ ____|  /\   |  _ \| |    |  ____|  __ \ 
+ | |  | || | | (___   /  \  | |_) | |    | |__  | |  | |
+ | |  | || |  \___ \ / /\ \ |  _ <| |    |  __| | |  | |
+ | |__| || |_ ____) / ____ \| |_) | |____| |____| |__| |
+ |_____/_____|_____/_/    \_\____/|______|______|_____/ 
+                                                                                                              
+============================================================================== */
+
   @Override
   public void disabledInit() {
     if (intake != null) {
@@ -575,11 +509,16 @@ public class Robot extends TimedRobot {
     }
   }
 
-  /** This function is called periodically when disabled. */
-  @Override
-  public void disabledPeriodic() {}
+/* ==============================================================================
+  _______ ______  _____ _______ 
+ |__   __|  ____|/ ____|__   __|
+    | |  | |__  | (___    | |   
+    | |  |  __|  \___ \   | |   
+    | |  | |____ ____) |  | |   
+    |_|  |______|_____/   |_|   
+                                                            
+============================================================================== */
 
-  /** This function is called once when test mode is enabled. */
   @Override
   public void testInit() {
     SmartDashboard.putNumber("P Gain", kP);
@@ -594,7 +533,6 @@ public class Robot extends TimedRobot {
 
   }
 
-  /** This function is called periodically during test mode. */
   @Override
   public void testPeriodic() {
     SmartDashboard.putString("MotorTesting: ", "None");
@@ -652,11 +590,6 @@ public class Robot extends TimedRobot {
       backLeftPidController.setOutputRange(min, max); 
       kMinOutput = min; kMaxOutput = max; 
     }
-
-
-
-    // MOTOR TEST CONTROLS
-
 
     while(drive_control.getAButton() == true) {
       SmartDashboard.putString("MotorTesting: ", "Front Left");
