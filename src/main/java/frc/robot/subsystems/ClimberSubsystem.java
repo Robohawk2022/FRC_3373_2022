@@ -39,13 +39,13 @@ public class ClimberSubsystem {
     public static final double EXTENSION_LIMIT = 95;
     
     /** Max speed of the extension motor */
-    public static final double MAX_ROTATION_OUTPUT = 0.6;
+    public static final double MAX_ROTATION_OUTPUT = 0.2;
 
     /** Value of rotator switch when pressed */
     public static final boolean ROTATOR_SWITCH_PRESSED = true;
 
     /** Maximum number of rotations of the rotator motor */
-    public static final double ROTATION_LIMIT = 100;
+    public static final double ROTATION_LIMIT = 84;
 
     private final XboxController controller;
     private final NamedMotor extenderMotor;
@@ -133,8 +133,6 @@ public class ClimberSubsystem {
             done = false;
         }
 
-/* UNCOMMENT & TEST ME
-
         // check the rotator for hitting its limit switch
         if (atRotatorLimit()) {
             rotatorMax = rotatorMotor.getPosition();
@@ -145,8 +143,6 @@ public class ClimberSubsystem {
             rotatorMotor.set(RESET_SPEED);
             done = false;
         }
-
-*/
 
         // if both of those previous guys are done, we're done resetting
         if (done) {
@@ -177,7 +173,6 @@ public class ClimberSubsystem {
         boolean rotatorAtMax = rotatorMotor.getPosition() >= rotatorMax || atRotatorLimit();
         boolean rotatorAtMin = rotatorMotor.getPosition() <= rotatorMin;
         double rotRate = clean(controller.getRightX());
-/* UNCOMMENT & TEST ME
         if (rotRate > 0.0 && rotatorAtMax) {
             Logger.log("climber: rotator won't go too high ...");
             rotatorMotor.set(0.0);
@@ -186,10 +181,9 @@ public class ClimberSubsystem {
             Logger.log("climber: rotator won't go too low ...");
             rotatorMotor.set(0.0);
         } else {
-*/
             rotRate *= MAX_ROTATION_OUTPUT;
             rotatorMotor.set(rotRate);
-        // }
+        }
     }
 
     private double clean(double stickValue) {

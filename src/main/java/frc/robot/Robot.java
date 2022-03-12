@@ -256,15 +256,15 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     if (intake != null) {
-      intake.autonomousInit();
+     intake.autonomousInit();
     }
     if (shooter != null) {
-      shooter.autonomousInit();
+  //    shooter.autonomousInit();
     }
     if (climber != null) {
       climber.autonomousInit();
     }
-    autonomousStart = Timer.getFPGATimestamp();
+  //  autonomousStart = Timer.getFPGATimestamp();
   }
 
   /** This function is called periodically during autonomous. */
@@ -272,15 +272,16 @@ public class Robot extends TimedRobot {
   public void autonomousPeriodic() {
 
     if (intake != null) {
-      intake.autonomousPeriodic();
+     intake.autonomousPeriodic();
     }
     if (shooter != null) {
-     shooter.autonomousPeriodic();
+    // shooter.autonomousPeriodic();
     }
     if (climber != null) {
       climber.autonomousPeriodic();
     }
 
+    /*
     double seconds = Timer.getFPGATimestamp() - autonomousStart;
     if (seconds < 0.3) {   // let the intake wheel wind up a bit
       forwardBy(0.0, 0.0);
@@ -297,6 +298,7 @@ public class Robot extends TimedRobot {
     } else {
       forwardBy(0.0, 0.0);
     }
+    */
 
     /*
     if (autonomousStart > 0.0) {
