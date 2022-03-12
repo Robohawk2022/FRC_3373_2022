@@ -85,6 +85,7 @@ public class Robot extends TimedRobot {
   private double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput;
   private double autonomousStart;
   private SendableChooser<String> autoMode;
+  private long teleopRounds;
 
 /* ==============================================================================
   _____   ____  ____   ____ _______ 
@@ -252,6 +253,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("BR Angle Position", backRightAngleEncoder.getPosition());
     SmartDashboard.putNumber("BL Angle Position", backLeftAngleEncoder.getPosition());
     SmartDashboard.putBoolean("Drive Reversed?", reverseFactor < -1.0);
+    SmartDashboard.putNumber("Drive Counter", teleopRounds);
   }
 
 /* ==============================================================================
@@ -362,12 +364,22 @@ public class Robot extends TimedRobot {
 ============================================================================== */
 
   @Override
+  public void teleopInit() {
+    teleopRounds = 0L;
+    shooter.teleopInit();
+    intake.teleopInit();
+    climber.teleopInit();
+  }
+
+  @Override
   public void teleopPeriodic() {
+
+    teleopRounds++;
 
     SmartDashboard.updateValues();
     //LOGGING TO SD ~ NOT NEEDED
-    SmartDashboard.putNumber("Front Left Swerve Wheel Output", (frontLeftDriveMotor.get());
-    SmartDashboard.putNumber("Back Left Swerve Wheel Output", (backLeftDriveMotor.get()));
+    SmartDashboard.putNumber("Front Left Swerve Wheel Output", frontLeftDriveMotor.get());
+    SmartDashboard.putNumber("Back Left Swerve Wheel Output", backLeftDriveMotor.get());
     if (intake != null) {
       intake.telopPeriodic();
     }

@@ -39,6 +39,7 @@ public class ShooterSubsystem {
     private int indexerResetCount;
     private double targetLaunchSpeed;
     private int autoShotsPending;
+    private long teleopRounds;
 
     public ShooterSubsystem(XboxController controller, 
             int launchMotorPort, 
@@ -76,6 +77,7 @@ public class ShooterSubsystem {
         SmartDashboard.putNumber("Launch Current RPM", launchWheel.getRpm());
         SmartDashboard.putNumber("Indexer Target Pos", indexerWheel.getTargetPosition());
         SmartDashboard.putNumber("Indexer Current Pos", indexerWheel.getPosition());
+        SmartDashboard.putNumber("Shooter Counter", teleopRounds);
         SmartDashboard.putBoolean("Ball Sensor", ballSensor.get());
     }
 
@@ -145,9 +147,14 @@ public class ShooterSubsystem {
         updateLaunchWheel();
         updateIndexerWheel();
     }
+    
+    public void teleopInit() {
+        teleopRounds = 0L;
+    }
 
     // called 50x per second in teleop mode
     public void teleopPeriodic() {
+        teleopRounds++;
         updateLaunchWheel();
         updateIndexerWheel();
     }

@@ -25,6 +25,7 @@ public class IntakeSubsystem {
     private final VelocityClosedLoopMotor intakeMotor;
     private boolean spinWheel;
     private double targetSpeed;
+    private long teleopRounds;
 
     public IntakeSubsystem(XboxController controller, int intakeMotorPort) {
         this.controller = controller;
@@ -37,6 +38,7 @@ public class IntakeSubsystem {
         SmartDashboard.putNumber("Intake Target RPM", targetSpeed);
         SmartDashboard.putNumber("Intake Current RPM", intakeMotor.getRpm());
         SmartDashboard.putBoolean("Intake Spinning?", spinWheel);
+        SmartDashboard.putNumber("Intake Counter", teleopRounds);
     }
     
     // called when the robot is put into disabled mode
@@ -87,9 +89,15 @@ public class IntakeSubsystem {
         }
     }
 
+    public void teleopInit() {
+        teleopRounds = 0L;
+    }
+
     // called 50x per second in teleop mode
     public void telopPeriodic() {
 
+        teleopRounds++;
+        
         // back button turns the wheel on and off
         if (controller.getBackButtonPressed()) {
             spinWheel = !spinWheel;

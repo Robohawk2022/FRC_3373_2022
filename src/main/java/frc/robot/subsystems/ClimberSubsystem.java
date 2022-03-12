@@ -58,6 +58,7 @@ public class ClimberSubsystem {
     private double rotatorMax;
     private boolean resetting;
     private Runnable disabler;
+    private long teleopRounds;
 
     public ClimberSubsystem(XboxController controller, 
         int extenderMotorPort, int extenderSwitchPort,
@@ -96,6 +97,7 @@ public class ClimberSubsystem {
         SmartDashboard.putNumber("Extender Current", extenderMotor.getPosition());
         SmartDashboard.putNumber("Extender Max", extenderMax);
         SmartDashboard.putBoolean("Extender At Max?", atExtenderLimit());
+        SmartDashboard.putNumber("Climber Counter", teleopRounds);
     }
 
     // called when the robot is put into disabled mode
@@ -115,6 +117,8 @@ public class ClimberSubsystem {
     // reset limit. once they hit their switch, they're done and we capture their position
     // as the "zero point". when both are done, we're done resetting.
     public void autonomousPeriodic() {
+
+        teleopRounds++;
 
         // if we're done resetting, bail out
         if (!resetting) {
@@ -151,6 +155,10 @@ public class ClimberSubsystem {
             Logger.log("climber: done resetting");
             resetting = false;
         }
+    }
+
+    public void teleopInit() {
+        this.teleopRounds = 0L;
     }
 
     // called 50x per second in teleop mode
