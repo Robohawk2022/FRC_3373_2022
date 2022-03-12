@@ -307,7 +307,7 @@ public class Robot extends TimedRobot {
       forwardBy(-1.0, 0.0);
     } else if (seconds < 6.2) {  // wait in place for intake to drop
       forwardBy(0.0, 0.0);
-    } else if (seconds < 9.0) {   // exit the tarmac
+    } else if (seconds < 9.5) {   // exit the tarmac
       forwardBy(0.1, 0.0);
     } else {
       forwardBy(0.0, 0.0);
