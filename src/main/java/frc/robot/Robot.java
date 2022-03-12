@@ -365,7 +365,9 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
 
     SmartDashboard.updateValues();
-
+    //LOGGING TO SD ~ NOT NEEDED
+    SmartDashboard.putNumber("Front Left Swerve Wheel Output", (frontLeftDriveMotor.get());
+    SmartDashboard.putNumber("Back Left Swerve Wheel Output", (backLeftDriveMotor.get()));
     if (intake != null) {
       intake.telopPeriodic();
     }
