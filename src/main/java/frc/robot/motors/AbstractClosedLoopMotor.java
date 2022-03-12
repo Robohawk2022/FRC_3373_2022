@@ -38,15 +38,6 @@ public abstract class AbstractClosedLoopMotor extends NamedMotor {
     }
 
     /**
-     * Halts the motor (i.e. brings it to a stop) by putting it in "brake"
-     * mode and then applying a 0 duty cycle (basically saying "turn it off")
-     */
-    public void halt() {
-        getMotor().setIdleMode(IdleMode.kBrake);
-        getController().setReference(0.0, ControlType.kDutyCycle);
-    }
-
-    /**
      * Lets the motor coast by putting it in "coast" mode and then applying a
      * 0 duty cycle (basically saying "turn it off")
      */

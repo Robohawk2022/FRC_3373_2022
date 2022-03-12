@@ -36,7 +36,7 @@ public class ShooterSubsystem {
     private final VelocityClosedLoopMotor launchWheel;
     private final PositionClosedLoopMotor indexerWheel;
     private boolean spinLaunchWheel;
-    private boolean wasResettingIndexer;
+    private int indexerResetCount;
     private double targetLaunchSpeed;
     private int autoShotsPending;
 
@@ -83,7 +83,7 @@ public class ShooterSubsystem {
     public void disabledInit() {
         spinLaunchWheel = false;
         targetLaunchSpeed = STARTING_LAUNCH_RPM;
-        wasResettingIndexer = false;
+        indexerResetCount = 0;
         launchWheel.halt();
         indexerWheel.resetClosedLoopControl();
     }
@@ -198,16 +198,20 @@ public class ShooterSubsystem {
         // backwards a skoche. disabled closed loop control and do it. this is
         // the only thing we'll do.
         if (controller.getLeftBumper()) {
-            indexerWheel.set(-INDEXER_MAX_SPEED / 2.0);
-            wasResettingIndexer = true;
+            indexerWheel.set(-INDEXER_MAX_SPEED / 5.0);
+            indexerResetCount = 50;
             return;
         }
 
         // if our last loop was running the indexer backwards, re-enable
         // closed loop control
-        if (wasResettingIndexer) {
-            indexerWheel.resetClosedLoopControl();
-            wasResettingIndexer = false;
+        if (indexerResetCount > 0) {
+            indexerWheel.halt();
+            if (indexerResetCount == 1) {
+                indexerWheel.resetClosedLoopControl();
+            }
+            indexerResetCount -= 1;
+            return;
         }
 
         // trigger indexing IF there is a ball in front of the sensor now,

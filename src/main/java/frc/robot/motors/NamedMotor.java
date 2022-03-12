@@ -2,6 +2,7 @@ package frc.robot.motors;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
@@ -53,6 +54,15 @@ public class NamedMotor {
     
     public void set(double speed) {
         motor.set(speed);
+    }
+
+    /**
+     * Halts the motor (i.e. brings it to a stop) by putting it in "brake"
+     * mode and then applying a 0 duty cycle (basically saying "turn it off")
+     */
+    public void halt() {
+        getMotor().setIdleMode(IdleMode.kBrake);
+        getMotor().getPIDController().setReference(0.0, ControlType.kDutyCycle);
     }
 
     public void updateDashboard() {
