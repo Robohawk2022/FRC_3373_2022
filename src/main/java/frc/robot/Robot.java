@@ -13,12 +13,13 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.motors.MotorFactory;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
-
+import frc.robot.util.Logger;
 import edu.wpi.first.wpilibj.Timer;
 
 /**
@@ -79,11 +80,11 @@ public class Robot extends TimedRobot {
   private RelativeEncoder backRightAngleEncoder;
   private RelativeEncoder backLeftAngleEncoder;
   private XboxController drive_control;
-  private Timer autotimer;
   private double turboFactor;
   private double reverseFactor;
   private double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput;
   private double autonomousStart;
+  private SendableChooser<String> autoMode;
 
 /* ==============================================================================
   _____   ____  ____   ____ _______ 
@@ -134,8 +135,11 @@ public class Robot extends TimedRobot {
     backRightDriveMotor.setOpenLoopRampRate(1.0);
     backLeftDriveMotor.setOpenLoopRampRate(1.0);
 
-    //TIMER
-    autotimer = new Timer();
+    autoMode = new SendableChooser<>();
+    autoMode.setDefaultOption("SingleShooter", "SingleShooter");
+    autoMode.addOption("DoubleShooter", "DoubleShooter");
+    autoMode.addOption("ClimberOnly", "ClimberOnly");
+    SmartDashboard.putData("Auto Mode", autoMode);
 
     frontLeftAngleEncoder = frontLeftAngleMotor.getEncoder(SparkMaxRelativeEncoder.Type.kQuadrature, 104);
     frontLeftAngleEncoder.setPosition(0);
@@ -263,11 +267,15 @@ public class Robot extends TimedRobot {
     autonomousStart = Timer.getFPGATimestamp();
     climber.autonomousInit();
 
-    // intake.doubleShooterInit();
-    // shooter.doubleShooterInit();
+    Logger.log("starting auto program ", autoMode.getSelected());
 
-    intake.singleShooterInit();
-    shooter.singleShooterInit();
+    if ("DoubleShooter".equalsIgnoreCase(autoMode.getSelected())) {
+      intake.doubleShooterInit();
+      shooter.doubleShooterInit();
+    } else if ("SingleShooter".equalsIgnoreCase(autoMode.getSelected())) {
+      intake.singleShooterInit();
+      shooter.singleShooterInit();
+    }
   }
 
   /** This function is called periodically during autonomous. */
@@ -279,14 +287,15 @@ public class Robot extends TimedRobot {
 
     double seconds = Timer.getFPGATimestamp() - autonomousStart;
 
-    // select which one to run
-    // intake.doubleShooterPeriodic(seconds);
-    // shooter.doubleShooterPeriodic(seconds);
-    // doubleShooterPeriodic(seconds);
-
-    intake.singleShooterPeriodic(seconds);
-    shooter.singleShooterPeriodic(seconds);
-    singleShooterPeriodic(seconds);
+    if ("DoubleShooter".equalsIgnoreCase(autoMode.getSelected())) {
+      intake.doubleShooterPeriodic(seconds);
+      shooter.doubleShooterPeriodic(seconds);
+      doubleShooterPeriodic(seconds);
+    } else if ("SingleShooter".equalsIgnoreCase(autoMode.getSelected())) {
+      intake.singleShooterPeriodic(seconds);
+      shooter.singleShooterPeriodic(seconds);
+      singleShooterPeriodic(seconds);
+    }
   }
 
   private void singleShooterPeriodic(double seconds) {
