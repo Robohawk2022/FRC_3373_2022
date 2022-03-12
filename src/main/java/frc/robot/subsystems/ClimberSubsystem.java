@@ -45,7 +45,7 @@ public class ClimberSubsystem {
     public static final boolean ROTATOR_SWITCH_PRESSED = true;
 
     /** Maximum number of rotations of the rotator motor */
-    public static final double ROTATION_LIMIT = 84;
+    public static final double ROTATION_LIMIT = 150;
 
     private final XboxController controller;
     private final NamedMotor extenderMotor;
@@ -87,13 +87,13 @@ public class ClimberSubsystem {
     // called 50x per second, no matter what mode we're in
     public void robotPeriodic() {
         SmartDashboard.putNumber("Rotator Min", rotatorMin);
+        SmartDashboard.putNumber("Rotator Current", rotatorMotor.getPosition());
         SmartDashboard.putNumber("Rotator Max", rotatorMax);
         SmartDashboard.putBoolean("Rotator At Max?", atRotatorLimit());
         SmartDashboard.putNumber("Extender Min", extenderMin);
+        SmartDashboard.putNumber("Extender Current", extenderMotor.getPosition());
         SmartDashboard.putNumber("Extender Max", extenderMax);
         SmartDashboard.putBoolean("Extender At Max?", atExtenderLimit());
-        extenderMotor.updateDashboard();
-        rotatorMotor.updateDashboard();
     }
 
     // called when the robot is put into disabled mode

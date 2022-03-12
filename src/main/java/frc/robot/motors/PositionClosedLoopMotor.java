@@ -29,6 +29,10 @@ public class PositionClosedLoopMotor extends NamedMotor {
         this.threshold = DEFAULT_THRESHOLD;
     }
 
+    public double getTargetPosition() {
+      return targetPosition;
+    }
+
     public void setMaxSpeed(double newMax) {
       maxSpeed = newMax;
     }

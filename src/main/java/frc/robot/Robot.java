@@ -239,7 +239,6 @@ public class Robot extends TimedRobot {
     if (climber != null) {
       climber.robotPeriodic();
     }
-    MotorFactory.updateDashboard();
     SmartDashboard.putNumber("FL Angle Position", frontLeftAngleEncoder.getPosition());
     SmartDashboard.putNumber("FR Angle Position", frontRightAngleEncoder.getPosition());
     SmartDashboard.putNumber("BR Angle Position", backRightAngleEncoder.getPosition());

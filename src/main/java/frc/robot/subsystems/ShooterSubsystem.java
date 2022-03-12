@@ -1,8 +1,10 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.motors.MotorFactory;
 import frc.robot.motors.PositionClosedLoopMotor;
@@ -38,8 +40,6 @@ public class ShooterSubsystem {
     private final PositionClosedLoopMotor indexerWheel;
     private boolean spinLaunchWheel;
     private double targetLaunchSpeed;
-    private boolean sensorWasTripped;
-    private int shotCount;
     private int autoShotsPending;
 
     public ShooterSubsystem(XboxController controller, 
@@ -74,19 +74,17 @@ public class ShooterSubsystem {
     // called 50x per second, no matter what mode we're in
     public void robotPeriodic() {
         SmartDashboard.putBoolean("Launch Spinning?", spinLaunchWheel);
-        SmartDashboard.putNumber("Launch Target Speed", targetLaunchSpeed);
-        SmartDashboard.putBoolean("Launch Sensor Tripped?", sensorWasTripped);
-        SmartDashboard.putBoolean("Launch Sensor Value", ballSensor.get());
-        SmartDashboard.putNumber("Shot Count", shotCount);
-        SmartDashboard.putNumber("Launch Velocity", launchWheel.getRpm());
+        SmartDashboard.putNumber("Launch Target RPM", targetLaunchSpeed);
+        SmartDashboard.putNumber("Launch Current RPM", launchWheel.getRpm());
+        SmartDashboard.putNumber("Indexer Target Pos", indexerWheel.getTargetPosition());
+        SmartDashboard.putNumber("Indexer Current Pos", indexerWheel.getPosition());
+        SmartDashboard.putBoolean("Ball Sensor", ballSensor.get());
     }
 
     // called when the robot is put into disabled mode
     public void disabledInit() {
         spinLaunchWheel = false;
         targetLaunchSpeed = STARTING_LAUNCH_RPM;
-        sensorWasTripped = true;
-        shotCount = 0;
         launchWheel.halt();
         indexerWheel.resetClosedLoopControl();
     }

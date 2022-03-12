@@ -34,7 +34,8 @@ public class IntakeSubsystem {
 
     // called 50x per second, no matter what mode we're in
     public void robotPeriodic() {
-        SmartDashboard.putNumber("Intake Target Speed", targetSpeed);
+        SmartDashboard.putNumber("Intake Target RPM", targetSpeed);
+        SmartDashboard.putNumber("Intake Current RPM", intakeMotor.getRpm());
         SmartDashboard.putBoolean("Intake Spinning?", spinWheel);
     }
     

@@ -4,7 +4,6 @@ import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.util.PIDConstant;
 
 /**
@@ -17,35 +16,11 @@ import frc.robot.util.PIDConstant;
 public abstract class AbstractClosedLoopMotor extends NamedMotor {
 
     private final SparkMaxPIDController controller;
-    private final String pGainKey;
-    private final String iGainKey;
-    private final String dGainKey;
-    private final String iZoneKey;
-    private final String feedForwardKey;
-    private final String minOutputKey;
-    private final String maxOutputKey;
     private PIDConstant constants;
 
     public AbstractClosedLoopMotor(String name, int port, PIDConstant constants) {
         super(name, port);
-
         this.controller = getMotor().getPIDController();
-        this.pGainKey = name + " P Gain";
-        this.iGainKey = name + " I Gain";
-        this.dGainKey = name + " D Gain";
-        this.iZoneKey = name + " I Zone";
-        this.feedForwardKey = name + " Feed Forward";
-        this.minOutputKey = name + " Min Output";
-        this.maxOutputKey = name + " Max Output";
-
-        SmartDashboard.putNumber(pGainKey, constants.getP());
-        SmartDashboard.putNumber(iGainKey, constants.getI());
-        SmartDashboard.putNumber(dGainKey, constants.getD());
-        SmartDashboard.putNumber(iZoneKey, constants.getIZone());
-        SmartDashboard.putNumber(feedForwardKey, constants.getFeedForward());
-        SmartDashboard.putNumber(minOutputKey, constants.getMinOutput());
-        SmartDashboard.putNumber(maxOutputKey, constants.getMaxOutput());
-
         setConstants(constants);
     }
 
@@ -78,40 +53,5 @@ public abstract class AbstractClosedLoopMotor extends NamedMotor {
     public void coast() {
         getMotor().setIdleMode(IdleMode.kCoast);
         getController().setReference(0.0, ControlType.kDutyCycle);
-    }
-
-    public void updateDashboard() {
-
-        super.updateDashboard();
-
-        boolean hasChanged = false;
-
-        double pGainNew = SmartDashboard.getNumber(pGainKey, constants.getP());
-        hasChanged = hasChanged || pGainNew != constants.getP();
-
-        double iGainNew = SmartDashboard.getNumber(iGainKey, constants.getI());
-        hasChanged = hasChanged || iGainNew != constants.getI();
-
-        double dGainNew = SmartDashboard.getNumber(dGainKey, constants.getD());
-        hasChanged = hasChanged || dGainNew != constants.getD();
-
-        double iZoneNew = SmartDashboard.getNumber(iZoneKey, constants.getIZone());
-        hasChanged = hasChanged || iZoneNew != constants.getIZone();
-
-        double feedForwardNew = SmartDashboard.getNumber(feedForwardKey, constants.getFeedForward());
-        hasChanged = hasChanged || feedForwardNew != constants.getFeedForward();
-        
-        double minOutputNew = SmartDashboard.getNumber(minOutputKey, constants.getMinOutput());
-        hasChanged = hasChanged || minOutputNew != constants.getMinOutput();
-
-        double maxOutputNew = SmartDashboard.getNumber(maxOutputKey, constants.getMaxOutput());
-        hasChanged = hasChanged || maxOutputNew != constants.getMaxOutput();
-
-        // we'll only update parameters if something's changed
-        if (hasChanged) {
-            PIDConstant newConstants = new PIDConstant(pGainNew, iGainNew, dGainNew, feedForwardNew, iZoneNew, minOutputNew, maxOutputNew);
-            System.err.println("setting PID constants for "+getName()+" from "+constants+" to "+newConstants);
-            setConstants(newConstants);
-        }
     }
 }
