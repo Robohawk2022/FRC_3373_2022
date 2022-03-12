@@ -49,7 +49,7 @@ public class Robot extends TimedRobot {
   public static final int BACK_LEFT_ANGLE_ID = 2;
   public static final int BACK_LEFT_DRIVE_ID = 1;
 
-  public static final boolean USE_CAMERAS = false;
+  public static final boolean USE_CAMERAS = true;
   public static final int FRONT_CAMERA_PORT = 0;
   public static final int BACK_CAMERA_PORT = 1;
 
