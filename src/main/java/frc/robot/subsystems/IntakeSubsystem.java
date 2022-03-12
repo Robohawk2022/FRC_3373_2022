@@ -25,7 +25,6 @@ public class IntakeSubsystem {
     private final VelocityClosedLoopMotor intakeMotor;
     private boolean spinWheel;
     private double targetSpeed;
-    private double autonomousStart;
 
     public IntakeSubsystem(XboxController controller, int intakeMotorPort) {
         this.controller = controller;
@@ -37,7 +36,6 @@ public class IntakeSubsystem {
     public void robotPeriodic() {
         SmartDashboard.putNumber("Intake Target Speed", targetSpeed);
         SmartDashboard.putBoolean("Intake Spinning?", spinWheel);
-        SmartDashboard.putBoolean("Dropping Intake?", autonomousStart > 0.0);
     }
     
     // called when the robot is put into disabled mode
@@ -45,24 +43,41 @@ public class IntakeSubsystem {
         Logger.log("intake: putting intake system in disabled mode");
         spinWheel = false;
         targetSpeed = STARTING_RPM;
-        autonomousStart = -1L;
         intakeMotor.halt();
     }
 
-    // called at the beginning of autonomous
-    public void autonomousInit() {
-        autonomousStart = Timer.getFPGATimestamp();
-        System.err.println("intake: dropping frame at "+DROP_FRAME_SPEED);
+    // ================================================================
+    // SINGLE SHOOTER
+    // Autonomous routine that drops the frame only
+    // ================================================================
+
+    public void singleShooterInit() {
+        Logger.log("intake: starting single shooter");
     }
 
-    // called 50x per second in autonomous
-    public void autonomousPeriodic() {
-        double seconds = Timer.getFPGATimestamp() - autonomousStart;
+    public void singleShooterPeriodic(double seconds) {
         if (seconds < 3.0) {
-            // System.err.println("intake: dropping for "+duration+" secs");
             intakeMotor.set(DROP_FRAME_SPEED);
         } else if (seconds < DROP_FRAME_SECONDS) {
-            // System.err.println("intake: dropping for "+duration+" secs");
+            intakeMotor.set(5 * DROP_FRAME_SPEED);
+        } else {
+            intakeMotor.coast();
+        }
+    }
+
+    // ================================================================
+    // DOUBLE SHOOTER
+    // Autonomous routine that drops the frame and picks up a ball
+    // ================================================================
+
+    public void doubleShooterInit() {
+        Logger.log("intake: starting double shooter");
+    }
+
+    public void doubleShooterPeriodic(double seconds) {
+        if (seconds < 3.0) {
+            intakeMotor.set(DROP_FRAME_SPEED);
+        } else if (seconds < DROP_FRAME_SECONDS) {
             intakeMotor.set(5 * DROP_FRAME_SPEED);
         } else if (seconds < 10.0) {
             intakeMotor.setRpm(STARTING_RPM);

@@ -40,7 +40,6 @@ public class ShooterSubsystem {
     private double targetLaunchSpeed;
     private boolean sensorWasTripped;
     private int shotCount;
-    private double autonomousStart;
     private int autoShotsPending;
 
     public ShooterSubsystem(XboxController controller, 
@@ -53,7 +52,6 @@ public class ShooterSubsystem {
         this.launchWheel = MotorFactory.makeVelocityClosedLoopMotor("Launch", launchMotorPort);
         this.indexerWheel = MotorFactory.makePositionClosedLoopMotor("Indexer", indexerMotorPort);
         indexerWheel.setMaxSpeed(INDEXER_MAX_SPEED);
-        autonomousStart = 0.0;
         autoShotsPending = 2;
         disabledInit();
     }
@@ -93,33 +91,59 @@ public class ShooterSubsystem {
         indexerWheel.resetClosedLoopControl();
     }
 
-    public void autonomousInit() {
-        autonomousStart = Timer.getFPGATimestamp();
-        autoShotsPending = 2;
+    // ================================================================
+    // SINGLE SHOOTER
+    // Autonomous routine that shoots a single ball after a while
+    // ================================================================
+
+    public void singleShooterInit() {
+        autoShotsPending = 1;
+        Logger.log("shooter: starting single shooter");
     }
 
-    public void autonomousPeriodic() {
-        double seconds = Timer.getFPGATimestamp() - autonomousStart;
+    public void singleShooterPeriodic(double seconds) {
         if (seconds > 2.0) {
-
             if (!spinLaunchWheel) {
                 setLaunchWheelEnabled(true);
             }
-
             if (seconds > 10.5 && autoShotsPending > 1) {
                 shoot();
                 autoShotsPending--;
             }
+            if (seconds > 12) {
+                setLaunchWheelEnabled(false);
+            }    
+        }
+        updateLaunchWheel();
+        updateIndexerWheel();
+    }
 
+    // ================================================================
+    // DOUBLE SHOOTER
+    // Start routine that shoots two balls after a while
+    // ================================================================
+
+    public void doubleShooterInit() {
+        autoShotsPending = 2;
+        Logger.log("shooter: starting double shooter");
+    }
+
+    public void doubleShooterPeriodic(double seconds) {
+        if (seconds > 2.0) {
+            if (!spinLaunchWheel) {
+                setLaunchWheelEnabled(true);
+            }
+            if (seconds > 10.5 && autoShotsPending > 1) {
+                shoot();
+                autoShotsPending--;
+            }
             if (seconds > 12.5 && autoShotsPending > 0) {
                 shoot();
                 autoShotsPending--;
             }
-
             if (seconds > 14) {
                 setLaunchWheelEnabled(false);
-            }
-         
+            }         
         }
         updateLaunchWheel();
         updateIndexerWheel();

@@ -259,34 +259,54 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    if (intake != null) {
-     intake.autonomousInit();
-    }
-    if (shooter != null) {
-  //    shooter.autonomousInit();
-    }
-    if (climber != null) {
-      climber.autonomousInit();
-    }
-  //  autonomousStart = Timer.getFPGATimestamp();
+
+    // always clock the start of autonomous mode, and run the climber
+    autonomousStart = Timer.getFPGATimestamp();
+    climber.autonomousInit();
+
+    // intake.doubleShooterInit();
+    // shooter.doubleShooterInit();
+
+    intake.singleShooterInit();
+    shooter.singleShooterInit();
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
 
-    if (intake != null) {
-     intake.autonomousPeriodic();
-    }
-    if (shooter != null) {
-    // shooter.autonomousPeriodic();
-    }
-    if (climber != null) {
-      climber.autonomousPeriodic();
-    }
+    // always run the climber
+    climber.autonomousPeriodic();
 
-    /*
     double seconds = Timer.getFPGATimestamp() - autonomousStart;
+
+    // select which one to run
+    // intake.doubleShooterPeriodic(seconds);
+    // shooter.doubleShooterPeriodic(seconds);
+    // doubleShooterPeriodic(seconds);
+
+    intake.singleShooterPeriodic(seconds);
+    shooter.singleShooterPeriodic(seconds);
+    singleShooterPeriodic(seconds);
+  }
+
+  private void singleShooterPeriodic(double seconds) {
+    if (seconds < 0.3) {   // let the intake wheel wind up a bit
+      forwardBy(0.0, 0.0);
+    } else if (seconds < 0.5) {   // ooch forward (picks up speed)
+      forwardBy(1.0, 0.0);
+    } else if (seconds < 1.0) {   // ooch backwards (drops intake frame)
+      forwardBy(-1.0, 0.0);
+    } else if (seconds < 6.2) {  // wait in place for intake to drop
+      forwardBy(0.0, 0.0);
+    } else if (seconds < 9.0) {   // exit the tarmac
+      forwardBy(0.1, 0.0);
+    } else {
+      forwardBy(0.0, 0.0);
+    }
+  }
+
+  private void doubleShooterPeriodic(double seconds) {
     if (seconds < 0.3) {   // let the intake wheel wind up a bit
       forwardBy(0.0, 0.0);
     } else if (seconds < 0.5) {   // ooch forward (picks up speed)
@@ -297,36 +317,11 @@ public class Robot extends TimedRobot {
       forwardBy(0.0, 0.0);
     } else if (seconds < 9.0) {   // go get a ball
       forwardBy(0.1, -0.5);
-    } else if (seconds < 9.3) {   // go get a ball
+    } else if (seconds < 9.3) {   // reorient slightly to shoot
       forwardBy(0.1, 0.7);
     } else {
       forwardBy(0.0, 0.0);
     }
-    */
-
-    /*
-    if (autonomousStart > 0.0) {
-      double seconds = Timer.getFPGATimestamp() - autonomousStart;
-      if (seconds < 4) {
-        double speed = 0.1;
-        frontLeftDriveMotor.set(-speed);
-        System.out.println("Running autorun at" + (frontLeftDriveMotor.get()));
-        frontRightDriveMotor.set(speed);
-        backLeftDriveMotor.set(-speed);
-        backRightDriveMotor.set(speed);
-        frontLeftPidController.setReference(0, CANSparkMax.ControlType.kPosition);
-        frontRightPidController.setReference(0, CANSparkMax.ControlType.kPosition);
-        backRightPidController.setReference(0, CANSparkMax.ControlType.kPosition);
-        backLeftPidController.setReference(0, CANSparkMax.ControlType.kPosition);  
-      } else {
-        frontLeftDriveMotor.set(0);
-        frontRightDriveMotor.set(0);
-        backRightDriveMotor.set(0);  
-        backLeftDriveMotor.set(0);
-        autonomousStart = 0.0;
-      }
-    }
-    */
   }
 
   private void forwardBy(double speed, double angle) {
