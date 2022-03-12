@@ -2,9 +2,6 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.motors.MotorFactory;
 import frc.robot.motors.PositionClosedLoopMotor;
@@ -29,7 +26,7 @@ public class ShooterSubsystem {
     public static final double INDEXER_MAX_SPEED = 0.5;
 
     /** How many rotations does the indexer need to lock in a ball? */
-    public static final double LOCKIN_ROTATIONS = 15;
+    public static final double LOCKIN_ROTATIONS = 14;
 
     /** How many rotations does the indexer need to push out a ball? */
     public static final double SHOOT_ROTATIONS = 40;

@@ -142,6 +142,7 @@ public class Robot extends TimedRobot {
     autoMode.setDefaultOption("SingleShooter", "SingleShooter");
     autoMode.addOption("DoubleShooter", "DoubleShooter");
     autoMode.addOption("ClimberOnly", "ClimberOnly");
+    autoMode.addOption("IntakeOnly", "IntakeOnly");
     SmartDashboard.putData("Auto Mode", autoMode);
 
     frontLeftAngleEncoder = frontLeftAngleMotor.getEncoder(SparkMaxRelativeEncoder.Type.kQuadrature, 104);
@@ -275,6 +276,8 @@ public class Robot extends TimedRobot {
     if ("DoubleShooter".equalsIgnoreCase(autoMode.getSelected())) {
       intake.doubleShooterInit();
       shooter.doubleShooterInit();
+    } else if ("IntakeOnly".equalsIgnoreCase(autoMode.getSelected())) {
+      intake.singleShooterInit();
     } else if ("SingleShooter".equalsIgnoreCase(autoMode.getSelected())) {
       intake.singleShooterInit();
       shooter.singleShooterInit();
@@ -294,6 +297,8 @@ public class Robot extends TimedRobot {
       intake.doubleShooterPeriodic(seconds);
       shooter.doubleShooterPeriodic(seconds);
       doubleShooterPeriodic(seconds);
+    } else if ("IntakeOnly".equalsIgnoreCase(autoMode.getSelected())) {
+      intake.doubleShooterPeriodic(seconds);
     } else if ("SingleShooter".equalsIgnoreCase(autoMode.getSelected())) {
       intake.singleShooterPeriodic(seconds);
       shooter.singleShooterPeriodic(seconds);
@@ -302,15 +307,15 @@ public class Robot extends TimedRobot {
   }
 
   private void singleShooterPeriodic(double seconds) {
-    if (seconds < 0.3) {   // let the intake wheel wind up a bit
+    if (seconds < 0.2) {   // let the intake wheel wind up a bit
       forwardBy(0.0, 0.0);
-    } else if (seconds < 0.5) {   // ooch forward (picks up speed)
+    } else if (seconds < 0.4) {   // ooch forward (picks up speed)
       forwardBy(1.0, 0.0);
-    } else if (seconds < 1.0) {   // ooch backwards (drops intake frame)
+    } else if (seconds < 0.9) {   // ooch backwards (drops intake frame)
       forwardBy(-1.0, 0.0);
-    } else if (seconds < 6.2) {  // wait in place for intake to drop
+    } else if (seconds < 6.1) {  // wait in place for intake to drop
       forwardBy(0.0, 0.0);
-    } else if (seconds < 9.5) {   // exit the tarmac
+    } else if (seconds < 9.4) {   // exit the tarmac
       forwardBy(0.1, 0.0);
     } else {
       forwardBy(0.0, 0.0);
