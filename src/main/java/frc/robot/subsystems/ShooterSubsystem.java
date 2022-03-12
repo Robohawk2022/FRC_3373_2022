@@ -39,6 +39,7 @@ public class ShooterSubsystem {
     private final VelocityClosedLoopMotor launchWheel;
     private final PositionClosedLoopMotor indexerWheel;
     private boolean spinLaunchWheel;
+    private boolean wasResettingIndexer;
     private double targetLaunchSpeed;
     private int autoShotsPending;
 
@@ -85,6 +86,7 @@ public class ShooterSubsystem {
     public void disabledInit() {
         spinLaunchWheel = false;
         targetLaunchSpeed = STARTING_LAUNCH_RPM;
+        wasResettingIndexer = false;
         launchWheel.halt();
         indexerWheel.resetClosedLoopControl();
     }
@@ -195,9 +197,20 @@ public class ShooterSubsystem {
      */
     public void updateIndexerWheel() {
 
-        // if someone hits the left bumper, we'll reset position loop control
-        if (controller.getLeftBumperPressed()) {
+        // if the left bumper is held, someone wants to rotate the index wheel
+        // backwards a skoche. disabled closed loop control and do it. this is
+        // the only thing we'll do.
+        if (controller.getLeftBumper()) {
+            indexerWheel.set(-INDEXER_MAX_SPEED);
+            wasResettingIndexer = true;
+            return;
+        }
+
+        // if our last loop was running the indexer backwards, re-enable
+        // closed loop control
+        if (wasResettingIndexer) {
             indexerWheel.resetClosedLoopControl();
+            wasResettingIndexer = false;
         }
 
         // trigger indexing IF there is a ball in front of the sensor now,
@@ -210,13 +223,6 @@ public class ShooterSubsystem {
         // if someone wants to shoot, and the wheel's at speed and we 
         // have a ball, go for it!
         if (controller.getBButtonPressed()) {
-            System.err.println("**************************************");
-            System.err.println("**************************************");
-            System.err.println("**************************************");
-            System.err.println("**************************************");
-            System.err.println("**************************************");
-            System.err.println("**************************************");
-            System.err.println("**************************************");
             shoot();
         }
 
