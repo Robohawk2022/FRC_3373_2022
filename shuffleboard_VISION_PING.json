@@ -205,20 +205,7 @@
             "size": [
               7,
               5
-            ],
-            "content": {
-              "_type": "Camera Stream",
-              "_source0": "camera_server://Back",
-              "_title": "Back",
-              "Crosshair/Show crosshair": true,
-              "Crosshair/Crosshair color": "#FFFFFFFF",
-              "Controls/Show controls": true,
-              "Controls/Rotation": "NONE",
-              "compression": -1.0,
-              "fps": -1,
-              "imageWidth": -1,
-              "imageHeight": -1
-            }
+            ]
           },
           "11,0": {
             "size": [
