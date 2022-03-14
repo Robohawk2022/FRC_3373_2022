@@ -101,7 +101,6 @@ public class Robot extends TimedRobot {
     SmartDashboard.putString("MotorTesting: ", "None");
     drive_control = new XboxController(DRIVER_PORT);
     intake = new IntakeSubsystem(drive_control, INTAKE_PORT);
-    
     specialops = new XboxController(SPECIAL_OPS_PORT);
     shooter = new ShooterSubsystem(specialops, SHOOTER_LAUNCH_PORT, SHOOTER_INDEXER_PORT, SHOOTER_SWITCH_PORT);
     climber = new ClimberSubsystem(specialops, CLIMBER_EXTENDER_PORT, CLIMBER_EXTENDER_SWITCH, CLIMBER_ROTATOR_PORT, CLIMBER_ROTATOR_SWITCH);
