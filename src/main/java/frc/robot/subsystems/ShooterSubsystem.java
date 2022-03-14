@@ -162,6 +162,7 @@ public class ShooterSubsystem {
         // start button toggles the launch wheel on and off
         if (controller.getStartButtonPressed()) {
             setLaunchWheelEnabled(!spinLaunchWheel);
+            PreSetSpeeds();
         }
 
         // if the launch wheel is spinning, we'll allow speed changes
@@ -221,5 +222,20 @@ public class ShooterSubsystem {
         }
 
         indexerWheel.updateSpeed();
+    }
+    /**Allows drive to select a preset shooting speed for shooting */
+    protected void PreSetSpeeds() {
+        if(controller.getXButton() == true) {
+            targetLaunchSpeed = STARTING_LAUNCH_RPM;
+        }
+        else if(controller.getYButton() == true) {
+            targetLaunchSpeed = STARTING_LAUNCH_RPM;
+        }
+        else if(controller.getAButton() == true) {
+            targetLaunchSpeed = STARTING_LAUNCH_RPM;
+        }
+        else if(controller.getBButton() == true) {
+            targetLaunchSpeed = STARTING_LAUNCH_RPM;
+        }
     }
 }
