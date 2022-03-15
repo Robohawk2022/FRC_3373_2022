@@ -13,6 +13,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.motors.MotorFactory;
@@ -59,6 +60,7 @@ public class Robot extends TimedRobot {
   public static double StrafeLimit = .25;
   public static double MagicRotateAngle = 2.72;
 
+  private final Field2d field = new Field2d();
   private XboxController specialops;
   private IntakeSubsystem intake;
   private ShooterSubsystem shooter;
@@ -98,6 +100,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
+    SmartDashboard.putData("Field", field);
     SmartDashboard.putString("MotorTesting: ", "None");
     drive_control = new XboxController(DRIVER_PORT);
     intake = new IntakeSubsystem(drive_control, INTAKE_PORT);
