@@ -16,12 +16,14 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.motors.MotorFactory;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.util.Logger;
+import frc.robot.util.PIDConstant;
 import edu.wpi.first.wpilibj.Timer;
+
+import static frc.robot.RobotConstants.*;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -30,35 +32,6 @@ import edu.wpi.first.wpilibj.Timer;
  * project.
  */
 public class Robot extends TimedRobot {
-
-  public static final int DRIVER_PORT = 0;
-  public static final int SPECIAL_OPS_PORT = 1;
-  public static final int INTAKE_PORT = 9;
-  public static final int SHOOTER_LAUNCH_PORT = 10;
-  public static final int SHOOTER_INDEXER_PORT = 11;
-  public static final int SHOOTER_SWITCH_PORT = 1;
-  public static final int CLIMBER_EXTENDER_PORT = 12;
-  public static final int CLIMBER_ROTATOR_PORT = 13;
-  public static final int CLIMBER_EXTENDER_SWITCH = 3;
-  public static final int CLIMBER_ROTATOR_SWITCH = 4;
-  public static final int FRONT_LEFT_ANGLE_ID = 8;
-  public static final int FRONT_LEFT_DRIVE_ID = 7;
-  public static final int FRONT_RIGHT_ANGLE_ID = 6;
-  public static final int FRONT_RIGHT_DRIVE_ID = 5;
-  public static final int BACK_RIGHT_ANGLE_ID = 4;
-  public static final int BACK_RIGHT_DRIVE_ID = 3;
-  public static final int BACK_LEFT_ANGLE_ID = 2;
-  public static final int BACK_LEFT_DRIVE_ID = 1;
-
-  public static final boolean USE_CAMERAS = true;
-  public static final int FRONT_CAMERA_PORT = 0;
-  public static final int BACK_CAMERA_PORT = 1;
-
-  public static double MaxSpeed = 0.3;
-  public static double MaxRotation = 5;
-  public static double RotationLimit = 3;
-  public static double StrafeLimit = .25;
-  public static double MagicRotateAngle = 2.72;
 
   private final Field2d field = new Field2d();
   private XboxController specialops;
@@ -84,7 +57,7 @@ public class Robot extends TimedRobot {
   private XboxController drive_control;
   private double turboFactor;
   private double reverseFactor;
-  private double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput;
+  private PIDConstant pidConstant;
   private double autonomousStart;
   private SendableChooser<String> autoMode;
 
@@ -162,57 +135,7 @@ public class Robot extends TimedRobot {
     turboFactor = 1.0;
     reverseFactor = 1.0;
 
-    // kP = 75; 
-    // kI = 1e-3;
-    // kD = 1; 
-    // kIz = 0; 
-    // kFF = 0; 
-    // kMaxOutput = 1; 
-    // kMinOutput = -1;
-
-    kP = 1; 
-    kI = 1e-4;
-    kD = 1; 
-    kIz = 0; 
-    kFF = 0; 
-    kMaxOutput = 1; 
-    kMinOutput = -1;
-
-    frontLeftPidController.setFeedbackDevice(frontLeftAngleEncoder);
-    frontRightPidController.setFeedbackDevice(frontRightAngleEncoder);
-    backRightPidController.setFeedbackDevice(backRightAngleEncoder);
-    backLeftPidController.setFeedbackDevice(backLeftAngleEncoder);
-
-    frontLeftPidController.setP(kP);
-    frontRightPidController.setP(kP);
-    backRightPidController.setP(kP);
-    backLeftPidController.setP(kP);
-
-    frontLeftPidController.setI(kI);
-    frontRightPidController.setI(kI);
-    backRightPidController.setI(kI);
-    backLeftPidController.setI(kI);
-
-    frontLeftPidController.setD(kD);
-    frontRightPidController.setD(kD);
-    backRightPidController.setD(kD);
-    backLeftPidController.setD(kD);
-
-    frontLeftPidController.setIZone(kIz);
-    frontRightPidController.setIZone(kIz);
-    backRightPidController.setIZone(kIz);
-    backLeftPidController.setIZone(kIz);
-
-    frontLeftPidController.setFF(kFF);
-    frontRightPidController.setFF(kFF);
-    backRightPidController.setFF(kFF);
-    backLeftPidController.setFF(kFF);
-
-    frontLeftPidController.setOutputRange(kMinOutput, kMaxOutput);
-    frontRightPidController.setOutputRange(kMinOutput, kMaxOutput);
-    backRightPidController.setOutputRange(kMinOutput, kMaxOutput);
-    backLeftPidController.setOutputRange(kMinOutput, kMaxOutput);
-
+    setPidConstant(DEFAULT_ANGLE_PID);
     
     frontLeftAngleMotor.setInverted(true);
     frontRightAngleMotor.setInverted(true);
@@ -225,6 +148,14 @@ public class Robot extends TimedRobot {
     }
 
     autonomousStart = 0.0;
+  }
+
+  private void setPidConstant(PIDConstant newConstant) {
+    pidConstant = newConstant;
+    pidConstant.configPID(frontLeftPidController);
+    pidConstant.configPID(frontRightPidController);
+    pidConstant.configPID(backRightPidController);
+    pidConstant.configPID(backLeftPidController);
   }
 
   /**
@@ -408,8 +339,8 @@ public class Robot extends TimedRobot {
 
   public void macDrive(double leftX, double leftY, double rightX) {
 
-    double moveSpeed = Math.sqrt(leftX * leftX + leftY * leftY) * MaxSpeed * turboFactor * reverseFactor;
-    double turnAngle = leftX * leftX * leftX * MaxRotation * reverseFactor;    
+    double moveSpeed = Math.sqrt(leftX * leftX + leftY * leftY) * MAX_DRIVE_POWER * turboFactor * reverseFactor;
+    double turnAngle = leftX * leftX * leftX * MAX_ROTATION_POWER * reverseFactor;    
 
     if (drive_control.getLeftY() > 0) {
       frontLeftDriveMotor.set(moveSpeed);
@@ -443,10 +374,10 @@ public class Robot extends TimedRobot {
 
   public void driveDrive(double leftX, double leftY, double rightX) {
 
-    double moveSpeed = Math.sqrt(leftX * leftX + leftY * leftY) * MaxSpeed * turboFactor * reverseFactor;
-    double turnAngle = rightX * rightX * rightX * MaxRotation * reverseFactor;   
-    if (turnAngle > RotationLimit) {
-      turnAngle = RotationLimit;
+    double moveSpeed = Math.sqrt(leftX * leftX + leftY * leftY) * MAX_DRIVE_POWER * turboFactor * reverseFactor;
+    double turnAngle = rightX * rightX * rightX * MAX_ROTATION_POWER * reverseFactor;   
+    if (turnAngle > DRIVE_MODE_ROTATION_LIMIT) {
+      turnAngle = DRIVE_MODE_ROTATION_LIMIT;
     }
 
     if (drive_control.getLeftY() > 0) {
@@ -485,10 +416,10 @@ public class Robot extends TimedRobot {
     frontRightDriveMotor.set(rotateSpeed);
     backLeftDriveMotor.set(rotateSpeed);
     backRightDriveMotor.set(rotateSpeed);  
-    frontLeftPidController.setReference(-MagicRotateAngle,  CANSparkMax.ControlType.kPosition);
-    frontRightPidController.setReference(MagicRotateAngle,  CANSparkMax.ControlType.kPosition);
-    backRightPidController.setReference(-MagicRotateAngle,  CANSparkMax.ControlType.kPosition);
-    backLeftPidController.setReference(MagicRotateAngle,  CANSparkMax.ControlType.kPosition);
+    frontLeftPidController.setReference(-MAGIC_ROTATE_ANGLE,  CANSparkMax.ControlType.kPosition);
+    frontRightPidController.setReference(MAGIC_ROTATE_ANGLE,  CANSparkMax.ControlType.kPosition);
+    backRightPidController.setReference(-MAGIC_ROTATE_ANGLE,  CANSparkMax.ControlType.kPosition);
+    backLeftPidController.setReference(MAGIC_ROTATE_ANGLE,  CANSparkMax.ControlType.kPosition);
   }
 
 /* ==============================================================================
@@ -526,31 +457,28 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testInit() {
-    SmartDashboard.putNumber("P Gain", kP);
-    SmartDashboard.putNumber("I Gain", kI);
-    SmartDashboard.putNumber("D Gain", kD);
-    SmartDashboard.putNumber("I Zone", kIz);
-    SmartDashboard.putNumber("Feed Forward", kFF);
-    SmartDashboard.putNumber("Max Output", kMaxOutput);
-    SmartDashboard.putNumber("Min Output", kMinOutput);
-    SmartDashboard.putNumber("Set Rotations", 0);
-
-
+    SmartDashboard.putNumber("P Gain", pidConstant.getP());
+    SmartDashboard.putNumber("I Gain", pidConstant.getI());
+    SmartDashboard.putNumber("D Gain", pidConstant.getD());
+    SmartDashboard.putNumber("I Zone", pidConstant.getIZone());
+    SmartDashboard.putNumber("Feed Forward", pidConstant.getFeedForward());
+    SmartDashboard.putNumber("Min Output", pidConstant.getMinOutput());
+    SmartDashboard.putNumber("Max Output", pidConstant.getMaxOutput());
   }
 
   @Override
   public void testPeriodic() {
+
     SmartDashboard.putString("MotorTesting: ", "None");
+
     if(drive_control.getBButton() == true) {
       frontLeftAngleEncoder.setPosition(0);
-      System.out.print("Encoder 1 Reset");
       frontRightAngleEncoder.setPosition(0);
-      System.out.print("Encoder 2 Reset");
       backRightAngleEncoder.setPosition(0);
-      System.out.print("Encoder 3 Reset");
       backLeftAngleEncoder.setPosition(0);
-      System.out.print("Encoder 4 Reset");
+      Logger.log("robot: reset all angle encoders");
     }
+
     double p = SmartDashboard.getNumber("P Gain", 0);
     double i = SmartDashboard.getNumber("I Gain", 0);
     double d = SmartDashboard.getNumber("D Gain", 0);
@@ -558,42 +486,15 @@ public class Robot extends TimedRobot {
     double ff = SmartDashboard.getNumber("Feed Forward", 0);
     double max = SmartDashboard.getNumber("Max Output", 0);
     double min = SmartDashboard.getNumber("Min Output", 0);
-    double rotations = SmartDashboard.getNumber("Set Rotations", 0);
-    if((p != kP)) { frontLeftPidController.setP(p); kP = p; }
-    if((i != kI)) { frontLeftPidController.setI(i); kI = i; }
-    if((d != kD)) { frontLeftPidController.setD(d); kD = d; }
-    if((iz != kIz)) { frontLeftPidController.setIZone(iz); kIz = iz; }
-    if((ff != kFF)) { frontLeftPidController.setFF(ff); kFF = ff; }
-    if((max != kMaxOutput) || (min != kMinOutput)) { 
-      frontLeftPidController.setOutputRange(min, max); 
-      kMinOutput = min; kMaxOutput = max; 
-    }
-    if((p != kP)) { frontRightPidController.setP(p); kP = p; }
-    if((i != kI)) { frontRightPidController.setI(i); kI = i; }
-    if((d != kD)) { frontRightPidController.setD(d); kD = d; }
-    if((iz != kIz)) { frontRightPidController.setIZone(iz); kIz = iz; }
-    if((ff != kFF)) { frontRightPidController.setFF(ff); kFF = ff; }
-    if((max != kMaxOutput) || (min != kMinOutput)) { 
-      frontRightPidController.setOutputRange(min, max); 
-      kMinOutput = min; kMaxOutput = max; 
-    }
-    if((p != kP)) { backRightPidController.setP(p); kP = p; }
-    if((i != kI)) { backRightPidController.setI(i); kI = i; }
-    if((d != kD)) { backRightPidController.setD(d); kD = d; }
-    if((iz != kIz)) { backRightPidController.setIZone(iz); kIz = iz; }
-    if((ff != kFF)) { backRightPidController.setFF(ff); kFF = ff; }
-    if((max != kMaxOutput) || (min != kMinOutput)) { 
-      backRightPidController.setOutputRange(min, max); 
-      kMinOutput = min; kMaxOutput = max; 
-    }
-    if((p != kP)) { backLeftPidController.setP(p); kP = p; }
-    if((i != kI)) { backLeftPidController.setI(i); kI = i; }
-    if((d != kD)) { backLeftPidController.setD(d); kD = d; }
-    if((iz != kIz)) { backLeftPidController.setIZone(iz); kIz = iz; }
-    if((ff != kFF)) { backLeftPidController.setFF(ff); kFF = ff; }
-    if((max != kMaxOutput) || (min != kMinOutput)) { 
-      backLeftPidController.setOutputRange(min, max); 
-      kMinOutput = min; kMaxOutput = max; 
+
+    if (p != pidConstant.getP()
+      || i != pidConstant.getI()
+      || d != pidConstant.getD()
+      || iz != pidConstant.getIZone()
+      || ff != pidConstant.getFeedForward()
+      || min != pidConstant.getMinOutput()
+      || max != pidConstant.getMaxOutput()) {
+        setPidConstant(new PIDConstant(p, i, d, ff, iz, min, max));
     }
 
     while(drive_control.getAButton() == true) {
@@ -601,21 +502,23 @@ public class Robot extends TimedRobot {
       frontLeftDriveMotor.set(drive_control.getLeftY());
       frontLeftAngleMotor.set(drive_control.getRightY());
     }
+
     while(drive_control.getBButton() == true) {
       SmartDashboard.putString("MotorTesting: ", "Front Right");
       frontRightDriveMotor.set(drive_control.getLeftY());
       frontRightAngleMotor.set(drive_control.getRightY());
     }
+
     while(drive_control.getXButton() == true) {   
        SmartDashboard.putString("MotorTesting: ", "Back Left");
       backLeftDriveMotor.set(drive_control.getLeftY());
       backLeftAngleMotor.set(drive_control.getRightY());
     }
+
     while(drive_control.getYButton() == true) {
       SmartDashboard.putString("MotorTesting: ", "Back Right");
       backRightDriveMotor.set(drive_control.getLeftY());
       backRightAngleMotor.set(drive_control.getRightY());
     }
-
   }
 }
