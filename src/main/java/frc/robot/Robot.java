@@ -60,6 +60,7 @@ public class Robot extends TimedRobot {
   private PIDConstant pidConstant;
   private double autonomousStart;
   private SendableChooser<String> autoMode;
+  private double rotateUntil;
 
 /* ==============================================================================
   _____   ____  ____   ____ _______ 
@@ -148,6 +149,7 @@ public class Robot extends TimedRobot {
     }
 
     autonomousStart = 0.0;
+    rotateUntil = 0.0;
   }
 
   private void setPidConstant(PIDConstant newConstant) {
@@ -310,11 +312,21 @@ public class Robot extends TimedRobot {
       reverseFactor = reverseFactor * -1.0;
     }
 
+    // if someone hits the dpad back, we'll start rotating for a fixed amount of time
+    if (drive_control.getPOV() == 180 && rotateUntil < 0) {
+      rotateUntil = Timer.getFPGATimestamp() + ROTATION_SECONDS;
+    }
+
     // if someone is holding the right trigger, we'll double speed
     if (drive_control.getRightTriggerAxis() > 0.5) {
       turboFactor = 2.0;
     } else {
       turboFactor = 1.0;
+    }
+
+    // if we're turning, let's turn!
+    if (rotateUntil < Timer.getFPGATimestamp()) {
+      AimBot(2.0); // rotate in a fixed direction at 2x normal aimbot speed
     }
 
     if (drive_control.getRightBumper()) {

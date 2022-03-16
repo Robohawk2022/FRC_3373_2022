@@ -46,6 +46,7 @@ public class RobotConstants {
   public static final double MAX_ROTATION_POWER = 5;
   public static final double DRIVE_MODE_ROTATION_LIMIT = 3;
   public static final double MAGIC_ROTATE_ANGLE = 2.72;
+  public static final double ROTATION_SECONDS = 3.0;
 
   // camera constants
   public static final boolean USE_CAMERAS = true;
