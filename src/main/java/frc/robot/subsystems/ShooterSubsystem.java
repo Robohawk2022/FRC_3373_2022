@@ -79,10 +79,10 @@ public class ShooterSubsystem {
         indexerMotor.setClosedLoopRampRate(0.1);
         indexerEncoder = indexerMotor.getEncoder();
 
-        SmartDashboard.putNumber("Shooter Preset A", LAUNCH_PRESETS[0]);
-        SmartDashboard.putNumber("Shooter Preset B", LAUNCH_PRESETS[1]);
-        SmartDashboard.putNumber("Shooter Preset X", LAUNCH_PRESETS[2]);
-        SmartDashboard.putNumber("Shooter Preset Y", LAUNCH_PRESETS[3]);
+        SmartDashboard.putNumber("Shooter Preset Up", LAUNCH_PRESETS[0]);
+        SmartDashboard.putNumber("Shooter Preset Right", LAUNCH_PRESETS[1]);
+        SmartDashboard.putNumber("Shooter Preset Down", LAUNCH_PRESETS[2]);
+        SmartDashboard.putNumber("Shooter Preset Left", LAUNCH_PRESETS[3]);
 
         autoShotsPending = 2;
         disabledInit();
@@ -116,10 +116,10 @@ public class ShooterSubsystem {
         SmartDashboard.putBoolean("Ball Sensor", ballSensor.get());
 
         // get new values for presets if necessary
-        LAUNCH_PRESETS[0] = SmartDashboard.getNumber("Shooter Preset A", LAUNCH_PRESETS[0]);
-        LAUNCH_PRESETS[1] = SmartDashboard.getNumber("Shooter Preset B", LAUNCH_PRESETS[1]);
-        LAUNCH_PRESETS[2] = SmartDashboard.getNumber("Shooter Preset X", LAUNCH_PRESETS[2]);
-        LAUNCH_PRESETS[3] = SmartDashboard.getNumber("Shooter Preset Y", LAUNCH_PRESETS[3]);
+        LAUNCH_PRESETS[0] = SmartDashboard.getNumber("Shooter Preset Up", LAUNCH_PRESETS[0]);
+        LAUNCH_PRESETS[1] = SmartDashboard.getNumber("Shooter Preset Right", LAUNCH_PRESETS[1]);
+        LAUNCH_PRESETS[2] = SmartDashboard.getNumber("Shooter Preset Down", LAUNCH_PRESETS[2]);
+        LAUNCH_PRESETS[3] = SmartDashboard.getNumber("Shooter Preset Left", LAUNCH_PRESETS[3]);
 
         // clean up presets (make sure they are all negative in case someone didn't type in the sign)
         for (int i=0; i<LAUNCH_PRESETS.length; i++) {
@@ -226,21 +226,29 @@ public class ShooterSubsystem {
         // if the launch wheel is spinning, we'll allow speed changes
         if (spinLaunchWheel) {
 
-            if (controller.getAButtonPressed()) {
+            if (controller.getPOV() == 0) {
                 launchTargetRpm = LAUNCH_PRESETS[0];
                 Logger.log("shooter: reset launch wheel to ", launchTargetRpm);
             }
-            else if (controller.getBButtonPressed()) {
+            else if (controller.getPOV() == 90) {
                 launchTargetRpm = LAUNCH_PRESETS[1];
                 Logger.log("shooter: reset launch wheel to ", launchTargetRpm);
             }
-            else if (controller.getXButtonPressed()) {
+            else if (controller.getPOV() == 180) {
                 launchTargetRpm = LAUNCH_PRESETS[2];
                 Logger.log("shooter: reset launch wheel to ", launchTargetRpm);
             }
-            else if (controller.getYButtonPressed()) {
+            else if (controller.getPOV() == 270) {
                 launchTargetRpm = LAUNCH_PRESETS[3];
                 Logger.log("shooter: reset launch wheel to ", launchTargetRpm);
+            }
+            else if (controller.getXButtonPressed()) {
+                launchTargetRpm = Math.floor(launchTargetRpm * 0.975);
+                Logger.log("shooter: setting launch wheel to ", launchTargetRpm);
+            }
+            else if (controller.getYButtonPressed()) {
+                launchTargetRpm = Math.ceil(launchTargetRpm * 1.025);
+                Logger.log("shooter: setting launch wheel to ", launchTargetRpm);
             }
 
             launchController.setReference(launchTargetRpm, ControlType.kVelocity);
