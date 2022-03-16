@@ -7,14 +7,18 @@ public class PIDConstant {
 
     private final double kP, kI, kD, kIz, kFF, kMinOutput, kMaxOutput;
 
-    public PIDConstant(double P, double I, double D, double FF, double IZone, double MINOutput,
+    public PIDConstant(double P, double I, double D) {
+        this(P, I, D, 0.0, 0.0, -1.0, 1.0);
+    }
+
+    public PIDConstant(double P, double I, double D, double FF, double IZone, double MinOutput,
             double MaxOutput) {
         this.kP=P;
         this.kI=I;
         this.kD=D;
         this.kFF=FF;
         this.kIz=IZone;
-        this.kMinOutput=MINOutput;
+        this.kMinOutput=MinOutput;
         this.kMaxOutput=MaxOutput;
         
     }
