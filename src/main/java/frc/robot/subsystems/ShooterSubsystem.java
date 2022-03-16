@@ -28,8 +28,8 @@ public class ShooterSubsystem {
     // IF INDEXER IS REVERSED - negate me
     public static final double INDEXER_MAX_SPEED = 0.5;
 
-    /** Speed tolerance for launch wheel (will only allow shot when w/in this %% of target */
-    public static final double LAUNCH_SPEED_TOLERANCE = 0.1;
+    /** Launch wheel will only spin if we're faster than this */
+    public static final double MIN_LAUNCH_SPEED = -2500;
 
     /** How many rotations does the indexer need to lock in a ball? */
         // IF INDEXER IS REVERSED - negate me
@@ -96,9 +96,7 @@ public class ShooterSubsystem {
 
     // update the indexer position to indicate that a shot should be taken (note: doesn't move the motor)
     public void shoot() {
-        double launchCurrentRpm = indexerEncoder.getVelocity();
-        double speedDiff = Math.abs( (launchTargetRpm - launchCurrentRpm) / launchTargetRpm );
-        if (speedDiff < LAUNCH_SPEED_TOLERANCE) {
+        if (indexerEncoder.getVelocity() < MIN_LAUNCH_SPEED) { // less than because we're going backwards
             Logger.log("shooter: shooting!");
             indexerTargetPos += SHOOT_ROTATIONS;
         } else {
