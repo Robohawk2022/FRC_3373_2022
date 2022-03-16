@@ -274,9 +274,12 @@ public class ShooterSubsystem {
             shoot();
         }
 
-        // if the indexer is behind where it needs to be, run it
-        // IF INDEXER IS REVERSED - turn this into ">"
-        if (indexerTargetPos > indexerEncoder.getPosition()) {
+        // if A is held, we'll rotate the indexer slowly backwards; otherwise,
+        // we'll only spin it if it's out of position
+        // IF INDEXER IS REVERSED - turn the inequality into ">"
+        if (controller.getAButton()) {
+            indexerMotor.set(-INDEXER_MAX_SPEED / 2.0);
+        } else if (indexerTargetPos > indexerEncoder.getPosition()) {
             indexerMotor.set(INDEXER_MAX_SPEED);
         } else {
             indexerMotor.set(0.0);
