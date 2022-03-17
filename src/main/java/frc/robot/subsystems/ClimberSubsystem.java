@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import frc.robot.motors.NamedMotor;
 import frc.robot.util.Logger;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -47,6 +48,9 @@ public class ClimberSubsystem {
     /** Maximum number of rotations of the rotator motor */
     public static final double ROTATION_LIMIT = 110;
 
+    /** How long you have to hold down the button to unlock the extender */
+    public static final double EXTENDER_UNLOCK_SECS = 2.0;
+
     private final XboxController controller;
     private final NamedMotor extenderMotor;
     private final NamedMotor rotatorMotor;
@@ -57,6 +61,8 @@ public class ClimberSubsystem {
     private double rotatorMin;
     private double rotatorMax;
     private boolean resetting;
+    private double extenderUnlockStartedAt;
+    private boolean extenderLocked;
 
     public ClimberSubsystem(XboxController controller, 
         int extenderMotorPort, int extenderSwitchPort,
@@ -93,6 +99,7 @@ public class ClimberSubsystem {
         SmartDashboard.putNumber("Extender Min", extenderMin);
         SmartDashboard.putNumber("Extender Current", extenderMotor.getPosition());
         SmartDashboard.putNumber("Extender Max", extenderMax);
+        SmartDashboard.putBoolean("Extender Locked?", extenderLocked);
         SmartDashboard.putBoolean("Extender At Max?", atExtenderLimit());
     }
 
@@ -151,8 +158,37 @@ public class ClimberSubsystem {
         }
     }
 
+    // called when entering teleop mode
+    public void teleopInit() {
+        extenderUnlockStartedAt = 0.0;
+        extenderLocked = true;
+    }
+
     // called 50x per second in teleop mode
     public void teleopPeriodic() {
+
+        // if someone presses the right stick button, we'll start a timer
+        // going (if it wasn't already), and if it's still being pressed
+        // two seconds later, 
+        if (controller.getRightStickButton()) {
+            if (extenderUnlockStartedAt == 0.0) {
+                extenderUnlockStartedAt = Timer.getFPGATimestamp();
+            }
+            double seconds = Timer.getFPGATimestamp() - extenderUnlockStartedAt;
+            if (seconds > EXTENDER_UNLOCK_SECS) {
+                extenderLocked = false;
+                extenderUnlockStartedAt = 0.0;
+            }
+        } else {
+            extenderUnlockStartedAt = 0.0;
+        }
+
+        // if the controls are locked out, there's nothing to do
+        if (extenderLocked) {
+            extenderMotor.set(0.0);
+            rotatorMotor.set(0.0);
+            return;
+        }
 
         boolean extenderAtMax = extenderMotor.getPosition() >= extenderMax || atExtenderLimit();
         boolean extenderAtMin = extenderMotor.getPosition() <= extenderMin;
