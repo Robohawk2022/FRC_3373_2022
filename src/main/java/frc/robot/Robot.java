@@ -11,6 +11,7 @@ import com.revrobotics.SparkMaxRelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -60,7 +61,10 @@ public class Robot extends TimedRobot {
   private PIDConstant pidConstant;
   private double autonomousStart;
   private SendableChooser<String> autoMode;
+  private SendableChooser<String> driveMode;
+  private TrueSwerve trueSwerve;
   private double rotateUntil;
+  private boolean useSwerve;
 
 /* ==============================================================================
   _____   ____  ____   ____ _______ 
@@ -150,6 +154,13 @@ public class Robot extends TimedRobot {
 
     autonomousStart = 0.0;
     rotateUntil = 0.0;
+
+    trueSwerve = new TrueSwerve();
+    useSwerve = false;
+    driveMode = new SendableChooser<>();
+    driveMode.setDefaultOption("DriveDrive", "DriveDrive");
+    driveMode.addOption("TrueSwerve", "TrueSwerve");
+    SmartDashboard.putData("Drive Mode", driveMode);
   }
 
   private void setPidConstant(PIDConstant newConstant) {
@@ -289,6 +300,11 @@ public class Robot extends TimedRobot {
 ============================================================================== */
 
   @Override
+  public void teleopInit() {
+    useSwerve = "TrueSwerve".equalsIgnoreCase(driveMode.getSelected());
+  }
+
+  @Override
   public void teleopPeriodic() {
 
     SmartDashboard.updateValues();
@@ -339,14 +355,19 @@ public class Robot extends TimedRobot {
       return;
     }
     
+    if (useSwerve) {
+      trueSwerve(leftX, leftY, rightX);
+      return;
+    }
+
     driveDrive(leftX, leftY, rightX);
   }
 
   /* --------------------------------------------------
      Mac Drive turns like this (strafing):
          \---\
-         |   |
-         \---\
+         |   |     <-- there's a glitch at +/- 90
+         \---\         where the wheels flip around
     -------------------------------------------------- */
 
   public void macDrive(double leftX, double leftY, double rightX) {
@@ -354,7 +375,7 @@ public class Robot extends TimedRobot {
     double moveSpeed = Math.sqrt(leftX * leftX + leftY * leftY) * MAX_DRIVE_POWER * turboFactor * reverseFactor;
     double turnAngle = leftX * leftX * leftX * MAX_ROTATION_POWER * reverseFactor;    
 
-    if (drive_control.getLeftY() > 0) {
+    if (drive_control.getLeftY() >= 0) {
       frontLeftDriveMotor.set(moveSpeed);
       frontRightDriveMotor.set(-moveSpeed);
       backRightDriveMotor.set(-moveSpeed);
@@ -392,7 +413,7 @@ public class Robot extends TimedRobot {
       turnAngle = DRIVE_MODE_ROTATION_LIMIT;
     }
 
-    if (drive_control.getLeftY() > 0) {
+    if (drive_control.getLeftY() >= 0) {
       frontLeftDriveMotor.set(moveSpeed);
       frontRightDriveMotor.set(-moveSpeed);
       backRightDriveMotor.set(-moveSpeed);
@@ -432,6 +453,40 @@ public class Robot extends TimedRobot {
     frontRightPidController.setReference(MAGIC_ROTATE_ANGLE,  CANSparkMax.ControlType.kPosition);
     backRightPidController.setReference(-MAGIC_ROTATE_ANGLE,  CANSparkMax.ControlType.kPosition);
     backLeftPidController.setReference(MAGIC_ROTATE_ANGLE,  CANSparkMax.ControlType.kPosition);
+  }
+
+  /* --------------------------------------------------
+     True swerve mode (drives like a dolly)
+    -------------------------------------------------- */
+
+  private void trueSwerve(double leftX, double leftY, double rightX) {
+
+    // get current position of wheels
+    double frontLeftPos = frontLeftAngleEncoder.getPosition();
+    double frontRightPos = frontRightAngleEncoder.getPosition();
+    double backRightPos = backRightAngleEncoder.getPosition();
+    double backLeftPos = backLeftAngleEncoder.getPosition();
+
+    // compute new speed/position for each wheel
+    SwerveModuleState [] states = trueSwerve.computeStates(
+      leftX, leftY, rightX, 
+      frontLeftPos, frontRightPos, backRightPos, backLeftPos);
+
+    // convert degree angles to wheel position
+    double frontLeftNewPos = trueSwerve.degreesToPosition(states[0].angle.getDegrees());
+    double frontRightNewPos = trueSwerve.degreesToPosition(states[1].angle.getDegrees());
+    double backRightNewPos = trueSwerve.degreesToPosition(states[2].angle.getDegrees());
+    double backLeftNewPos = trueSwerve.degreesToPosition(states[3].angle.getDegrees());
+
+    // apply speed/position
+    frontLeftDriveMotor.set(states[0].speedMetersPerSecond);
+    frontRightDriveMotor.set(-states[1].speedMetersPerSecond);
+    backRightDriveMotor.set(-states[1].speedMetersPerSecond);
+    backLeftDriveMotor.set(states[3].speedMetersPerSecond);
+    frontLeftPidController.setReference(frontLeftNewPos, CANSparkMax.ControlType.kPosition);
+    frontRightPidController.setReference(frontRightNewPos, CANSparkMax.ControlType.kPosition);
+    backRightPidController.setReference(backRightNewPos, CANSparkMax.ControlType.kPosition);
+    backLeftPidController.setReference(backLeftNewPos, CANSparkMax.ControlType.kPosition);            
   }
 
 /* ==============================================================================
