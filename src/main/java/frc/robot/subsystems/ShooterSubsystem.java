@@ -33,23 +33,23 @@ import frc.robot.util.PIDConstant;
  */
 public class ShooterSubsystem {
 
-    /** PID tuning constants copied from https://github.com/REVrobotics/SPARK-MAX-Examples/blob/master/Java/Smart%20Motion%20Example/src/main/java/frc/robot/Robot.java */
-    public static final PIDConstant PID_CONSTANT = new PIDConstant(5e-5, 1e-6, 0.0, 0.0, 0.000156, -1.0, 1.0);
+    /** PID tuning constants, determined by trial and error */
+    public static final PIDConstant PID_CONSTANT = new PIDConstant(0.0008, 0.0000003, 3.0, 0.0, 0.0, -1.0, 1.0);
 
     /** Default preset launch speeds */
-    public static final double [] LAUNCH_PRESETS = { -3900.0, -4900.0, -5900.0, -6900.0 };
+    public static final double [] LAUNCH_PRESETS = { -3500.0, -4500.0, -5500.0, -6500.0 };
 
     /** Maximum speed at which to rotate the indexer */
-    public static final double INDEXER_MAX_SPEED = -0.5;
+    public static final double INDEXER_MAX_SPEED = 0.3;
 
     /** Launch wheel will only spin if we're faster than this */
     public static final double MIN_LAUNCH_SPEED = -2500;
 
     /** How many rotations does the indexer need to lock in a ball? */
-    public static final double LOCKIN_ROTATIONS = -15;
+    public static final double LOCKIN_ROTATIONS = 15;
 
     /** How many rotations does the indexer need to push out a ball? */
-    public static final double SHOOT_ROTATIONS = -40;
+    public static final double SHOOT_ROTATIONS = 15;
 
     private final XboxController controller;
     private final DigitalInput ballSensor;
@@ -61,7 +61,7 @@ public class ShooterSubsystem {
 
     private final CANSparkMax indexerMotor;
     private final RelativeEncoder indexerEncoder;
-    private double indexerTargetPos;
+    private double indexerRotateFor;
 
     private boolean spinLaunchWheel;
     private int autoShotsPending;
@@ -80,7 +80,7 @@ public class ShooterSubsystem {
         launchMotor = new CANSparkMax(launchMotorPort, MotorType.kBrushless);
         launchMotor.restoreFactoryDefaults();
         launchMotor.setIdleMode(IdleMode.kCoast);
-        launchMotor.setClosedLoopRampRate(0.5);
+       launchMotor.setClosedLoopRampRate(0.5);
         launchEncoder = launchMotor.getEncoder();
         launchController = launchMotor.getPIDController();
         PID_CONSTANT.configPID(launchController);
@@ -108,9 +108,9 @@ public class ShooterSubsystem {
 
     // update the indexer position to indicate that a shot should be taken (note: doesn't move the motor)
     public void shoot() {
-        if (indexerEncoder.getVelocity() < MIN_LAUNCH_SPEED) { // less than because we're going backwards
+        if (launchEncoder.getVelocity() < MIN_LAUNCH_SPEED) { // less than because we're going backwards
             Logger.log("shooter: shooting!");
-            indexerTargetPos += SHOOT_ROTATIONS;
+            indexerRotateFor += SHOOT_ROTATIONS;
         } else {
             Logger.log("shooter: refusing to shoot; not at speed");
         }
@@ -123,7 +123,7 @@ public class ShooterSubsystem {
         SmartDashboard.putBoolean("Launch Spinning?", spinLaunchWheel);
         SmartDashboard.putNumber("Launch Target RPM", launchTargetRpm);
         SmartDashboard.putNumber("Launch Current RPM", launchEncoder.getVelocity());
-        SmartDashboard.putNumber("Indexer Target Pos", indexerTargetPos);
+        SmartDashboard.putNumber("Indexer Rotate Count", indexerRotateFor);
         SmartDashboard.putNumber("Indexer Current Pos", indexerEncoder.getPosition());
         SmartDashboard.putBoolean("Ball Sensor", ballSensor.get());
 
@@ -145,7 +145,7 @@ public class ShooterSubsystem {
     public void disabledInit() {
 
         launchTargetRpm = LAUNCH_PRESETS[0];
-        indexerTargetPos = indexerEncoder.getPosition();
+        indexerRotateFor = 0;
         autoShotsPending = 0;
         spinLaunchWheel = false;
 
@@ -159,7 +159,7 @@ public class ShooterSubsystem {
     // ================================================================
 
     public void singleShooterInit() {
-        indexerTargetPos = indexerEncoder.getPosition();
+        indexerRotateFor = 0;
         autoShotsPending = 1;
         Logger.log("shooter: starting single shooter");
     }
@@ -213,7 +213,7 @@ public class ShooterSubsystem {
     }
 
     public void teleopInit() {
-        indexerTargetPos = indexerEncoder.getPosition();
+        indexerRotateFor = 0;
         launchTargetRpm = LAUNCH_PRESETS[0];
         spinLaunchWheel = false;
     }
@@ -276,9 +276,9 @@ public class ShooterSubsystem {
     public void updateIndexerWheel() {
 
         // trigger indexing if there is a ball waiting
-        if (ballSensor.get()) {
+        if (ballSensor.get() && indexerRotateFor == 0) {
+            indexerRotateFor += LOCKIN_ROTATIONS;
             Logger.log("shooter: rotating for intake");
-            indexerTargetPos += LOCKIN_ROTATIONS;
         }
 
         // trigger shooting if someone wants to shoot
@@ -290,8 +290,10 @@ public class ShooterSubsystem {
         // we'll only spin it if it's out of position
         if (controller.getAButton()) {
             indexerMotor.set(-INDEXER_MAX_SPEED / 2.0);
-        } else if (indexerTargetPos > indexerEncoder.getPosition()) {
+        } else if (indexerRotateFor > 0) {
+            Logger.log("shooter: rotating indexer; count=", indexerRotateFor);
             indexerMotor.set(INDEXER_MAX_SPEED);
+            indexerRotateFor--;
         } else {
             indexerMotor.set(0.0);
         }
