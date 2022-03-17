@@ -329,7 +329,7 @@ public class Robot extends TimedRobot {
     }
 
     // if someone hits the dpad back, we'll start rotating for a fixed amount of time
-    if (drive_control.getPOV() == 180 && rotateUntil < 0) {
+    if (drive_control.getRightStickButtonPressed() && rotateUntil < 0) {
       rotateUntil = Timer.getFPGATimestamp() + ROTATION_SECONDS;
     }
 
