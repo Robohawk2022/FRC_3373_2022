@@ -15,6 +15,21 @@ import frc.robot.util.PIDConstant;
 
 /**
  * Subsystem for shooting
+ * 
+ * NOTE: both the shooter and indexer motor directions are reversed. This means:
+ * 
+ *   - The shooter preset speeds will all be negative RPMs, so the PID loop knows
+ *   to run the wheel backwards.
+ * 
+ *   - The "minimum" launch speed for the shooter wheel is actually a maximum,
+ *   because we want it rotating at least that many negative rotations
+ * 
+ *   - The indexer's target position will move in a negative direction when we
+ *   want to advance it for lockin or shooting
+ * 
+ *   - The indexer motor will receive negative speed values normally, so we can
+ *   convince it to spin the correct direction
+ * 
  */
 public class ShooterSubsystem {
 
@@ -25,19 +40,16 @@ public class ShooterSubsystem {
     public static final double [] LAUNCH_PRESETS = { -3900.0, -4900.0, -5900.0, -6900.0 };
 
     /** Maximum speed at which to rotate the indexer */
-    // IF INDEXER IS REVERSED - negate me
-    public static final double INDEXER_MAX_SPEED = 0.5;
+    public static final double INDEXER_MAX_SPEED = -0.5;
 
     /** Launch wheel will only spin if we're faster than this */
     public static final double MIN_LAUNCH_SPEED = -2500;
 
     /** How many rotations does the indexer need to lock in a ball? */
-        // IF INDEXER IS REVERSED - negate me
-    public static final double LOCKIN_ROTATIONS = 15;
+    public static final double LOCKIN_ROTATIONS = -15;
 
     /** How many rotations does the indexer need to push out a ball? */
-    // IF INDEXER IS REVERSED - negate me
-    public static final double SHOOT_ROTATIONS = 40;
+    public static final double SHOOT_ROTATIONS = -40;
 
     private final XboxController controller;
     private final DigitalInput ballSensor;
@@ -276,7 +288,6 @@ public class ShooterSubsystem {
 
         // if A is held, we'll rotate the indexer slowly backwards; otherwise,
         // we'll only spin it if it's out of position
-        // IF INDEXER IS REVERSED - turn the inequality into ">"
         if (controller.getAButton()) {
             indexerMotor.set(-INDEXER_MAX_SPEED / 2.0);
         } else if (indexerTargetPos > indexerEncoder.getPosition()) {
