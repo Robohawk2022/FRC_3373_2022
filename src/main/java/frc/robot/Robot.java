@@ -61,8 +61,10 @@ public class Robot extends TimedRobot {
   private PIDConstant pidConstant;
   private double autonomousStart;
   private SendableChooser<String> autoMode;
+  private SendableChooser<String> driveMode;
   private TrueSwerve trueSwerve;
   private double rotateUntil;
+  private boolean useSwerve;
 
 /* ==============================================================================
   _____   ____  ____   ____ _______ 
@@ -152,6 +154,13 @@ public class Robot extends TimedRobot {
 
     autonomousStart = 0.0;
     rotateUntil = 0.0;
+
+    trueSwerve = new TrueSwerve();
+    useSwerve = false;
+    driveMode = new SendableChooser<>();
+    driveMode.setDefaultOption("DriveDrive", "DriveDrive");
+    driveMode.addOption("TrueSwerve", "TrueSwerve");
+    SmartDashboard.putData("Drive Mode", driveMode);
   }
 
   private void setPidConstant(PIDConstant newConstant) {
@@ -291,6 +300,11 @@ public class Robot extends TimedRobot {
 ============================================================================== */
 
   @Override
+  public void teleopInit() {
+    useSwerve = "TrueSwerve".equalsIgnoreCase(driveMode.getSelected());
+  }
+
+  @Override
   public void teleopPeriodic() {
 
     SmartDashboard.updateValues();
@@ -341,6 +355,11 @@ public class Robot extends TimedRobot {
       return;
     }
     
+    if (useSwerve) {
+      trueSwerve(leftX, leftY, rightX);
+      return;
+    }
+
     driveDrive(leftX, leftY, rightX);
   }
 
