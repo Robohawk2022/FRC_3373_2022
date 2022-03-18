@@ -302,6 +302,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     useSwerve = "TrueSwerve".equalsIgnoreCase(driveMode.getSelected());
+    rotateUntil = 0.0;
   }
 
   @Override
@@ -328,9 +329,23 @@ public class Robot extends TimedRobot {
       reverseFactor = reverseFactor * -1.0;
     }
 
-    // if someone hits the dpad back, we'll start rotating for a fixed amount of time
-    if (drive_control.getRightStickButtonPressed() && rotateUntil < 0) {
-      rotateUntil = Timer.getFPGATimestamp() + ROTATION_SECONDS;
+    double currentSeconds = Timer.getFPGATimestamp();
+
+    // if we're not autorotating, somneone might want to start doing so
+    if (rotateUntil == 0.0) {
+      if (drive_control.getRightStickButtonPressed()) {
+        rotateUntil = currentSeconds + ROTATION_SECONDS;
+      }
+    }
+
+    // if we are autorotating, we'll run in AimBot mode at turbo speed
+    // until the specified time
+    if (rotateUntil > 0.0) {
+      if (rotateUntil < Timer.getFPGATimestamp()) {
+        AimBot(2.0);
+        return;
+      }
+      rotateUntil = 0.0;
     }
 
     // if someone is holding the right trigger, we'll double speed
@@ -338,11 +353,6 @@ public class Robot extends TimedRobot {
       turboFactor = 2.0;
     } else {
       turboFactor = 1.0;
-    }
-
-    // if we're turning, let's turn!
-    if (rotateUntil < Timer.getFPGATimestamp()) {
-      AimBot(2.0); // rotate in a fixed direction at 2x normal aimbot speed
     }
 
     if (drive_control.getRightBumper()) {
