@@ -1,12 +1,11 @@
 package frc.robot;
 
-import com.revrobotics.RelativeEncoder;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.Timer;
 
 /**
  * Attempt to use WPI to implement a true swerve drive.
@@ -61,6 +60,11 @@ public class TrueSwerve {
     public static final double T = 17.5 / 2.0;
 
     /**
+     * How often should debug info be printed out
+     */
+    public static final double DEBUG_EVERY_SEC = 1.0;
+
+    /**
      * Coordinates of the wheels in the WPI lib coordinate system:
      *   +x is forward
      *   +y is left
@@ -79,6 +83,8 @@ public class TrueSwerve {
         BACK_RIGHT_TX,
         BACK_LEFT_TX
     );
+
+    private double lastDebug = 0.0;
 
     /**
      * Calculate the target speed and angle for all the swerve wheels
@@ -101,30 +107,51 @@ public class TrueSwerve {
         double strafeSpeed = -leftX * MAX_DRIVE_POWER;
         double rotateSpeed = -rightX * MAX_TURN_SPEED;
         ChassisSpeeds desiredSpeeds = new ChassisSpeeds(forwardSpeed, strafeSpeed, rotateSpeed);
-        SwerveModuleState [] states = KINEMATICS.toSwerveModuleStates(desiredSpeeds);
-        System.err.println("initial states:");
-        System.err.println("\t"+states[0]);
-        System.err.println("\t"+states[1]);
-        System.err.println("\t"+states[2]);
-        System.err.println("\t"+states[3]);
+        SwerveModuleState [] desiredStates = KINEMATICS.toSwerveModuleStates(desiredSpeeds);
 
         // calculate current position in degrees of the wheels
         Rotation2d frontLeftDegrees = Rotation2d.fromDegrees(frontLeftAnglePos * DEGREES_PER_POSITION);
         Rotation2d frontRightDegrees = Rotation2d.fromDegrees(frontRightAnglePos * DEGREES_PER_POSITION);
         Rotation2d backRightDegrees = Rotation2d.fromDegrees(backRightAnglePos * DEGREES_PER_POSITION);
         Rotation2d backLeftDegrees = Rotation2d.fromDegrees(backLeftAnglePos * DEGREES_PER_POSITION);
-        System.err.println("rotations:");
-        System.err.println("\t"+frontLeftDegrees);
-        System.err.println("\t"+frontRightDegrees);
-        System.err.println("\t"+backRightDegrees);
-        System.err.println("\t"+backLeftDegrees);
 
         // adjust output according to current state and motor characteristics
-        states[0] = SwerveModuleState.optimize(states[0], frontLeftDegrees);
-        states[1] = SwerveModuleState.optimize(states[1], frontRightDegrees);
-        states[2] = SwerveModuleState.optimize(states[2], backRightDegrees);
-        states[3] = SwerveModuleState.optimize(states[3], backLeftDegrees);
-        return states;
+        SwerveModuleState [] optimizedStates = new SwerveModuleState[4];
+        optimizedStates[0] = SwerveModuleState.optimize(desiredStates[0], frontLeftDegrees);
+        optimizedStates[1] = SwerveModuleState.optimize(desiredStates[1], frontRightDegrees);
+        optimizedStates[2] = SwerveModuleState.optimize(desiredStates[2], backRightDegrees);
+        optimizedStates[3] = SwerveModuleState.optimize(desiredStates[3], backLeftDegrees);
+
+        if (lastDebug == 0.0 || Timer.getFPGATimestamp() - lastDebug > DEBUG_EVERY_SEC) {
+
+            System.err.println("===== swerve debug =======================================================");
+            System.err.println("input values");
+            System.err.println("   left X = "+leftX);
+            System.err.println("   left Y = "+leftY);
+            System.err.println("   right X = "+rightX);
+            System.err.println("   desired chassis speed = "+desiredSpeeds);            
+            System.err.println("calculated actions");
+            System.err.println("   front left");
+            System.err.println("      currently at "+frontLeftDegrees);
+            System.err.println("      desired state "+desiredStates[0]);
+            System.err.println("      optimized state "+optimizedStates[0]);
+            System.err.println("   front right");
+            System.err.println("      currently at "+frontRightDegrees);
+            System.err.println("      desired state "+desiredStates[1]);
+            System.err.println("      optimized state "+optimizedStates[1]);
+            System.err.println("   back right");
+            System.err.println("      currently at "+backRightDegrees);
+            System.err.println("      desired state "+desiredStates[2]);
+            System.err.println("      optimized state "+optimizedStates[2]);
+            System.err.println("   back left");
+            System.err.println("      currently at "+backLeftDegrees);
+            System.err.println("      desired state "+desiredStates[3]);
+            System.err.println("      optimized state "+optimizedStates[3]);
+
+            lastDebug = Timer.getFPGATimestamp();
+        }
+
+        return desiredStates;
     }
 
     public double degreesToPosition(double degrees) {
