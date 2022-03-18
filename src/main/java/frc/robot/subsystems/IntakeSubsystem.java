@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Robot;
 import frc.robot.motors.MotorFactory;
 import frc.robot.motors.VelocityClosedLoopMotor;
 import frc.robot.util.Logger;
@@ -23,7 +24,7 @@ public class IntakeSubsystem {
     
     private final XboxController controller;
     private final VelocityClosedLoopMotor intakeMotor;
-    private boolean spinWheel;
+    public static boolean spinWheel;
     private double targetSpeed;
 
     public IntakeSubsystem(XboxController controller, int intakeMotorPort) {
@@ -92,7 +93,8 @@ public class IntakeSubsystem {
 
         // back button turns the wheel on and off
         if (controller.getBackButtonPressed()) {
-            spinWheel = !spinWheel;
+            Robot.reverseFactor = 1;
+            spinWheel = false;
             Logger.log("intake: toggled intake wheel to ", spinWheel);
         }
 
