@@ -94,7 +94,7 @@ public class IntakeSubsystem {
         // back button turns the wheel on and off
         if (controller.getBackButtonPressed()) {
             Robot.reverseFactor = 1;
-            spinWheel = false;
+            spinWheel = true;
             Logger.log("intake: toggled intake wheel to ", spinWheel);
         }
 

@@ -326,7 +326,7 @@ public class Robot extends TimedRobot {
     // if someone hits start, we'll invert the "front" of the vehicle for driving
     if (drive_control.getStartButtonPressed()) {
       reverseFactor = -1.0;
-      IntakeSubsystem.spinWheel = true;
+      IntakeSubsystem.spinWheel = false;
     }
 
     // if someone hits the dpad back, we'll start rotating for a fixed amount of time
