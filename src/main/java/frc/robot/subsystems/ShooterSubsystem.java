@@ -236,7 +236,7 @@ public class ShooterSubsystem {
 
         // if the launch wheel is spinning, we'll allow speed changes
         if (spinLaunchWheel) {
-
+            SmartDashboard.putNumber("POV Angle", controller.getPOV());
             if (controller.getPOV() == 0) {
                 launchTargetRpm = LAUNCH_PRESETS[0];
                 Logger.log("shooter: reset launch wheel to ", launchTargetRpm);

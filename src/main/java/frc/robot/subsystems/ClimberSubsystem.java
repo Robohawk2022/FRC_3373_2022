@@ -45,7 +45,7 @@ public class ClimberSubsystem {
     public static final boolean ROTATOR_SWITCH_PRESSED = true;
 
     /** Maximum number of rotations of the rotator motor */
-    public static final double ROTATION_LIMIT = 110;
+    public static final double ROTATION_LIMIT = 104;
 
     private final XboxController controller;
     private final NamedMotor extenderMotor;
@@ -172,7 +172,7 @@ public class ClimberSubsystem {
 
         boolean rotatorAtMax = rotatorMotor.getPosition() >= rotatorMax || atRotatorLimit();
         boolean rotatorAtMin = rotatorMotor.getPosition() <= rotatorMin;
-        double rotRate = clean(controller.getRightX());
+        double rotRate = clean(controller.getRightY());
         if (rotRate > 0.0 && rotatorAtMax) {
             Logger.log("climber: rotator won't go too high ...");
             rotatorMotor.set(0.0);
