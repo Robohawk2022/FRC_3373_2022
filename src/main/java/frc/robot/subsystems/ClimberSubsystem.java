@@ -86,6 +86,7 @@ public class ClimberSubsystem {
 
     // called 50x per second, no matter what mode we're in
     public void robotPeriodic() {
+        SmartDashboard.putNumber("POV Angle", controller.getPOV());
         SmartDashboard.putNumber("Rotator Min", rotatorMin);
         SmartDashboard.putNumber("Rotator Current", rotatorMotor.getPosition());
         SmartDashboard.putNumber("Rotator Max", rotatorMax);

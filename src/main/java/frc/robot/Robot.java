@@ -57,7 +57,7 @@ public class Robot extends TimedRobot {
   private RelativeEncoder backLeftAngleEncoder;
   private XboxController drive_control;
   private double turboFactor;
-  private double reverseFactor;
+  public static double reverseFactor;
   private PIDConstant pidConstant;
   private double autonomousStart;
   private SendableChooser<String> autoMode;
@@ -325,7 +325,8 @@ public class Robot extends TimedRobot {
 
     // if someone hits start, we'll invert the "front" of the vehicle for driving
     if (drive_control.getStartButtonPressed()) {
-      reverseFactor = reverseFactor * -1.0;
+      reverseFactor = -1.0;
+      IntakeSubsystem.spinWheel = false;
     }
 
     // if someone hits the dpad back, we'll start rotating for a fixed amount of time
