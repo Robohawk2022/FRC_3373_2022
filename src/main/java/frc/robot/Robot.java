@@ -62,6 +62,10 @@ public class Robot extends TimedRobot {
   private double autonomousStart;
   private SendableChooser<String> autoMode;
   private SendableChooser<String> driveMode;
+  //SAFE STRAFE
+  private SendableChooser<String> strafeMode;
+  private boolean isStrafeSafe;
+  //END
   private TrueSwerve trueSwerve;
   private double rotateUntil;
   private boolean useSwerve;
@@ -120,6 +124,14 @@ public class Robot extends TimedRobot {
     autoMode.addOption("DoubleShooter", "DoubleShooter");
     autoMode.addOption("ClimberOnly", "ClimberOnly");
     SmartDashboard.putData("Auto Mode", autoMode);
+
+    //STRAFE SENDCHOOSER
+    strafeMode = new SendableChooser<>();
+    strafeMode.setDefaultOption("Regular (DO NOT USE)", "Regular (DO NOT USE)");
+    isStrafeSafe = false;
+    strafeMode.addOption("SafeStrafe", "SafeStrafe");
+    SmartDashboard.putData("Strafe Mode", strafeMode);
+    //END
 
     frontLeftAngleEncoder = frontLeftAngleMotor.getEncoder(SparkMaxRelativeEncoder.Type.kQuadrature, 104);
     frontLeftAngleEncoder.setPosition(0);
@@ -302,6 +314,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     useSwerve = "TrueSwerve".equalsIgnoreCase(driveMode.getSelected());
+    isStrafeSafe = "SafeStrafe".equalsIgnoreCase(strafeMode.getSelected());
   }
 
   @Override
@@ -374,7 +387,12 @@ public class Robot extends TimedRobot {
   public void macDrive(double leftX, double leftY, double rightX) {
 
     double moveSpeed = Math.sqrt(leftX * leftX + leftY * leftY) * MAX_DRIVE_POWER * turboFactor * reverseFactor;
-    double turnAngle = leftX * leftX * leftX * MAX_ROTATION_POWER * reverseFactor;    
+    // double oldTurnAngle = leftX * leftX * leftX * MAX_ROTATION_POWER * reverseFactor;    
+    // double safeTurnAngle = 4;
+    double turnAngle = leftX * leftX * leftX * MAX_ROTATION_POWER * reverseFactor;
+    if (isStrafeSafe) {
+      turnAngle = 4;
+    }
 
     if (drive_control.getLeftY() >= 0) {
       frontLeftDriveMotor.set(moveSpeed);
