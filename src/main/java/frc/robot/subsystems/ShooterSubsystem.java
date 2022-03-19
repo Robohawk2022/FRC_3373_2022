@@ -207,7 +207,7 @@ public class ShooterSubsystem {
             if (!spinLaunchWheel) {
                 setLaunchWheelEnabled(true);
             }
-            if (seconds > 10.5 && autoShotsPending > 1) {
+            if (seconds > 10.5 && autoShotsPending > 0) {
                 shoot();
                 autoShotsPending--;
             }
