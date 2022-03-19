@@ -33,11 +33,8 @@ import frc.robot.util.PIDConstant;
  */
 public class ShooterSubsystem {
 
-    /** PID tuning constants, determined by trial and error */
-    public static final PIDConstant DEFAULT_PID_CONSTANT = new PIDConstant(0.0008, 0.0000003, 3.0, 0.0, 0.0, -1.0, 1.0);
-
     /** Default preset launch speeds */
-    public static final double [] LAUNCH_PRESETS = { -3500.0, -4500.0, -5500.0, -6500.0 };
+    public static final double [] LAUNCH_PRESETS = { 0.1, 0.2, 0.3, 0.4 };
 
     /** Maximum speed at which to rotate the indexer */
     public static final double INDEXER_MAX_SPEED = 0.3;
@@ -56,8 +53,7 @@ public class ShooterSubsystem {
 
     private final CANSparkMax launchMotor;
     private final RelativeEncoder launchEncoder;
-    private final SparkMaxPIDController launchController;
-    private double launchTargetRpm;
+    private double launchTargetPower;
 
     private final CANSparkMax indexerMotor;
     private final RelativeEncoder indexerEncoder;
@@ -83,8 +79,6 @@ public class ShooterSubsystem {
         launchMotor.setIdleMode(IdleMode.kCoast);
         launchMotor.setClosedLoopRampRate(0.5);
         launchEncoder = launchMotor.getEncoder();
-        launchController = launchMotor.getPIDController();
-        setPidConstant(DEFAULT_PID_CONSTANT);
 
         indexerMotor = new CANSparkMax(indexerMotorPort, MotorType.kBrushless);
         indexerMotor.restoreFactoryDefaults();
@@ -101,12 +95,6 @@ public class ShooterSubsystem {
         disabledInit();
     }
 
-    private void setPidConstant(PIDConstant newConstant) {
-        pidConstant = newConstant;
-        pidConstant.configPID(launchController);
-        Logger.log("shooter: setting PID to ", pidConstant);
-    }
-
     // toggles the launch wheel on/off (note: this doesn't move the motor or reset target speed)
     public void setLaunchWheelEnabled(boolean enabled) {
         Logger.log("shooter: setting launch wheel to enabled=", enabled);
@@ -116,7 +104,7 @@ public class ShooterSubsystem {
     // update the indexer position to indicate that a shot should be taken (note: doesn't move the motor)
     public void shoot() {
         double currentRpm = launchEncoder.getVelocity();
-        double deltaRpm = Math.abs(currentRpm - launchTargetRpm);
+        double deltaRpm = Math.abs(currentRpm - launchTargetPower);
         if (deltaRpm < LAUNCH_RPM_THRESHOLD) { // less than because we're going backwards
             Logger.log("shooter: shooting!");
             indexerTargetPos = indexerEncoder.getPosition() + SHOOT_ROTATIONS;
@@ -130,11 +118,13 @@ public class ShooterSubsystem {
 
         // update the world about what we're doing
         SmartDashboard.putBoolean("Launch Spinning?", spinLaunchWheel);
-        SmartDashboard.putNumber("Launch Target RPM", launchTargetRpm);
+        SmartDashboard.putNumber("Launch Target Power", launchTargetPower);
+        SmartDashboard.putNumber("Launch Current Power", launchMotor.get());
         SmartDashboard.putNumber("Launch Current RPM", launchEncoder.getVelocity());
         SmartDashboard.putNumber("Indexer Target Pos", indexerTargetPos);
         SmartDashboard.putNumber("Indexer Current Pos", indexerEncoder.getPosition());
         SmartDashboard.putBoolean("Ball Sensor", ballSensor.get());
+        SmartDashboard.putNumber("POV Angle", controller.getPOV());
 
         // get new values for presets if necessary
         LAUNCH_PRESETS[0] = SmartDashboard.getNumber("Shooter Preset Up", LAUNCH_PRESETS[0]);
@@ -153,7 +143,7 @@ public class ShooterSubsystem {
     // called when the robot is put into disabled mode
     public void disabledInit() {
 
-        launchTargetRpm = LAUNCH_PRESETS[0];
+        launchTargetPower = LAUNCH_PRESETS[0];
         indexerTargetPos = indexerEncoder.getPosition();
         autoShotsPending = 0;
         spinLaunchWheel = false;
@@ -222,7 +212,7 @@ public class ShooterSubsystem {
 
     public void teleopInit() {
         indexerTargetPos = indexerEncoder.getPosition();
-        launchTargetRpm = LAUNCH_PRESETS[0];
+        launchTargetPower = LAUNCH_PRESETS[0];
         spinLaunchWheel = false;
     }
 
@@ -245,33 +235,32 @@ public class ShooterSubsystem {
 
         // if the launch wheel is spinning, we'll allow speed changes
         if (spinLaunchWheel) {
-            SmartDashboard.putNumber("POV Angle", controller.getPOV());
             if (controller.getPOV() == 0) {
-                launchTargetRpm = LAUNCH_PRESETS[0];
-                Logger.log("shooter: reset launch wheel to ", launchTargetRpm);
+                launchTargetPower = LAUNCH_PRESETS[0];
+                Logger.log("shooter: reset launch wheel to ", launchTargetPower);
             }
             else if (controller.getPOV() == 90) {
-                launchTargetRpm = LAUNCH_PRESETS[1];
-                Logger.log("shooter: reset launch wheel to ", launchTargetRpm);
+                launchTargetPower = LAUNCH_PRESETS[1];
+                Logger.log("shooter: reset launch wheel to ", launchTargetPower);
             }
             else if (controller.getPOV() == 180) {
-                launchTargetRpm = LAUNCH_PRESETS[2];
-                Logger.log("shooter: reset launch wheel to ", launchTargetRpm);
+                launchTargetPower = LAUNCH_PRESETS[2];
+                Logger.log("shooter: reset launch wheel to ", launchTargetPower);
             }
             else if (controller.getPOV() == 270) {
-                launchTargetRpm = LAUNCH_PRESETS[3];
-                Logger.log("shooter: reset launch wheel to ", launchTargetRpm);
+                launchTargetPower = LAUNCH_PRESETS[3];
+                Logger.log("shooter: reset launch wheel to ", launchTargetPower);
             }
             else if (controller.getXButtonPressed()) {
-                launchTargetRpm = Math.floor(launchTargetRpm * 0.975);
-                Logger.log("shooter: setting launch wheel to ", launchTargetRpm);
+                launchTargetPower = Math.floor(launchTargetPower * 0.975);
+                Logger.log("shooter: setting launch wheel to ", launchTargetPower);
             }
             else if (controller.getYButtonPressed()) {
-                launchTargetRpm = Math.ceil(launchTargetRpm * 1.025);
-                Logger.log("shooter: setting launch wheel to ", launchTargetRpm);
+                launchTargetPower = Math.ceil(launchTargetPower * 1.025);
+                Logger.log("shooter: setting launch wheel to ", launchTargetPower);
             }
 
-            launchController.setReference(launchTargetRpm, ControlType.kVelocity);
+            launchMotor.set(launchTargetPower);
         }
         else {
             launchMotor.set(0.0);
@@ -304,37 +293,4 @@ public class ShooterSubsystem {
             indexerMotor.set(0.0);
         }
     }
-
-  public void testInit() {
-    SmartDashboard.putNumber("Launch P Gain", pidConstant.getP());
-    SmartDashboard.putNumber("Launch I Gain", pidConstant.getI());
-    SmartDashboard.putNumber("Launch D Gain", pidConstant.getD());
-    SmartDashboard.putNumber("Launch I Zone", pidConstant.getIZone());
-    SmartDashboard.putNumber("Launch Feed Forward", pidConstant.getFeedForward());
-    SmartDashboard.putNumber("Launch Min Output", pidConstant.getMinOutput());
-    SmartDashboard.putNumber("Launch Max Output", pidConstant.getMaxOutput());
-  }
-
-  public void testPeriodic() {
-
-    double p = SmartDashboard.getNumber("P Gain", 0);
-    double i = SmartDashboard.getNumber("I Gain", 0);
-    double d = SmartDashboard.getNumber("D Gain", 0);
-    double iz = SmartDashboard.getNumber("I Zone", 0);
-    double ff = SmartDashboard.getNumber("Feed Forward", 0);
-    double max = SmartDashboard.getNumber("Max Output", 0);
-    double min = SmartDashboard.getNumber("Min Output", 0);
-
-    if (p != pidConstant.getP()
-      || i != pidConstant.getI()
-      || d != pidConstant.getD()
-      || iz != pidConstant.getIZone()
-      || ff != pidConstant.getFeedForward()
-      || min != pidConstant.getMinOutput()
-      || max != pidConstant.getMaxOutput()) {
-        setPidConstant(new PIDConstant(p, i, d, ff, iz, min, max));
-    }
-
-    updateLaunchWheel();
-  }
 }
