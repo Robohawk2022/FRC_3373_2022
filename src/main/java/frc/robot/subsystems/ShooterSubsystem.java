@@ -113,11 +113,16 @@ public class ShooterSubsystem {
         spinLaunchWheel = enabled;
     }
 
-    // update the indexer position to indicate that a shot should be taken (note: doesn't move the motor)
-    public void shoot() {
+    // we're only OK to shoot if we're within range of target RPM
+    private boolean greenToShoot() {
         double currentRpm = launchEncoder.getVelocity();
         double deltaRpm = Math.abs(currentRpm - launchTargetRpm);
-        if (deltaRpm < LAUNCH_RPM_THRESHOLD) { // less than because we're going backwards
+        return deltaRpm < LAUNCH_RPM_THRESHOLD;
+    }
+
+    // update the indexer position to indicate that a shot should be taken (note: doesn't move the motor)
+    public void shoot() {
+        if (greenToShoot()) {
             Logger.log("shooter: shooting!");
             indexerTargetPos = indexerEncoder.getPosition() + SHOOT_ROTATIONS;
         } else {
@@ -135,6 +140,7 @@ public class ShooterSubsystem {
         SmartDashboard.putNumber("Indexer Target Pos", indexerTargetPos);
         SmartDashboard.putNumber("Indexer Current Pos", indexerEncoder.getPosition());
         SmartDashboard.putBoolean("Ball Sensor", ballSensor.get());
+        SmartDashboard.putBoolean("Shootable?", greenToShoot());
 
         // get new values for presets if necessary
         LAUNCH_PRESETS[0] = SmartDashboard.getNumber("Shooter Preset Up", LAUNCH_PRESETS[0]);
