@@ -114,46 +114,30 @@ public class ClimberSubsystem {
     // reset limit. once they hit their switch, they're done and we capture their position
     // as the "zero point". when both are done, we're done resetting.
     public void autonomousPeriodic() {
-
-        // if we're done resetting, bail out
-        if (!resetting) {
-            return;
-        }
-
-        // this gets unset if either the extender or the rotator still needs to move
-        boolean done = true;
-
-        // check the extender for hitting its limit switch
-        if (atExtenderLimit()) {
-            extenderMax = extenderMotor.getPosition();
-            extenderMin = extenderMax - EXTENSION_LIMIT;
-            extenderMotor.set(0.0);
-            Logger.log("climber: finished resetting extender");
-        } else {
-            extenderMotor.set(RESET_SPEED);
-            done = false;
-        }
-
-        // check the rotator for hitting its limit switch
-        if (atRotatorLimit()) {
-            rotatorMax = rotatorMotor.getPosition();
-            rotatorMin = rotatorMax - ROTATION_LIMIT;
-            rotatorMotor.set(0.0);
-            Logger.log("climber: finished resetting rotator");
-        } else {
-            rotatorMotor.set(RESET_SPEED);
-            done = false;
-        }
-
-        // if both of those previous guys are done, we're done resetting
-        if (done) {
-            Logger.log("climber: done resetting");
-            resetting = false;
+        if (resetting) {
+            boolean done = resetLimits();
+            if (done) {
+                Logger.log("climber: done resetting");
+                resetting = false;
+            }
         }
     }
 
     // called 50x per second in teleop mode
     public void teleopPeriodic() {
+
+        if (controller.getLeftBumperPressed()) {
+            resetting = true;
+        }
+
+        if (resetting) {
+            boolean done = resetLimits();
+            if (done) {
+                Logger.log("climber: done resetting");
+                resetting = false;
+                return;
+            }
+        }
 
         boolean extenderAtMax = extenderMotor.getPosition() >= extenderMax || atExtenderLimit();
         boolean extenderAtMin = extenderMotor.getPosition() <= extenderMin;
@@ -193,5 +177,38 @@ public class ClimberSubsystem {
             return 0.0;
         }
         return stickValue * absValue;
+    }
+
+    // resets the extender and rotator limits by slowly moving them to until the
+    // limit switches trip
+    private boolean resetLimits() {
+
+        // this gets unset if either the extender or the rotator still needs to move
+        boolean done = true;
+
+        // check the extender for hitting its limit switch
+        if (atExtenderLimit()) {
+            extenderMax = extenderMotor.getPosition();
+            extenderMin = extenderMax - EXTENSION_LIMIT;
+            extenderMotor.set(0.0);
+            Logger.log("climber: finished resetting extender");
+        } else {
+            extenderMotor.set(RESET_SPEED);
+            done = false;
+        }
+
+        // check the rotator for hitting its limit switch
+        if (atRotatorLimit()) {
+            rotatorMax = rotatorMotor.getPosition();
+            rotatorMin = rotatorMax - ROTATION_LIMIT;
+            rotatorMotor.set(0.0);
+            Logger.log("climber: finished resetting rotator");
+        } else {
+            rotatorMotor.set(RESET_SPEED);
+            done = false;
+        }
+
+        // if both of those previous guys are done, we're done resetting
+        return done;
     }
 }
