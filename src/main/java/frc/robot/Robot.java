@@ -414,7 +414,7 @@ public class Robot extends TimedRobot {
       turnAngle = DRIVE_MODE_ROTATION_LIMIT;
     }
 
-    if (drive_control.getLeftY() >= 0) {
+    if (drive_control.getLeftY() > 0) {
       frontLeftDriveMotor.set(moveSpeed);
       frontRightDriveMotor.set(-moveSpeed);
       backRightDriveMotor.set(-moveSpeed);
@@ -424,8 +424,7 @@ public class Robot extends TimedRobot {
       backRightPidController.setReference(-turnAngle, CANSparkMax.ControlType.kPosition);
       backLeftPidController.setReference(-turnAngle, CANSparkMax.ControlType.kPosition);            
     }
-
-    if (drive_control.getLeftY() < 0) {
+    else if (drive_control.getLeftY() < 0) {
       frontLeftDriveMotor.set(-moveSpeed);
       frontRightDriveMotor.set(moveSpeed);
       backRightDriveMotor.set(moveSpeed);
@@ -434,6 +433,17 @@ public class Robot extends TimedRobot {
       frontRightPidController.setReference(-turnAngle, CANSparkMax.ControlType.kPosition);
       backRightPidController.setReference(turnAngle, CANSparkMax.ControlType.kPosition);
       backLeftPidController.setReference(turnAngle, CANSparkMax.ControlType.kPosition);            
+    }
+    else {
+      moveSpeed = drive_control.getRightY() * MAX_DRIVE_POWER * turboFactor * reverseFactor;
+      frontLeftDriveMotor.set(-moveSpeed);
+      frontRightDriveMotor.set(moveSpeed);
+      backRightDriveMotor.set(moveSpeed);
+      backLeftDriveMotor.set(-moveSpeed);
+      frontLeftPidController.setReference(-turnAngle, CANSparkMax.ControlType.kPosition);
+      frontRightPidController.setReference(-turnAngle, CANSparkMax.ControlType.kPosition);
+      backRightPidController.setReference(turnAngle, CANSparkMax.ControlType.kPosition);
+      backLeftPidController.setReference(turnAngle, CANSparkMax.ControlType.kPosition);    
     }
   }
 
