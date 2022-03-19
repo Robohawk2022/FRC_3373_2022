@@ -34,7 +34,7 @@ import frc.robot.util.PIDConstant;
 public class ShooterSubsystem {
 
     /** PID tuning constants, determined by trial and error */
-    public static final PIDConstant PID_CONSTANT = new PIDConstant(0.0008, 0.0000003, 3.0, 0.0, 0.0, -1.0, 1.0);
+    public static final PIDConstant DEFAULT_PID_CONSTANT = new PIDConstant(0.0008, 0.0000003, 3.0, 0.0, 0.0, -1.0, 1.0);
 
     /** Default preset launch speeds */
     public static final double [] LAUNCH_PRESETS = { -3500.0, -4500.0, -5500.0, -6500.0 };
@@ -65,6 +65,7 @@ public class ShooterSubsystem {
 
     private boolean spinLaunchWheel;
     private int autoShotsPending;
+    private PIDConstant pidConstant;
 
     public ShooterSubsystem(XboxController controller, 
             int launchMotorPort, 
@@ -83,7 +84,7 @@ public class ShooterSubsystem {
         launchMotor.setClosedLoopRampRate(0.5);
         launchEncoder = launchMotor.getEncoder();
         launchController = launchMotor.getPIDController();
-        PID_CONSTANT.configPID(launchController);
+        setPidConstant(DEFAULT_PID_CONSTANT);
 
         indexerMotor = new CANSparkMax(indexerMotorPort, MotorType.kBrushless);
         indexerMotor.restoreFactoryDefaults();
@@ -98,6 +99,12 @@ public class ShooterSubsystem {
 
         autoShotsPending = 2;
         disabledInit();
+    }
+
+    private void setPidConstant(PIDConstant newConstant) {
+        pidConstant = newConstant;
+        pidConstant.configPID(launchController);
+        Logger.log("shooter: setting PID to ", pidConstant);
     }
 
     // toggles the launch wheel on/off (note: this doesn't move the motor or reset target speed)
@@ -295,4 +302,37 @@ public class ShooterSubsystem {
             indexerMotor.set(0.0);
         }
     }
+
+  public void testInit() {
+    SmartDashboard.putNumber("Launch P Gain", pidConstant.getP());
+    SmartDashboard.putNumber("Launch I Gain", pidConstant.getI());
+    SmartDashboard.putNumber("Launch D Gain", pidConstant.getD());
+    SmartDashboard.putNumber("Launch I Zone", pidConstant.getIZone());
+    SmartDashboard.putNumber("Launch Feed Forward", pidConstant.getFeedForward());
+    SmartDashboard.putNumber("Launch Min Output", pidConstant.getMinOutput());
+    SmartDashboard.putNumber("Launch Max Output", pidConstant.getMaxOutput());
+  }
+
+  public void testPeriodic() {
+
+    double p = SmartDashboard.getNumber("P Gain", 0);
+    double i = SmartDashboard.getNumber("I Gain", 0);
+    double d = SmartDashboard.getNumber("D Gain", 0);
+    double iz = SmartDashboard.getNumber("I Zone", 0);
+    double ff = SmartDashboard.getNumber("Feed Forward", 0);
+    double max = SmartDashboard.getNumber("Max Output", 0);
+    double min = SmartDashboard.getNumber("Min Output", 0);
+
+    if (p != pidConstant.getP()
+      || i != pidConstant.getI()
+      || d != pidConstant.getD()
+      || iz != pidConstant.getIZone()
+      || ff != pidConstant.getFeedForward()
+      || min != pidConstant.getMinOutput()
+      || max != pidConstant.getMaxOutput()) {
+        setPidConstant(new PIDConstant(p, i, d, ff, iz, min, max));
+    }
+
+    updateLaunchWheel();
+  }
 }

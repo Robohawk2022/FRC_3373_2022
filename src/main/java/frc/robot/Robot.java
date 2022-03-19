@@ -532,6 +532,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Feed Forward", pidConstant.getFeedForward());
     SmartDashboard.putNumber("Min Output", pidConstant.getMinOutput());
     SmartDashboard.putNumber("Max Output", pidConstant.getMaxOutput());
+    shooter.testInit();
   }
 
   @Override
@@ -588,5 +589,7 @@ public class Robot extends TimedRobot {
       backRightDriveMotor.set(drive_control.getLeftY());
       backRightAngleMotor.set(drive_control.getRightY());
     }
+
+    shooter.testPeriodic();
   }
 }
