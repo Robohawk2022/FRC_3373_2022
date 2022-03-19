@@ -263,11 +263,17 @@ public class Robot extends TimedRobot {
       forwardBy(1.0, 0.0);
     } else if (seconds < 1.0) {   // ooch backwards (drops intake frame)
       forwardBy(-1.0, 0.0);
-    } else if (seconds < 6.2) {  // wait in place for intake to drop
+    } else if (seconds < 4.2) {  // wait in place for intake to drop
       forwardBy(0.0, 0.0);
-    } else if (seconds < 9.5) {   // exit the tarmac
-      forwardBy(0.1, 0.0);
-    } else {
+    } else if (seconds < 8.0) {   // go get a ball
+      forwardBy(0.1, -0.25);
+    } else if (seconds < 8.3) {   // reorient slightly to shoot
+      forwardBy(0.1, 0.35);
+    } else if (seconds < 10) {    // stop and wait for shooting (1 ball)
+      forwardBy(0.0, 0.0);
+    } else if (seconds < 11) {    // scoot out further to leave tarmac
+      forwardBy(0.3, 0.0);
+    } else {                      // always stop at the end!
       forwardBy(0.0, 0.0);
     }
   }
@@ -279,13 +285,17 @@ public class Robot extends TimedRobot {
       forwardBy(1.0, 0.0);
     } else if (seconds < 1.0) {   // ooch backwards (drops intake frame)
       forwardBy(-1.0, 0.0);
-    } else if (seconds < 6.2) {  // wait in place for intake to drop
+    } else if (seconds < 4.2) {  // wait in place for intake to drop
       forwardBy(0.0, 0.0);
-    } else if (seconds < 9.0) {   // go get a ball
-      forwardBy(0.1, -0.5);
-    } else if (seconds < 9.3) {   // reorient slightly to shoot
-      forwardBy(0.1, 0.7);
-    } else {
+    } else if (seconds < 8.0) {   // go get a ball
+      forwardBy(0.1, -0.25);
+    } else if (seconds < 8.3) {   // reorient slightly to shoot
+      forwardBy(0.1, 0.35);
+    } else if (seconds < 14) {    // stop and wait for shooting (2 balls)
+      forwardBy(0.0, 0.0);
+    } else if (seconds < 15) {    // scoot out further to leave tarmac
+      forwardBy(0.3, 0.0);
+    } else {                      // always stop at the end!
       forwardBy(0.0, 0.0);
     }
   }

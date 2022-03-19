@@ -50,7 +50,7 @@ public class ShooterSubsystem {
     public static final double SHOOT_ROTATIONS = 15;
 
     /** How close (in RPM) should we be to target to allow shooting? */
-    public static final double LAUNCH_RPM_THRESHOLD = 100;
+    public static final double LAUNCH_RPM_THRESHOLD = 250;
 
     /** How many iterations of a periodic loop will we tolerate before killing the launch wheel */
     public static final int KILL_SWITCH_LIMIT = 50;
@@ -203,15 +203,15 @@ public class ShooterSubsystem {
     }
 
     public void singleShooterPeriodic(double seconds) {
-        if (seconds > 2.0) {
+        if (seconds > 2.5) {
             if (!spinLaunchWheel) {
                 setLaunchWheelEnabled(true);
             }
-            if (seconds > 10.5 && autoShotsPending > 0) {
+            if (seconds > 9.5 && autoShotsPending > 0) {
                 shoot();
                 autoShotsPending--;
             }
-            if (seconds > 12) {
+            if (seconds > 10) {
                 setLaunchWheelEnabled(false);
             }    
         }
@@ -230,19 +230,19 @@ public class ShooterSubsystem {
     }
 
     public void doubleShooterPeriodic(double seconds) {
-        if (seconds > 2.0) {
+        if (seconds > 2.5) {
             if (!spinLaunchWheel) {
                 setLaunchWheelEnabled(true);
             }
-            if (seconds > 10.5 && autoShotsPending > 1) {
+            if (seconds > 9.5 && autoShotsPending > 1) {
                 shoot();
                 autoShotsPending--;
             }
-            if (seconds > 12.5 && autoShotsPending > 0) {
+            if (seconds > 13.75 && autoShotsPending > 0) {
                 shoot();
                 autoShotsPending--;
             }
-            if (seconds > 14) {
+            if (seconds > 14 && spinLaunchWheel) {
                 setLaunchWheelEnabled(false);
             }         
         }
@@ -284,7 +284,7 @@ public class ShooterSubsystem {
 
         // kill switch: if we're supposed to be spinning, and we're not,
         // this is bad. stop it after a set number of rotations.
-        if (launchEncoder.getVelocity() < 0.001) {
+        if (Math.abs(launchEncoder.getVelocity()) < 0.001) {
             killSwitchCount++;
             if (killSwitchCount > KILL_SWITCH_LIMIT) {
                 setLaunchWheelEnabled(false);
