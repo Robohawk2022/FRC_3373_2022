@@ -135,8 +135,8 @@ public class ClimberSubsystem {
             if (done) {
                 Logger.log("climber: done resetting");
                 resetting = false;
-                return;
             }
+            return;
         }
 
         boolean extenderAtMax = extenderMotor.getPosition() >= extenderMax || atExtenderLimit();
