@@ -204,14 +204,14 @@ public class ShooterSubsystem {
 
     public void singleShooterPeriodic(double seconds) {
         if (seconds > 2.5) {
-            if (!spinLaunchWheel) {
+            if (seconds < 3 && !spinLaunchWheel) {
                 setLaunchWheelEnabled(true);
             }
             if (seconds > 9.5 && autoShotsPending > 0) {
                 shoot();
                 autoShotsPending--;
             }
-            if (seconds > 10) {
+            if (seconds > 10 && spinLaunchWheel) {
                 setLaunchWheelEnabled(false);
             }    
         }
@@ -231,7 +231,7 @@ public class ShooterSubsystem {
 
     public void doubleShooterPeriodic(double seconds) {
         if (seconds > 2.5) {
-            if (!spinLaunchWheel) {
+            if (seconds < 3 && !spinLaunchWheel) {
                 setLaunchWheelEnabled(true);
             }
             if (seconds > 9.5 && autoShotsPending > 1) {
