@@ -42,14 +42,14 @@ public class ShooterSubsystem {
     /** Maximum speed at which to rotate the indexer */
     public static final double INDEXER_MAX_SPEED = 0.3;
 
-    /** Launch wheel will only spin if we're faster than this */
-    public static final double MIN_LAUNCH_SPEED = -2500;
-
     /** How many rotations does the indexer need to lock in a ball? */
     public static final double LOCKIN_ROTATIONS = 15;
 
     /** How many rotations does the indexer need to push out a ball? */
     public static final double SHOOT_ROTATIONS = 15;
+
+    /** How close (in RPM) should we be to target to allow shooting? */
+    public static final double LAUNCH_RPM_THRESHOLD = 100;
 
     private final XboxController controller;
     private final DigitalInput ballSensor;
@@ -115,7 +115,9 @@ public class ShooterSubsystem {
 
     // update the indexer position to indicate that a shot should be taken (note: doesn't move the motor)
     public void shoot() {
-        if (launchEncoder.getVelocity() < MIN_LAUNCH_SPEED) { // less than because we're going backwards
+        double currentRpm = launchEncoder.getVelocity();
+        double deltaRpm = Math.abs(currentRpm - launchTargetRpm);
+        if (deltaRpm < LAUNCH_RPM_THRESHOLD) { // less than because we're going backwards
             Logger.log("shooter: shooting!");
             indexerTargetPos = indexerEncoder.getPosition() + SHOOT_ROTATIONS;
         } else {
