@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
@@ -9,6 +8,7 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.util.Logger;
@@ -52,6 +52,9 @@ public class ShooterSubsystem {
     /** How close (in RPM) should we be to target to allow shooting? */
     public static final double LAUNCH_RPM_THRESHOLD = 100;
 
+    /** How many iterations of a periodic loop will we tolerate before killing the launch wheel */
+    public static final int KILL_SWITCH_LIMIT = 50;
+
     private final XboxController controller;
     private final DigitalInput ballSensor;
 
@@ -67,6 +70,9 @@ public class ShooterSubsystem {
     private boolean spinLaunchWheel;
     private int autoShotsPending;
     private PIDConstant pidConstant;
+    private int killSwitchCount;
+    private boolean killSwitchFlipped;
+    private double indexerBackwardsUntil;
 
     public ShooterSubsystem(XboxController controller, 
             int launchMotorPort, 
@@ -114,6 +120,8 @@ public class ShooterSubsystem {
         spinLaunchWheel = enabled;
         if (enabled) {
             launchMotor.setIdleMode(IdleMode.kBrake);
+            killSwitchFlipped = false;
+            killSwitchCount = 0;
         } else {
             launchMotor.setIdleMode(IdleMode.kCoast);
         }
@@ -136,6 +144,11 @@ public class ShooterSubsystem {
         }
     }
 
+    // called to tell the indexer to run backwards for 1 second
+    public void runIndexerBackwards() {
+        indexerBackwardsUntil = Timer.getFPGATimestamp() + 1.0;
+    }
+
     // called 50x per second, no matter what mode we're in
     public void robotPeriodic() {
 
@@ -147,6 +160,8 @@ public class ShooterSubsystem {
         SmartDashboard.putNumber("Indexer Current Pos", indexerEncoder.getPosition());
         SmartDashboard.putBoolean("Ball Sensor", ballSensor.get());
         SmartDashboard.putBoolean("Shootable?", greenToShoot());
+        SmartDashboard.putBoolean("Launch Kill Switch", killSwitchFlipped);
+        SmartDashboard.putNumber("POV Angle", controller.getPOV());
 
         // get new values for presets if necessary
         LAUNCH_PRESETS[0] = SmartDashboard.getNumber("Shooter Preset Up", LAUNCH_PRESETS[0]);
@@ -169,6 +184,9 @@ public class ShooterSubsystem {
         indexerTargetPos = indexerEncoder.getPosition();
         autoShotsPending = 0;
         spinLaunchWheel = false;
+        killSwitchCount = 0;
+        killSwitchFlipped = false;
+        indexerBackwardsUntil = 0.0;
 
         launchMotor.set(0.0);
         indexerMotor.set(0.0);
@@ -236,6 +254,9 @@ public class ShooterSubsystem {
         indexerTargetPos = indexerEncoder.getPosition();
         launchTargetRpm = LAUNCH_PRESETS[0];
         spinLaunchWheel = false;
+        killSwitchCount = 0;
+        killSwitchFlipped = false;
+        indexerBackwardsUntil = 0.0;
     }
 
     // called 50x per second in teleop mode
@@ -255,9 +276,26 @@ public class ShooterSubsystem {
             setLaunchWheelEnabled(!spinLaunchWheel);
         }
 
+        // if we're not spinning, there's nothing to do
+        if (!spinLaunchWheel) {
+            launchMotor.set(0.0);
+            return;
+        }
+
+        // kill switch: if we're supposed to be spinning, and we're not,
+        // this is bad. stop it after a set number of rotations.
+        if (launchEncoder.getVelocity() < 0.001) {
+            killSwitchCount++;
+            if (killSwitchCount > KILL_SWITCH_LIMIT) {
+                setLaunchWheelEnabled(false);
+                killSwitchCount = 0;
+                killSwitchFlipped = true;
+                runIndexerBackwards();
+            }
+        }
+
         // if the launch wheel is spinning, we'll allow speed changes
         if (spinLaunchWheel) {
-            SmartDashboard.putNumber("POV Angle", controller.getPOV());
             if (controller.getPOV() == 0) {
                 launchTargetRpm = LAUNCH_PRESETS[0];
                 Logger.log("shooter: reset launch wheel to ", launchTargetRpm);
@@ -295,6 +333,18 @@ public class ShooterSubsystem {
      */
     public void updateIndexerWheel() {
 
+        // if we want to run the indexer backwards, do it
+        if (controller.getAButtonPressed()) {
+            runIndexerBackwards();
+        }
+        if (indexerBackwardsUntil > 0.0) {
+            if (Timer.getFPGATimestamp() < indexerBackwardsUntil) {
+                indexerMotor.set(-INDEXER_MAX_SPEED / 2.0);
+                return;
+            }
+            indexerBackwardsUntil = 0.0;
+        }
+
         // trigger indexing if there is a ball waiting
         if (ballSensor.get()) {
             indexerTargetPos = indexerEncoder.getPosition() + LOCKIN_ROTATIONS;
@@ -306,11 +356,8 @@ public class ShooterSubsystem {
             shoot();
         }
 
-        // if A is held, we'll rotate the indexer slowly backwards; otherwise,
         // we'll only spin it if it's out of position
-        if (controller.getAButton()) {
-            indexerMotor.set(-INDEXER_MAX_SPEED / 2.0);
-        } else if (indexerEncoder.getPosition() < indexerTargetPos) {
+        if (indexerEncoder.getPosition() < indexerTargetPos) {
             indexerMotor.set(INDEXER_MAX_SPEED);
         } else {
             indexerMotor.set(0.0);
