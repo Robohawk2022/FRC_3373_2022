@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
@@ -34,10 +35,10 @@ import frc.robot.util.PIDConstant;
 public class ShooterSubsystem {
 
     /** PID tuning constants, determined by trial and error */
-    public static final PIDConstant DEFAULT_PID_CONSTANT = new PIDConstant(0.0008, 0.0000003, 3.0, 0.0, 0.0, -1.0, 1.0);
+    public static final PIDConstant DEFAULT_PID_CONSTANT = new PIDConstant(0.0008, 0.0000006, 19.0, 0.0, 0.0, -1.0, 1.0);
 
     /** Default preset launch speeds */
-    public static final double [] LAUNCH_PRESETS = { -3500.0, -4500.0, -5500.0, -6500.0 };
+    public static final double [] LAUNCH_PRESETS = { -3500.0, -4000.0, -4500.0, -5000.0 };
 
     /** Maximum speed at which to rotate the indexer */
     public static final double INDEXER_MAX_SPEED = 0.3;
@@ -80,7 +81,7 @@ public class ShooterSubsystem {
 
         launchMotor = new CANSparkMax(launchMotorPort, MotorType.kBrushless);
         launchMotor.restoreFactoryDefaults();
-        launchMotor.setIdleMode(IdleMode.kCoast);
+        launchMotor.setIdleMode(IdleMode.kBrake);
         launchMotor.setClosedLoopRampRate(0.5);
         launchEncoder = launchMotor.getEncoder();
         launchController = launchMotor.getPIDController();
@@ -111,6 +112,11 @@ public class ShooterSubsystem {
     public void setLaunchWheelEnabled(boolean enabled) {
         Logger.log("shooter: setting launch wheel to enabled=", enabled);
         spinLaunchWheel = enabled;
+        if (enabled) {
+            launchMotor.setIdleMode(IdleMode.kBrake);
+        } else {
+            launchMotor.setIdleMode(IdleMode.kCoast);
+        }
     }
 
     // we're only OK to shoot if we're within range of target RPM
@@ -323,13 +329,13 @@ public class ShooterSubsystem {
 
   public void testPeriodic() {
 
-    double p = SmartDashboard.getNumber("P Gain", 0);
-    double i = SmartDashboard.getNumber("I Gain", 0);
-    double d = SmartDashboard.getNumber("D Gain", 0);
-    double iz = SmartDashboard.getNumber("I Zone", 0);
-    double ff = SmartDashboard.getNumber("Feed Forward", 0);
-    double max = SmartDashboard.getNumber("Max Output", 0);
-    double min = SmartDashboard.getNumber("Min Output", 0);
+    double p = SmartDashboard.getNumber("Launch P Gain", 0);
+    double i = SmartDashboard.getNumber("Launch I Gain", 0);
+    double d = SmartDashboard.getNumber("Launch D Gain", 0);
+    double iz = SmartDashboard.getNumber("Launch I Zone", 0);
+    double ff = SmartDashboard.getNumber("Launch Feed Forward", 0);
+    double max = SmartDashboard.getNumber("Launch Max Output", 0);
+    double min = SmartDashboard.getNumber("Launch Min Output", 0);
 
     if (p != pidConstant.getP()
       || i != pidConstant.getI()
