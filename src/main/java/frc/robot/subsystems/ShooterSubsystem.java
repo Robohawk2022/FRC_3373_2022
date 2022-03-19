@@ -51,6 +51,9 @@ public class ShooterSubsystem {
     /** How many rotations does the indexer need to push out a ball? */
     public static final double SHOOT_ROTATIONS = 15;
 
+    /** How far off of target speed (in RPM) are we allowed to be for shooting? */
+    public static final double LAUNCH_SPEED_THRESHOLD = 100;
+
     private final XboxController controller;
     private final DigitalInput ballSensor;
 
@@ -108,7 +111,10 @@ public class ShooterSubsystem {
 
     // update the indexer position to indicate that a shot should be taken (note: doesn't move the motor)
     public void shoot() {
-        if (launchEncoder.getVelocity() < MIN_LAUNCH_SPEED) { // less than because we're going backwards
+
+        // if launch velocity is within range of target, you're allowed to shoot
+        double deltaVelocity = Math.abs(launchEncoder.getVelocity() - launchTargetRpm);
+        if (deltaVelocity < LAUNCH_SPEED_THRESHOLD) {
             Logger.log("shooter: shooting!");
             indexerTargetPos = indexerEncoder.getPosition() + SHOOT_ROTATIONS;
         } else {
