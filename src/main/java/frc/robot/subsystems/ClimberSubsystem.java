@@ -27,7 +27,7 @@ public class ClimberSubsystem {
     public static final double DEADBAND = 0.1;
 
     /** Max speed of the extension motor */
-    public static final double MAX_EXTENSION_OUTPUT = 0.3;
+    public static final double MAX_EXTENSION_OUTPUT = 0.6;
 
     /** Rotations per inch for the extension motor */
     public static final double EXTENDER_ROTATIONS_PER_INCH = 4.45813;
@@ -39,7 +39,7 @@ public class ClimberSubsystem {
     public static final double EXTENSION_LIMIT = 95;
     
     /** Max speed of the extension motor */
-    public static final double MAX_ROTATION_OUTPUT = 0.2;
+    public static final double MAX_ROTATION_OUTPUT = 0.4;
 
     /** Value of rotator switch when pressed */
     public static final boolean ROTATOR_SWITCH_PRESSED = true;
