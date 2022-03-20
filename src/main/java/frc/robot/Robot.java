@@ -396,8 +396,8 @@ public class Robot extends TimedRobot {
 
   public void macDrive(double leftX, double leftY, double rightX) {
 
-    // double moveSpeed = Math.sqrt(leftX * leftX + leftY * leftY) * MAX_DRIVE_POWER * turboFactor * reverseFactor;
-    double moveSpeed = Math.sqrt(leftX * leftX + leftY * leftY) * MAX_DRIVE_POWER * turboFactor * reverseFactor;;
+    double moveSpeed = (leftX / 4);
+    // double moveSpeed = Math.sqrt(leftX * leftX + leftY * leftY) * MAX_DRIVE_POWER * turboFactor * reverseFactor;;
     // double oldTurnAngle = leftX * leftX * leftX * MAX_ROTATION_POWER * reverseFactor;    
     // double safeTurnAngle = 4;
     double turnAngle = leftX * leftX * leftX * MAX_ROTATION_POWER * reverseFactor;
@@ -406,10 +406,10 @@ public class Robot extends TimedRobot {
     }
 
     if (drive_control.getLeftY() >= 0) {
-      frontLeftDriveMotor.set(-moveSpeed);
-      frontRightDriveMotor.set(moveSpeed);
-      backRightDriveMotor.set(moveSpeed);
-      backLeftDriveMotor.set(-moveSpeed);
+      frontLeftDriveMotor.set(moveSpeed);
+      frontRightDriveMotor.set(-moveSpeed);
+      backRightDriveMotor.set(-moveSpeed);
+      backLeftDriveMotor.set(moveSpeed);
       frontLeftPidController.setReference(turnAngle, CANSparkMax.ControlType.kPosition);
       frontRightPidController.setReference(turnAngle, CANSparkMax.ControlType.kPosition);
       backRightPidController.setReference(turnAngle, CANSparkMax.ControlType.kPosition);
@@ -417,10 +417,10 @@ public class Robot extends TimedRobot {
     }
 
     if (drive_control.getLeftY() < 0) {
-      frontLeftDriveMotor.set(-moveSpeed);
-      frontRightDriveMotor.set(moveSpeed);
-      backRightDriveMotor.set(moveSpeed);
-      backLeftDriveMotor.set(-moveSpeed);
+      frontLeftDriveMotor.set(moveSpeed);
+      frontRightDriveMotor.set(-moveSpeed);
+      backRightDriveMotor.set(-moveSpeed);
+      backLeftDriveMotor.set(moveSpeed);
       frontLeftPidController.setReference(turnAngle, CANSparkMax.ControlType.kPosition);
       frontRightPidController.setReference(turnAngle, CANSparkMax.ControlType.kPosition);
       backRightPidController.setReference(turnAngle, CANSparkMax.ControlType.kPosition);
