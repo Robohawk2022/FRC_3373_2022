@@ -94,7 +94,7 @@ public class ClimberSubsystem {
         SmartDashboard.putNumber("Rotator Max", rotatorMax);
         SmartDashboard.putBoolean("Rotator At Max?", atRotatorLimit());
         SmartDashboard.putNumber("Extender Min", extenderMin);
-        SmartDashboard.putNumber("Extender Current", extenderMotor.getPosition());
+        SmartDashboard.putNumber("Extender urrent", extenderMotor.getPosition());
         SmartDashboard.putNumber("Extender Max", extenderMax);
         SmartDashboard.putBoolean("Extender At Max?", atExtenderLimit());
         SmartDashboard.putNumber("Climber Counter", teleopRounds);
